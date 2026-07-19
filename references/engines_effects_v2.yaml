@@ -1,0 +1,803 @@
+# OP-1 Field Engine & Effect Parameter Reference
+# All parameter names match on-screen labels
+# Values are integers 0-99 unless otherwise noted
+# Encoders: Blue=T1, Ochre/Beige=T2, Grey=T3, Orange=T4
+
+# ============================================================
+# SYNTH ENGINES
+# ============================================================
+
+engines:
+
+  cluster:
+    name: "Cluster"
+    description: "Digital multi-layered synth with up to 6 chained oscillators. Epic chords, stabs, melodic progressions."
+    default_params:
+      blue:
+        name: "Waves"
+        screen_label: "WAVES"
+        description: "Number of waves/oscillators in the cluster (up to 6). Fully clockwise = all oscillators."
+        range: [0, 99]
+      ochre:
+        name: "Envelope"
+        screen_label: "WAVE ENV"
+        description: "Filter envelope amount applied to audio chain. Non-linear: 0-9 = inverted envelope saw, 10-49 = sine-based, 50+ = aggressive supersaw."
+        range: [0, 99]
+      grey:
+        name: "Spread"
+        screen_label: "SPREAD"
+        description: "Wave pitch detuning spread across oscillators. Clockwise = fully detuned."
+        range: [0, 99]
+      orange:
+        name: "Unison"
+        screen_label: "UNISON"
+        description: "Modulation drift speed/range of pitch detuning. Works in conjunction with Spread."
+        range: [0, 99]
+    shift_params: null  # Shift = fine tuning only
+
+  digital:
+    name: "Digital"
+    description: "Raw digital synth with ring modulation. Grungy basses, futuristic pads, lo-fi chiptune."
+    default_params:
+      blue:
+        name: "Wave Shaper"
+        screen_label: "WAVE"
+        description: "Wave shape adding noise and distortion. 0 = square, moves toward saw shape."
+        range: [0, 99]
+      ochre:
+        name: "Octave"
+        screen_label: "SHAPER"
+        description: "Sub oscillator pitch tuning by octave. 0-6 range, 3 = same as main oscillator."
+        range: [0, 6]
+      grey:
+        name: "Detune & Ring Mod"
+        screen_label: ""
+        description: "0-49: detunes sub oscillator pitch. 50+: ring modulation ON with set sub pitch. Higher octave = narrower detune range."
+        range: [0, 99]
+      orange:
+        name: "Digitalness"
+        screen_label: ""
+        description: "Adds noise for digital character and grit. More noticeable with higher ring mod settings."
+        range: [0, 99]
+    shift_params: null
+
+  dimension:
+    name: "Dimension"
+    description: "Subtractive synth with selectable wavetable position through filter. Acid, leads, chords, plucks."
+    default_params:
+      blue:
+        name: "Waveform"
+        screen_label: "WAVEFORM"
+        description: "Wavetable position. Morphs between Noise, Pulse, Square, Saw, Sub Saw. Good for modulation."
+        range: [0, 99]
+      ochre:
+        name: "Stereo"
+        screen_label: "STEREO"
+        description: "Modulation width/chorus-type effect amount."
+        range: [0, 99]
+      grey:
+        name: "Filter Frequency"
+        screen_label: "FILTER FREQ"
+        description: "Filter cutoff frequency. 0% = fully filtered (silent), 100% = 18kHz (all audio passes)."
+        range: [0, 99]
+      orange:
+        name: "Resonance"
+        screen_label: "RES"
+        description: "Filter resonance at cutoff point. Classic filter sweep effects at high levels."
+        range: [0, 99]
+    shift_params: null
+
+  dna:
+    name: "DNA"
+    description: "CPU-generated noise engine. Noisy, glitchy, harsh, industrial. Good for percussive sounds."
+    default_params:
+      blue:
+        name: "Filter"
+        screen_label: "FILTER"
+        description: "Filter cutoff frequency. Does not fully close. Screen shows animated modulation across wave numbers indicating cutoff level."
+        range: [0, 99]
+      ochre:
+        name: "Wave Number"
+        screen_label: "CPU ID"
+        description: "Navigation within audio generator. CPU noise segments, not traditional wave shapes."
+        range: [0, 99]
+      grey:
+        name: "Wave Modifier"
+        screen_label: ""
+        description: "Modulates/manipulates waves. Affects pitch detuning and timbre/tone. Use iteratively with Wave Number."
+        range: [0, 99]
+      orange:
+        name: "Noise"
+        screen_label: ""
+        description: "Amount of noise mixed into audio."
+        range: [0, 99]
+    shift_params: null
+
+  dr_wave:
+    name: "Dr. Wave"
+    description: "Frequency domain synth with heavy wave shape modulation. Buzzy leads, lo-fi pads, organ chords."
+    default_params:
+      blue:
+        name: "Type & Length"
+        screen_label: "PHASE"
+        description: "Wave shape and sample rate reduction. 0-50: morphs saw→square→triangle. 50+: gradual sample rate reduction."
+        range: [0, 99]
+      ochre:
+        name: "Filter"
+        screen_label: ""
+        description: "Resonant filter cutoff. 0 = no filtering. 1-49 = high pass. 50 = fully filtered (silence). 51-99 = low pass."
+        range: [0, 99]
+        notes: "0 and 50 are special values. Wraps HP→LP around center."
+      grey:
+        name: "Phase"
+        screen_label: ""
+        description: "Pulse width 0-49. Above 50: also increases wave cycles (sync) + harmonics. Good for formant/vocal effects."
+        range: [0, 99]
+      orange:
+        name: "Chorus"
+        screen_label: ""
+        description: "Chorus-like modulation effect. 0 = off. 1-99 = modulation speed."
+        range: [0, 99]
+    shift_params: null
+
+  dsynth:
+    name: "DSynth"
+    description: "8-parameter dual oscillator with envelope crossfader, cross modulation mixer, and filter."
+    default_params:
+      blue:
+        name: "Envelope Crossfade"
+        screen_label: "XFADE"
+        description: "Crossfader between oscillator envelopes."
+        range: [0, 99]
+      ochre:
+        name: "Osc 1 Waveform"
+        screen_label: "OSC"
+        description: "Wave shape for oscillator 1. Mix between Sine, Square, and Saw."
+        range: [0, 99]
+      grey:
+        name: "Osc 1 Envelope"
+        screen_label: "ENV"
+        description: "Oscillator 1 amplification envelope."
+        range: [0, 99]
+      orange:
+        name: "Cross Modulation"
+        screen_label: "MODE"
+        description: "Oscillator cross modulation mode. Mix between 7 modes."
+        range: [0, 99]
+    shift_params:
+      blue:
+        name: "Osc 2 Pitch"
+        screen_label: "OSC 2"
+        description: "Oscillator 2 pitch division setting relative to note played."
+        range: [0, 99]
+      ochre:
+        name: "Osc 2 Waveform"
+        screen_label: "OSC 2"
+        description: "Wave shape for oscillator 2. Mix between Sine, Square, and Saw."
+        range: [0, 99]
+      grey:
+        name: "Osc 2 Envelope"
+        screen_label: "ENV"
+        description: "Oscillator 2 amplification envelope."
+        range: [0, 99]
+      orange:
+        name: "Filter Cutoff"
+        screen_label: "FILTER"
+        description: "Filter cutoff frequency adjustment."
+        range: [0, 99]
+
+  fm:
+    name: "FM"
+    description: "4-operator FM synth with configurable algorithms. Glass leads, bells, percussion, pads."
+    default_params:
+      blue:
+        name: "FM Amount"
+        screen_label: "FREQ"
+        description: "Intensity of modulation from carrier/modulator. 0 = minimum (fully CCW)."
+        range: [0, 99]
+      ochre:
+        name: "Frequency"
+        screen_label: ""
+        description: "Operator frequency ratios. 8 values per operator. Key element for harmonic relationships."
+        range: [0, 99]
+        notes: "8 discrete frequency ratios per operator position"
+      grey:
+        name: "Topology"
+        screen_label: ""
+        description: "Algorithm configuration. Determines operator roles as carrier or modulator."
+        range: [0, 99]
+      orange:
+        name: "Detune"
+        screen_label: ""
+        description: "Detunes operators for movement and harmonic character."
+        range: [0, 99]
+    shift_params: null
+    notes: |
+      Operator frequency ratios observed:
+      Op1: 1/16 - 2 - 5/8 - 4 - 1.75 - 7/16 - 3.5 - 1
+      Op2: 2 - 1.5 - 1 - 1/2 - 3/4 - 1/4 - 5/32 - 1/32
+      Op3: 1/64 - 3/32 - 1/8 - 5/16 - 1/2 - 5/8 - 1 - 2
+
+  phase:
+    name: "Phase"
+    description: "Phase distortion synth. Buzzy, lo-fi. Short envelope = springy arpeggiated sequences."
+    default_params:
+      blue:
+        name: "Phase Shift"
+        screen_label: "PHASE"
+        description: "Shifts wave shape adding harmonics. 0 = basic sine, increasing pushes toward square."
+        range: [0, 99]
+      ochre:
+        name: "Distortion Amount"
+        screen_label: "DIST"
+        description: "Distorts wave shape affecting timbre."
+        range: [0, 99]
+      grey:
+        name: "Phase Filter"
+        screen_label: "FILTER"
+        description: "Filters wave amplitude, emphasising distortion/harmonics. Not a traditional frequency filter."
+        range: [0, 99]
+      orange:
+        name: "Phase Tilt"
+        screen_label: "TILT"
+        description: "Wave folding distortion creating noise and emphasising frequencies."
+        range: [0, 99]
+    shift_params: null
+
+  pulse:
+    name: "Pulse"
+    description: "Dual pulse train synth. Textural pads, brass, drones, futuristic sequences."
+    default_params:
+      blue:
+        name: "Filtero"
+        screen_label: "FILTERO"
+        description: "Filter cutoff with envelope follower pushing the pulse shape."
+        range: [0, 99]
+      ochre:
+        name: "Amplitude"
+        screen_label: "AMPL"
+        description: "Pulse train amplitude/volume level."
+        range: [0, 99]
+      grey:
+        name: "2nd Pulse"
+        screen_label: "TIME"
+        description: "Relationship between second and first pulse (pulse width). Good LFO target for PWM."
+        range: [0, 99]
+      orange:
+        name: "Modulation"
+        screen_label: "MOD"
+        description: "PWM amount and speed. 49→0 = depth+speed increasing. 50 = no modulation. 51-99 = faster PWM dependent on 2nd Pulse position."
+        range: [0, 99]
+        notes: "Center (50) = off. Wraps around center with different behavior each side."
+
+  string:
+    name: "String"
+    description: "Waveguide string model. Plucked strings, percussive/acoustic sounds."
+    default_params:
+      blue:
+        name: "Tension"
+        screen_label: "TENSION"
+        description: "String tightness. Higher = tighter, pluckier, less sustained. Lower = loose, sustained."
+        range: [0, 99]
+      ochre:
+        name: "Decay"
+        screen_label: "IMP"
+        description: "Impulse decay. Low = short pluck. High = longer bow/strum."
+        range: [0, 99]
+      grey:
+        name: "Detune"
+        screen_label: ""
+        description: "Phase detuning between strings. Subtle tone changes, emulates different tunings."
+        range: [0, 99]
+      orange:
+        name: "Impulse"
+        screen_label: "IMP TYPE"
+        description: "How strings are struck. Low = hard excitation (nails/plectrum). High = soft (fingers/bow)."
+        range: [0, 99]
+    shift_params: null
+
+  voltage:
+    name: "Voltage"
+    description: "Multi-oscillator electric synth. Epic deep pads, metallic percussion, gritty basses."
+    default_params:
+      blue:
+        name: "Modulation"
+        screen_label: "AMPERE"
+        description: "Amplitude modulation between sine wave oscillators."
+        range: [0, 99]
+      ochre:
+        name: "Ground Noise"
+        screen_label: "GROUND NOISE"
+        description: "Distorts sine wave adding harmonics. Later stages add noise."
+        range: [0, 99]
+      grey:
+        name: "Phase Filter"
+        screen_label: "VOLT"
+        description: "Low pass filter cutoff. Works with noise setting to distort wave."
+        range: [0, 99]
+      orange:
+        name: "Detune"
+        screen_label: ""
+        description: "Detunes sub-oscillator from main. 0 = matched, increasing = more detuning."
+        range: [0, 99]
+    shift_params: null
+
+  vocoder:
+    name: "Vocoder"
+    description: "Voice-controlled synth. Requires audio input (mic/FM/USB). Robotic, lo-fi, distorted vocal leads."
+    default_params:
+      blue:
+        name: "Waveform"
+        screen_label: ""
+        description: "Carrier oscillator selection. S (left) = single saw wave. Increasing adds oscillators. N (right) = pure noise. 7-oscillator polysynth."
+        range: [0, 99]
+      ochre:
+        name: "Formant"
+        screen_label: ""
+        description: "Formant shift ±4. Changes band pass filter frequencies for deeper/higher voice tone."
+        range: [-4, 4]
+      grey:
+        name: "Bands"
+        screen_label: ""
+        description: "Number of bands 0-7. More bands = more human-like. Fewer = more synthetic."
+        range: [0, 7]
+      orange:
+        name: "Mix"
+        screen_label: ""
+        description: "Dry/wet mix. Low = vocoded signal. High = original input audio."
+        range: [0, 99]
+    shift_params: null
+    notes: "Requires audio input (Mic, Headset, FM Radio, USB). Do NOT use Out-In (feedback loop)."
+
+  sampler:
+    name: "Sampler"
+    description: "Chromatic stereo sampler with region loop and zoom view for precise in/out points."
+    default_params: null  # Sample-based, different workflow
+    notes: "Load samples via [Shift]+[1-8] browser. Edit start/end points with encoders."
+
+  amp:
+    name: "Amp"
+    description: "Guitar amp emulation. Requires audio input. Volume, compression, tone, drive."
+    default_params:
+      blue:
+        name: "Volume"
+        screen_label: "VOL"
+        description: "Output level 0-100%. Up to +6dB boost at upper end. Tap to reset to default."
+        range: [0, 100]
+      ochre:
+        name: "Compression"
+        screen_label: "COMP"
+        description: "Compression amount 0-100%. Adds punch and impact."
+        range: [0, 100]
+      grey:
+        name: "Tone"
+        screen_label: "TONE"
+        description: "EQ balance. 0% = low, 100% = high, 50% = neutral. Tap to reset."
+        range: [0, 100]
+      orange:
+        name: "Drive"
+        screen_label: "DRIVE"
+        description: "Distortion amount 0-100%. 0% = neutral."
+        range: [0, 100]
+    shift_params: null
+    notes: "T2 = guitar tuner (not envelope). Tap Orange to turn input on if system input is off."
+
+# ============================================================
+# SYNTH ENVELOPE (T2 for all engines except Amp)
+# ============================================================
+
+envelope:
+  name: "ADSR Envelope"
+  access: "[T2] in synth mode"
+  params:
+    blue:
+      name: "Attack"
+      screen_label: "A"
+      description: "Time to reach full level from note-on trigger."
+      range: [0, 99]
+    ochre:
+      name: "Decay"
+      screen_label: "D"
+      description: "Time from full level to sustain level."
+      range: [0, 99]
+    grey:
+      name: "Sustain"
+      screen_label: "S"
+      description: "Level while note is held."
+      range: [0, 99]
+    orange:
+      name: "Release"
+      screen_label: "R"
+      description: "Fade-out time after note release."
+      range: [0, 99]
+
+# ============================================================
+# PLAY MODE (Shift+T2 from envelope page)
+# ============================================================
+
+play_mode:
+  access: "[Shift]+[T2] from envelope page"
+  params:
+    blue:
+      name: "Play Mode"
+      options: ["Polyphonic", "Monophonic", "Legato", "Unison"]
+    ochre:
+      name: "Portamento"
+      screen_label: "PORTAMENTO"
+      description: "Glide time between notes. Off, 1-127, Max."
+    grey:
+      name: "Bend Range"
+      description: "Bend range 1-7 semitones or 1 octave."
+    orange:
+      name: "Volume"
+      description: "Synth engine volume level."
+
+# ============================================================
+# EFFECTS (T3)
+# ============================================================
+
+effects:
+
+  cwo:
+    name: "CWO"
+    description: "Delay with frequency shifter in feedback loop. Arcade, formant effects."
+    params:
+      blue:
+        name: "Frequency"
+        screen_label: "FREQ"
+        description: "Frequency shifting amount. Works with sideband."
+        range: [0, 99]
+      ochre:
+        name: "Delay"
+        screen_label: "DELAY"
+        description: "Delay time."
+        range: [0, 99]
+      grey:
+        name: "Feedback"
+        screen_label: "FEEDBACK"
+        description: "Delay feedback amount. Loop includes frequency shifting."
+        range: [0, 99]
+      orange:
+        name: "Sideband"
+        screen_label: "SIDEBAND"
+        description: "Sideband audio level."
+        range: [0, 99]
+
+  delay:
+    name: "Delay"
+    description: "Solid state delay. Range + Speed = delay time (multipliers)."
+    params:
+      blue:
+        name: "Range"
+        screen_label: "RANGE"
+        description: "Delay time. Works with Speed."
+        range: [0, 99]
+      ochre:
+        name: "Speed"
+        screen_label: "SPEED"
+        description: "Delay time multiplier. Lower value = longer times."
+        range: [0, 99]
+      grey:
+        name: "Feedback"
+        screen_label: "FEEDBACK"
+        description: "Amount of delay signal fed back (echo repeats)."
+        range: [0, 99]
+      orange:
+        name: "Input"
+        screen_label: "INPUT"
+        description: "Level of original audio fed into delay line."
+        range: [0, 99]
+
+  grid:
+    name: "Grid"
+    description: "3D delay model with X-Y spaces. Harsh tones, comb filtering. Self-oscillates at high settings."
+    params:
+      blue:
+        name: "X Size"
+        screen_label: "X"
+        description: "Additional processing/modulation pre-delay + pitch-influenced delay time."
+        range: [0, 99]
+      ochre:
+        name: "Y Size"
+        screen_label: "Y"
+        description: "Delay time in creative, pitch-neutral way."
+        range: [0, 99]
+      grey:
+        name: "Z Feedback"
+        screen_label: "FEEDBACK Z"
+        description: "Delay feedback amount. Sets delay line duration."
+        range: [0, 99]
+      orange:
+        name: "Mix"
+        screen_label: "MIX"
+        description: "Dry (low) / Wet (high) mix."
+        range: [0, 99]
+
+  mother:
+    name: "Mother"
+    description: "Gated reverb. Distance = room size, Color = frequency filtering."
+    params:
+      blue:
+        name: "Distance"
+        screen_label: "DISTANCE"
+        description: "Room size/distance. Affects reverb length."
+        range: [0, 99]
+      ochre:
+        name: "Gate"
+        screen_label: "GATE"
+        description: "Gate to cut reverb tail on note release."
+        range: [0, 99]
+      grey:
+        name: "Color"
+        screen_label: "COLOR"
+        description: "Filter cutoff frequency of reverb."
+        range: [0, 99]
+      orange:
+        name: "Mix"
+        screen_label: "MIX"
+        description: "Dry/wet mix."
+        range: [0, 99]
+
+  nitro:
+    name: "Nitro"
+    description: "Dual resonant turbo filter (LP + HP) with envelope follower."
+    params:
+      blue:
+        name: "Frequency Lows"
+        screen_label: "LOWS"
+        description: "High pass filter cutoff. Attenuates low frequency content."
+        range: [0, 99]
+      ochre:
+        name: "Filter Follow"
+        screen_label: "FREQ FOLLOW"
+        description: "Envelope follower controlling frequencies based on volume level."
+        range: [0, 99]
+      grey:
+        name: "Feedback"
+        screen_label: "Q"
+        description: "Common resonance for both filters."
+        range: [0, 99]
+      orange:
+        name: "Frequency Highs"
+        screen_label: "HIGHS"
+        description: "Low pass filter cutoff. Attenuates high frequency content."
+        range: [0, 99]
+
+  phone:
+    name: "Phone"
+    description: "Hacked telephone / granular glitch effect. Pitch shifting, grain manipulation."
+    params:
+      blue:
+        name: "Tone"
+        screen_label: "TONE"
+        description: "Pitch variation of granular audio."
+        range: [0, 99]
+      ochre:
+        name: "GSM"
+        screen_label: "GSM"
+        description: "Grain size of chopped audio in glitched buffer."
+        range: [0, 99]
+      grey:
+        name: "Baud"
+        screen_label: "BAUD"
+        description: "Pattern and timing of glitched grain playback."
+        range: [0, 99]
+      orange:
+        name: "Telemetry"
+        screen_label: "TELEMETRY"
+        description: "Dry/wet mix between original and glitched sound."
+        range: [0, 99]
+
+  punch:
+    name: "Punch"
+    description: "Hard-hitting low pass filter with compression characteristics."
+    params:
+      blue:
+        name: "Frequency"
+        screen_label: "FREQ"
+        description: "Low pass filter cutoff frequency."
+        range: [0, 99]
+      ochre:
+        name: "Punch"
+        screen_label: "PUNCH"
+        description: "Resonance + compression characteristics."
+        range: [0, 99]
+      grey:
+        name: "Rounds"
+        screen_label: "ROUNDS"
+        description: "Filter slope shape. Controls aggressiveness."
+        range: [0, 99]
+      orange:
+        name: "Power"
+        screen_label: "POWER"
+        description: "Dry/wet mix."
+        range: [0, 99]
+
+  spring:
+    name: "Spring"
+    description: "Mathematical spring reverb emulation. Dark, metallic character."
+    params:
+      blue:
+        name: "Tone"
+        screen_label: "TONE"
+        description: "High/low frequency content. Emulates darker spring characteristics."
+        range: [0, 99]
+      ochre:
+        name: "Turns"
+        screen_label: "TURNS"
+        description: "Room size / reverb amount. Adds metallic character and decay."
+        range: [0, 99]
+      grey:
+        name: "Damping"
+        screen_label: "DAMPING"
+        description: "Softens and reduces reverb tail decay."
+        range: [0, 99]
+      orange:
+        name: "Mix"
+        screen_label: "MIX"
+        description: "Reverb mix in overall output."
+        range: [0, 99]
+
+  terminal:
+    name: "Terminal"
+    description: "Lo-fi effect with sample rate and bit reduction + integrated LP/HP filter."
+    params:
+      blue:
+        name: "Sample Rate"
+        screen_label: "KHZ"
+        description: "Sample rate applied to audio."
+        range: [0, 99]
+      ochre:
+        name: "Bit Rate"
+        screen_label: "BITS"
+        description: "Bit rate reduction for lo-fi effect."
+        range: [0, 99]
+      grey:
+        name: "Model"
+        screen_label: "MODEL"
+        description: "Filter function. Below 3 = high pass, above 3 = low pass."
+        range: [0, 99]
+        notes: "Center position (~3) = no filter"
+      orange:
+        name: "Mix"
+        screen_label: "MIX"
+        description: "Dry/wet mix."
+        range: [0, 99]
+
+  fazer:
+    name: "Fazer"
+    description: "Hidden easter egg phaser effect. Phase shifting with modulated filters. Psychedelic, robotic sweeps."
+    unlock: "Hidden easter egg — enable via the documented cheatcode"
+    params:
+      blue:
+        name: "Frequency"
+        screen_label: "FREQ"
+        description: "Filter frequency of phase shifted audio."
+        range: [0, 99]
+      ochre:
+        name: "Feedback"
+        screen_label: "FEEDBACK"
+        description: "Amount fed back into effect. Adds resonance and intensity."
+        range: [0, 99]
+      grey:
+        name: "Speed"
+        screen_label: "SPEED"
+        description: "Rate of modulation for sweeping effect."
+        range: [0, 99]
+      orange:
+        name: "Depth"
+        screen_label: "DEPTH"
+        description: "Amount of phase shift / intensity."
+        range: [0, 99]
+
+# ============================================================
+# LFO TYPES (T4)
+# ============================================================
+
+lfo_types:
+
+  value:
+    name: "Value LFO"
+    description: "Standard LFO with selectable shape. Select destination function + parameter, set speed/amount."
+    params:
+      blue:
+        name: "Speed"
+        description: "LFO rate. Temp-synced or free."
+      ochre:
+        name: "Shape"
+        options: ["Sine", "Triangle", "Saw", "Square"]
+      grey:
+        name: "Destination Function"
+        description: "Target module (engine, FX, etc.)"
+      orange:
+        name: "Destination Parameter"
+        description: "Specific parameter within the function to modulate."
+
+  element:
+    name: "Element LFO"
+    description: "Uses external/internal sources: mic, line, radio, USB, G-force, sum."
+    params:
+      blue:
+        name: "Source"
+        options: ["Mic", "Line", "FM Radio", "USB", "G-Force", "Sum"]
+      ochre:
+        name: "Amount"
+        description: "Modulation amount."
+      grey:
+        name: "Destination Function"
+      orange:
+        name: "Destination Parameter"
+
+  random:
+    name: "Random LFO"
+    description: "Internally generated continuous random modulation."
+    params:
+      blue:
+        name: "Speed"
+        description: "Random sample rate."
+      ochre:
+        name: "Amount"
+        description: "Modulation depth."
+      grey:
+        name: "Destination Function"
+      orange:
+        name: "Destination Parameter"
+
+  tremolo:
+    name: "Tremolo LFO"
+    description: "Modulates pitch and volume simultaneously."
+    params:
+      blue:
+        name: "Speed"
+      ochre:
+        name: "Depth"
+      grey:
+        name: "Destination Function"
+      orange:
+        name: "Destination Parameter"
+
+  velocity:
+    name: "Velocity LFO"
+    description: "Keyboard velocity as modulation source. Best with external MIDI controller."
+    params:
+      blue:
+        name: "Amount"
+      ochre:
+        name: "Curve"
+      grey:
+        name: "Destination Function"
+      orange:
+        name: "Destination Parameter"
+
+  midi:
+    name: "MIDI LFO"
+    description: "Incoming MIDI CC messages control designated parameters."
+    params:
+      blue:
+        name: "CC Number"
+      ochre:
+        name: "Amount"
+      grey:
+        name: "Destination Function"
+      orange:
+        name: "Destination Parameter"
+
+# ============================================================
+# ENGINE QUICK REFERENCE (for skill matching)
+# ============================================================
+
+engine_vibe_map:
+  warm_plucky_acoustic: string
+  clean_digital_versatile: digital
+  metallic_bell_epiano: fm
+  hollow_pwm_funky: pulse
+  phase_distortion_retro: phase
+  massive_supersaw_wide: cluster
+  wavetable_evolving: dr_wave
+  organic_experimental: dna
+  warm_analog_voltage: voltage
+  thick_layered: dsynth
+  spatial_wide_3d: dimension
+  voice_vocal: vocoder
+  guitar_amp: amp
+  custom_sample: sampler

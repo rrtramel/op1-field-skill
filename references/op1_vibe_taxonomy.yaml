@@ -1,0 +1,233 @@
+# op1_vibe_taxonomy.yaml — vibe → harmony spec mapping for the OP-1 keys guide.
+#
+# Discipline (same as the recipe skill):
+#   - Every entry cites at least one REAL reference track/score cue that documents
+#     the mode/progression → emotion link. The citation is printed on the card;
+#     it IS the explanation and the user-verifiable ground truth.
+#   - Emotional associations are CONVENTIONS, not laws. Tempo, orchestration, and
+#     context modulate them. This file maps conventions, not physics.
+#   - Sources: 2026-07 taxonomy research (Musical U modes guide, Inside the Score
+#     "What Are Modes", Shockwave-Sound mode/emotion series, Filipe Leitão film
+#     progression analysis, Kevin Kuschel "9 cinematic chord patterns", Soundfly
+#     Yoda's Theme analysis, Hooktheory cinematic progressions).
+#
+# The model fills {vibe} by fuzzy-matching a user request to an alias, then the
+# deterministic renderer (scripts/op1_keys.py) spells everything. The model never
+# invents a progression at render time — it picks one of these entries (or a
+# documented variation) and the validator checks it.
+
+version: 1.0.0
+
+vibes:
+
+  # ---- Minor-side: melancholy family ------------------------------------
+  melancholy_but_hopeful:
+    aliases: ["melancholy but hopeful", "bittersweet hope", "sad but uplifting",
+              "end of the movie", "end of a movie", "credits roll", "hopeful sadness", "bittersweet"]
+    spec:
+      root: A
+      scale: dorian
+      progression: ["i", "v", "VII", "IV"]
+      reference: "“Time” — Inception (Am–Em–G–D; the D-major IV is the dorian sunlight)"
+    emotion_note: "Dorian raised 6th = darkness with a way out."
+
+  pure_melancholy:
+    aliases: ["sad", "melancholy", "grief", "heartbroken", "mournful", "plain sad",
+              "sorrowful", "depressing"]
+    spec:
+      root: D
+      scale: aeolian
+      progression: ["i", "iv", "i", "iv"]
+      reference: "Princess Leia's Theme — Star Wars (i→iv minor plagal longing)"
+    emotion_note: "Natural minor + plagal iv: longing without a rescue."
+
+  noble_tragedy:
+    aliases: ["noble tragedy", "epic sadness", "fallen hero", "gladiator", "sacrifice",
+              "tragic grandeur", "honor"]
+    spec:
+      root: G
+      scale: aeolian
+      progression: ["i", "iv", "VII", "VI"]
+      reference: "“Honor Him” — Gladiator; “Protectors of the Earth” — Two Steps From Hell"
+    emotion_note: "iv-VII-VI cycle: grandeur wrestling with fate."
+
+  dark_dramatic:
+    aliases: ["dark dramatic", "dark knight", "brooding", "stakes are high", "soulslike",
+              "ominous struggle", "dark epic"]
+    spec:
+      root: A
+      scale: aeolian
+      progression: ["i", "III", "iidim", "V", "i"]
+      reference: "The Dark Knight (Hans Zimmer) — diminished chord turns the stakes"
+    emotion_note: "Aeolian with a diminished ii: classical dread, modern weight."
+
+  moody_alt:
+    aliases: ["moody", "creep", "radiohead", "grunge sad", "hurt", "alt rock sad",
+              "depressing rock"]
+    spec:
+      root: G
+      scale: aeolian
+      progression: ["i", "bVI", "bVII", "i"]
+      reference: "“Creep” — Radiohead; “Hurt” — NIN (♭VI–♭VII weight)"
+    emotion_note: "Borrowed ♭VI/♭VII: chromatic drama inside minor."
+
+  # ---- Dreamy / floating family -----------------------------------------
+  dreamy_wonder:
+    aliases: ["dreamy", "wonder", "floating", "ethereal", "magical", "spacey wonder",
+              "childlike wonder", "flying"]
+    spec:
+      root: F
+      scale: lydian
+      progression: ["I", "ii", "I", "ii"]
+      reference: "Yoda's Theme — John Williams; ET (Lydian #4 float)"
+    emotion_note: "Lydian #4: no tension to resolve, so it floats forever."
+
+  whimsical_comedic:
+    aliases: ["whimsical", "quirky", "comedic", "playful", "simpsons", "silly but smart",
+              "mischievous"]
+    spec:
+      root: C
+      scale: lydian
+      progression: ["I", "II", "I", "II"]
+      reference: "The Simpsons theme — Danny Elfman (Lydian swagger)"
+    emotion_note: "Lydian #4 at tempo: carefree self-assurance."
+
+  mystical_unease:
+    aliases: ["mystical", "ancient mystery", "ethereal but uneasy", "cathedral",
+              "spiritual mystery", "tallis", "sacred"]
+    spec:
+      root: E
+      scale: phrygian
+      progression: ["i", "II", "i", "v"]
+      reference: "Fantasia on a Theme by Thomas Tallis — Vaughan Williams"
+    emotion_note: "Phrygian soft side: impressionistic canvas, restless undercurrent."
+
+  # ---- Tense / menacing family ------------------------------------------
+  menacing:
+    aliases: ["menacing", "threatening", "villain", "dark tension", "foreboding",
+              "evil", "ominous"]
+    spec:
+      root: E
+      scale: phrygian
+      progression: ["i", "II", "i", "i"]
+      reference: "Bruckner Symphony No. 6 opening — ♭2 menace made tangible"
+    emotion_note: "Phrygian ♭2: the semitone above the tonic is the threat."
+
+  eerie_unstable:
+    aliases: ["eerie", "unsettling", "ungrounded", "nightmare", "dissonant", "creepy",
+              "wrong", "off-kilter"]
+    spec:
+      root: B
+      scale: locrian
+      progression: ["idim", "bII", "idim", "bII"]
+      reference: "Debussy Jeux — “an orchestra without feet” (Locrian instability)"
+    emotion_note: "Locrian: the tonic chord itself is dissonant. Nothing to stand on."
+
+  exotic_tension:
+    aliases: ["exotic", "spanish", "middle eastern", "flamenco", "desert", "arabian",
+              "spicy", "phrygian dominant"]
+    spec:
+      root: E
+      scale: phrygian
+      progression: ["i", "II", "III", "II"]
+      reference: "Arabian Dance — Tchaikovsky (Nutcracker)"
+    emotion_note: "Phrygian ♭2 as color: foreign and exciting rather than evil."
+
+  # ---- Anthemic / triumphant family -------------------------------------
+  triumphant:
+    aliases: ["triumphant", "victory", "heroic", "champion", "anthem", "winning",
+              "epic major", "uplifting"]
+    spec:
+      root: C
+      scale: major
+      progression: ["I", "V", "vi", "IV"]
+      reference: "The axis progression — half of all 2000s pop anthems"
+    emotion_note: "I–V–vi–IV: communal lift, instant anthem."
+
+  courageous:
+    aliases: ["courageous", "brave", "heart of courage", "rise up", "determined",
+              "unstoppable", "trailer music"]
+    spec:
+      root: C
+      scale: aeolian
+      progression: ["i", "III", "VII", "i"]
+      reference: "“Heart of Courage” — Two Steps From Hell (Cm–Eb–Bb; minor frame, major spine)"
+    emotion_note: "Minor bookends + major III–VII: strength inside adversity."
+
+  nostalgic_anthem:
+    aliases: ["nostalgic", "bittersweet anthem", "graduation song", "closing time",
+              "memories", "wistful anthem"]
+    spec:
+      root: G
+      scale: major
+      progression: ["vi", "IV", "I", "V"]
+      reference: "vi–IV–I–V rotation: the reflective side of the axis"
+    emotion_note: "Starting on vi puts the minor color first, resolution second."
+
+  # ---- Cool / groove family ---------------------------------------------
+  bluesy_cool:
+    aliases: ["bluesy", "cool", "laid back", "groovy", "sweet home alabama", "southern",
+              "rock swagger"]
+    spec:
+      root: D
+      scale: mixolydian
+      progression: ["I", "bVII", "IV", "I"]
+      reference: "“Sweet Home Alabama”; “Royals” — Lorde (D–C–G shape)"
+    emotion_note: "Mixolydian ♭7: major with the edge taken off."
+
+  jazzy_resolve:
+    aliases: ["jazzy", "sophisticated", "smooth", "late night jazz", "cocktail",
+              "romantic jazz", "elegant"]
+    spec:
+      root: C
+      scale: major
+      progression: ["ii", "V", "I", "vi"]
+      reference: "The jazz turnaround — hundreds of standards"
+    emotion_note: "ii–V–I: the most satisfying resolution in western harmony."
+
+  # ---- Roots / open family ----------------------------------------------
+  rootsy_open:
+    aliases: ["rootsy", "folksy", "open", "campfire", "simple and honest", "acoustic",
+              "earthy"]
+    spec:
+      root: A
+      scale: aeolian
+      progression: ["i", "VII", "VI", "VII"]
+      reference: "Am–G–F–G: the folk/roots bedrock loop (melody stays in A minor pentatonic)"
+    emotion_note: "Aeolian ♭7–♭6 sway; solo in minor pentatonic — 5 notes, no traps."
+
+  bright_open:
+    aliases: ["bright and open", "sunny", "pastoral", "morning", "fresh", "optimistic",
+              "happy"]
+    spec:
+      root: C
+      scale: major_pentatonic
+      progression: ["I", "IV", "I", "IV"]
+      reference: "Major pentatonic + plagal I–IV: “Amazing Grace” affirmation"
+    emotion_note: "Pentatonic brightness, plagal gentleness."
+
+  wistful_folk:
+    aliases: ["wistful", "folk ballad", "scarborough fair", "old song", "ancient folk",
+              "celtic", "bard"]
+    spec:
+      root: D
+      scale: dorian
+      progression: ["i", "VII", "i", "IV"]
+      reference: "“Scarborough Fair” — the raised 6th opens the melody 'like a breath of fresh air'"
+    emotion_note: "Dorian folk: nostalgia with a window open."
+
+  swashbuckling:
+    aliases: ["swashbuckling", "pirate", "adventure", "reckless heroic", "pirates of the caribbean",
+              "sailor"]
+    spec:
+      root: D
+      scale: aeolian
+      progression: ["i", "VII", "VI", "VII"]
+      reference: "Pirates of the Caribbean main theme — ♭7 roguish heroism"
+    emotion_note: "Aeolian ♭7: heroic but irresponsible — perfect rogues."
+
+# Variations the model may apply WITHOUT a new taxonomy entry (validator-checked):
+#   - transpose any entry to any root (same scale + progression shape)
+#   - rotate a 4-chord loop's start point (same emotional family)
+#   - swap pentatonic ↔ full mode when the vibe asks for "simpler" / "richer"
+# Anything else requires a new entry with a reference citation.

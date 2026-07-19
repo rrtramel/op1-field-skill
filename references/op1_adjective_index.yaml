@@ -1,0 +1,1216 @@
+# OP-1 Field Adjective → Parameter Reverse Index
+# ============================================================
+# Maps sound-design adjectives to specific OP-1 Field parameters.
+# Every mapping cites a real param from op1_recipe_compiler_reference.yaml
+# with its audible_tendency as evidence.
+#
+# Used by the fallback strategy when no intent alias matches:
+# instead of "parse adjectives against a 5-step vocabulary with no mapping",
+# the agent looks up the adjective here and gets concrete params to turn.
+#
+# Direction values: high | low | medium | off_center | specific_value
+# All audible_tendency strings are quoted verbatim from the compiler reference.
+# ============================================================
+
+adjectives:
+
+  warm:
+    acoustic_meaning: "even harmonics, low-pass filter, slight detune, tube-style saturation, low-mid frequency emphasis"
+    params:
+      - {engine: voltage, color: blue, param: AMPERE, direction: high, audible_tendency: "higher = warmer saturation", reason: "tube-style saturation modeling"}
+      - {engine: string, color: blue, param: TENSION, direction: low, audible_tendency: "low = loose/sustained/warm", reason: "loose string = warm sustained tone"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: medium, audible_tendency: "higher = wider/more detuned", reason: "moderate detune adds warmth without chaos"}
+      - {engine: digital, color: ochre, param: OCTAVE, direction: low, audible_tendency: "lower = deeper sub", reason: "sub-osc adds low-mid weight"}
+    fx_overlays:
+      - {fx: mother, color: grey, param: COLOR, direction: low, audible_tendency: "lower = darker", reason: "darker reverb tone"}
+      - {fx: spring, color: blue, param: TONE, direction: low, audible_tendency: "higher = brighter", reason: "dark spring tone (low end of TONE)"}
+    envelope_hint: "slower attack (20-80ms), medium release"
+    lfo_hint: "slow, subtle detune movement"
+
+  bright:
+    acoustic_meaning: "high cutoff filter, saw/square waveform, high resonance, high FM amount, high-frequency emphasis"
+    params:
+      - {engine: digital, color: blue, param: WAVE SHAPER, direction: high, audible_tendency: "higher = brighter/grittier", reason: "wave shaping adds high harmonics"}
+      - {engine: cluster, color: ochre, param: WAVE ENV, direction: high, audible_tendency: "higher = brighter/more aggressive", reason: "filter envelope opens up"}
+      - {engine: fm, color: blue, param: "FREQ (FM AMOUNT)", direction: high, audible_tendency: "higher = brighter/clangier/more bite", reason: "FM modulation adds bright harmonics"}
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: high, audible_tendency: "higher Hz = brighter", reason: "opens the low-pass cutoff"}
+      - {engine: voltage, color: grey, param: "VOLT (FILTER)", direction: high, audible_tendency: "higher = brighter", reason: "opens the analog-modeled filter"}
+    fx_overlays:
+      - {fx: spring, color: blue, param: TONE, direction: high, audible_tendency: "higher = brighter", reason: "bright spring tone"}
+      - {fx: mother, color: grey, param: COLOR, direction: high, audible_tendency: "lower = darker", reason: "keep COLOR high (away from dark end)"}
+    envelope_hint: "fast attack, medium release"
+    lfo_hint: "fast, bright vibrato or filter sweep"
+
+  dark:
+    acoustic_meaning: "very low filter cutoff, sine/triangle waveform, no distortion, slow or no modulation"
+    params:
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: low, audible_tendency: "higher Hz = brighter", reason: "low Hz = dark/closed tone (e.g. ~500-1500)"}
+      - {engine: voltage, color: grey, param: "VOLT (FILTER)", direction: low, audible_tendency: "higher = brighter", reason: "low filter cutoff = dark"}
+      - {engine: digital, color: orange, param: DIGITALNESS, direction: low, audible_tendency: "higher = grittier/lo-fi", reason: "keep clean, no high-freq grit"}
+      - {engine: dr_wave, color: ochre, param: FILTER, direction: high, audible_tendency: "depends on side", reason: "upper range (51-99) = low-pass filter"}
+    fx_overlays:
+      - {fx: mother, color: grey, param: COLOR, direction: low, audible_tendency: "lower = darker", reason: "dark reverb tone"}
+      - {fx: spring, color: blue, param: TONE, direction: low, audible_tendency: "higher = brighter", reason: "dark spring tone"}
+      - {fx: terminal, color: grey, param: MODEL, direction: high, audible_tendency: "depends on side", reason: "above 3 = low-pass filter"}
+    envelope_hint: "slow attack, long release"
+    lfo_hint: "very slow, subtle filter movement"
+
+  glassy:
+    acoustic_meaning: "high bandpass filter, high resonance, sine/FM waveform, short bright reverb"
+    params:
+      - {engine: fm, color: blue, param: "FREQ (FM AMOUNT)", direction: medium, audible_tendency: "higher = brighter/clangier/more bite", reason: "moderate FM = glassy partials (start low, raise slightly)"}
+      - {engine: fm, color: orange, param: DETUNE, direction: high, audible_tendency: "higher = more movement/clang", reason: "detune adds glassy shimmer"}
+      - {engine: dimension, color: orange, param: RES, direction: high, audible_tendency: "higher = squelchier/acid", reason: "high resonance = glassy ringing"}
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: high, audible_tendency: "higher Hz = brighter", reason: "high cutoff for glassy clarity"}
+    fx_overlays:
+      - {fx: spring, color: blue, param: TONE, direction: high, audible_tendency: "higher = brighter", reason: "bright short spring"}
+      - {fx: delay, color: blue, param: RANGE, direction: low, audible_tendency: "higher = longer", reason: "short echo for glassy reflections"}
+    envelope_hint: "instant attack, long natural decay"
+    lfo_hint: "slow, subtle detune for life"
+
+  gritty:
+    acoustic_meaning: "low-mid filter, medium-high resonance, square/noise waveform, heavy distortion"
+    params:
+      - {engine: voltage, color: ochre, param: GROUND NOISE, direction: high, audible_tendency: "higher = grittier/noisier", reason: "ground noise distortion adds grit"}
+      - {engine: digital, color: orange, param: DIGITALNESS, direction: high, audible_tendency: "higher = grittier/lo-fi", reason: "digital noise/grit"}
+      - {engine: phase, color: ochre, param: DIST, direction: high, audible_tendency: "higher = grittier", reason: "wave distortion/clipping-folding"}
+      - {engine: dr_wave, color: blue, param: "TYPE & LENGTH", direction: high, audible_tendency: "higher = more lo-fi/crushed", reason: "sample-rate reduction grit"}
+    fx_overlays:
+      - {fx: terminal, color: blue, param: KHZ, direction: low, audible_tendency: "lower = crunchier", reason: "low sample-rate grit"}
+      - {fx: terminal, color: ochre, param: BITS, direction: low, audible_tendency: "lower = more crushed", reason: "bit reduction grit"}
+    envelope_hint: "fast attack, medium release"
+    lfo_hint: "random, irregular modulation"
+
+  airy:
+    acoustic_meaning: "high filter cutoff, low resonance, sine/triangle waveform, long light reverb"
+    params:
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: high, audible_tendency: "higher Hz = brighter", reason: "open filter for air"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: high, audible_tendency: "higher = wider/more detuned", reason: "wide stereo spread = airy openness"}
+      - {engine: dimension, color: ochre, param: STEREO, direction: high, audible_tendency: "higher = wider", reason: "chorus/width modulation adds air"}
+      - {engine: voltage, color: grey, param: "VOLT (FILTER)", direction: high, audible_tendency: "higher = brighter", reason: "open filter for high-frequency air"}
+    fx_overlays:
+      - {fx: mother, color: blue, param: DISTANCE, direction: high, audible_tendency: "higher = bigger/farther", reason: "large space = airy reverb"}
+      - {fx: spring, color: grey, param: DAMPING, direction: low, audible_tendency: "higher = shorter/softer tail", reason: "low damping = long airy tail"}
+      - {fx: mother, color: orange, param: MIX, direction: low, audible_tendency: "higher = wetter", reason: "keep mix low for light air, not wash"}
+    envelope_hint: "slow attack, long release"
+    lfo_hint: "slow, subtle filter or detune movement"
+
+  hollow:
+    acoustic_meaning: "mid filter cutoff, high resonance, square/PWM waveform, no reverb"
+    params:
+      - {engine: pulse, color: grey, param: "TIME (2ND PULSE)", direction: off_center, audible_tendency: "off-center = hollow/PWM-ready", reason: "off-center pulse width = hollow tone"}
+      - {engine: pulse, color: orange, param: MOD, direction: off_center, audible_tendency: "off-center = animated PWM", reason: "PWM adds hollow character (move away from 50 center)"}
+      - {engine: dr_wave, color: grey, param: PHASE, direction: low, audible_tendency: "higher = brighter/formant", reason: "low phase = pulse width region for hollow tone"}
+      - {engine: dimension, color: orange, param: RES, direction: high, audible_tendency: "higher = squelchier/acid", reason: "high resonance at mid cutoff = hollow formant"}
+    fx_overlays: []
+    envelope_hint: "medium attack, medium release"
+    lfo_hint: "none (static) or slow PWM on TIME"
+
+  fat:
+    acoustic_meaning: "mid-low filter, low resonance, dual detuned saws, light saturation"
+    params:
+      - {engine: cluster, color: blue, param: WAVES, direction: high, audible_tendency: "higher = thicker, wider", reason: "more oscillators = fatter sound"}
+      - {engine: voltage, color: orange, param: DETUNE, direction: high, audible_tendency: "higher = thicker/detuned", reason: "sub-osc detune adds fatness"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: high, audible_tendency: "higher = wider/more detuned", reason: "wide detune spread = fat width"}
+      - {engine: digital, color: ochre, param: OCTAVE, direction: low, audible_tendency: "lower = deeper sub", reason: "sub-osc adds low-end weight"}
+    fx_overlays:
+      - {fx: punch, color: ochre, param: PUNCH, direction: high, audible_tendency: "higher = punchier/more resonant", reason: "compression + resonance for fat glue"}
+    envelope_hint: "fast attack, medium-long release"
+    lfo_hint: "slow, subtle detune movement"
+
+  deep:
+    acoustic_meaning: "very low filter cutoff, sine/sub waveform, no distortion, slow modulation"
+    params:
+      - {engine: digital, color: ochre, param: OCTAVE, direction: low, audible_tendency: "lower = deeper sub", reason: "sub-oscillator drops to deep low end"}
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: low, audible_tendency: "higher Hz = brighter", reason: "low Hz (e.g. ~500-800) = deep/dark"}
+      - {engine: voltage, color: grey, param: "VOLT (FILTER)", direction: low, audible_tendency: "higher = brighter", reason: "low filter cutoff = deep tone"}
+    fx_overlays: []
+    envelope_hint: "slow attack, long release"
+    lfo_hint: "very slow, subtle filter movement"
+
+  clean:
+    acoustic_meaning: "high filter cutoff, low resonance, sine/saw waveform, no distortion"
+    params:
+      - {engine: digital, color: orange, param: DIGITALNESS, direction: low, audible_tendency: "higher = grittier/lo-fi", reason: "low digitalness = clean tone"}
+      - {engine: dr_wave, color: blue, param: "TYPE & LENGTH", direction: low, audible_tendency: "higher = more lo-fi/crushed", reason: "low type = clean morph, no sample-rate reduction"}
+      - {engine: voltage, color: ochre, param: GROUND NOISE, direction: low, audible_tendency: "higher = grittier/noisier", reason: "low ground noise = clean"}
+      - {engine: dimension, color: orange, param: RES, direction: low, audible_tendency: "higher = squelchier/acid", reason: "low resonance = clean filter"}
+    fx_overlays: []
+    envelope_hint: "medium attack, medium release"
+    lfo_hint: "none (static) preferred"
+
+  dirty:
+    acoustic_meaning: "low-mid filter, medium resonance, square/noise waveform, heavy distortion"
+    params:
+      - {engine: digital, color: orange, param: DIGITALNESS, direction: high, audible_tendency: "higher = grittier/lo-fi", reason: "digital noise/grit dirties the tone"}
+      - {engine: voltage, color: ochre, param: GROUND NOISE, direction: high, audible_tendency: "higher = grittier/noisier", reason: "ground noise distortion"}
+      - {engine: phase, color: ochre, param: DIST, direction: high, audible_tendency: "higher = grittier", reason: "wave distortion/folding"}
+    fx_overlays:
+      - {fx: terminal, color: blue, param: KHZ, direction: low, audible_tendency: "lower = crunchier", reason: "sample-rate reduction"}
+      - {fx: terminal, color: ochre, param: BITS, direction: low, audible_tendency: "lower = more crushed", reason: "bit reduction"}
+      - {fx: phone, color: grey, param: BAUD, direction: high, audible_tendency: "higher = more digital destruction", reason: "granular bit destruction"}
+    envelope_hint: "fast attack, medium release"
+    lfo_hint: "random, irregular modulation"
+
+  aggressive:
+    acoustic_meaning: "high filter, high resonance, saw/square waveform, heavy distortion, fast modulation"
+    params:
+      - {engine: cluster, color: ochre, param: WAVE ENV, direction: high, audible_tendency: "higher = brighter/more aggressive", reason: "aggressive supersaw filter envelope"}
+      - {engine: digital, color: grey, param: "DETUNE / RING MOD", direction: high, audible_tendency: "upper half = clangorous/metallic", reason: "ring mod adds aggressive clang"}
+      - {engine: digital, color: orange, param: DIGITALNESS, direction: high, audible_tendency: "higher = grittier/lo-fi", reason: "digital grit for aggression"}
+      - {engine: phase, color: orange, param: TILT, direction: high, audible_tendency: "higher = noisier/harsher", reason: "asymmetric wave folding = harsh aggressive tone"}
+    fx_overlays:
+      - {fx: punch, color: ochre, param: PUNCH, direction: high, audible_tendency: "higher = punchier/more resonant", reason: "aggressive punch and resonance"}
+      - {fx: punch, color: grey, param: ROUNDS, direction: high, audible_tendency: "higher = steeper/more aggressive", reason: "steeper filter slope = more aggressive"}
+      - {fx: nitro, color: grey, param: Q, direction: high, audible_tendency: "higher = squelchier", reason: "high Q = aggressive resonance"}
+    envelope_hint: "instant attack, short-medium release"
+    lfo_hint: "fast, aggressive filter sweep"
+
+  soft:
+    acoustic_meaning: "mid filter, low resonance, complex/physical waveform, no distortion, slow attack"
+    params:
+      - {engine: string, color: orange, param: IMP TYPE, direction: high, audible_tendency: "high = soft (finger/bow)", reason: "soft excitation = gentle pluck"}
+      - {engine: string, color: blue, param: TENSION, direction: low, audible_tendency: "low = loose/sustained/warm", reason: "loose string = soft sustained tone"}
+      - {engine: cluster, color: ochre, param: WAVE ENV, direction: low, audible_tendency: "higher = brighter/more aggressive", reason: "low wave env = mellow/soft"}
+      - {engine: voltage, color: ochre, param: GROUND NOISE, direction: low, audible_tendency: "higher = grittier/noisier", reason: "no distortion = soft"}
+    fx_overlays:
+      - {fx: spring, color: grey, param: DAMPING, direction: high, audible_tendency: "higher = shorter/softer tail", reason: "soft, dampened reverb tail"}
+    envelope_hint: "slow attack (50-200ms), long release"
+    lfo_hint: "slow, gentle detune"
+
+  hard:
+    acoustic_meaning: "mid-high filter, high resonance, square waveform, distortion, instant attack"
+    params:
+      - {engine: string, color: orange, param: IMP TYPE, direction: low, audible_tendency: "low = hard strike (plectrum)", reason: "hard strike = sharp transient"}
+      - {engine: cluster, color: ochre, param: WAVE ENV, direction: high, audible_tendency: "higher = brighter/more aggressive", reason: "bright = hard-edged"}
+      - {engine: phase, color: orange, param: TILT, direction: high, audible_tendency: "higher = noisier/harsher", reason: "harsh wave folding = hard tone"}
+    fx_overlays:
+      - {fx: punch, color: ochre, param: PUNCH, direction: high, audible_tendency: "higher = punchier/more resonant", reason: "hard-hitting punch"}
+      - {fx: amp, color: orange, param: DRIVE, direction: high, audible_tendency: "higher = more distortion", reason: "hard drive on input"}
+      - {fx: amp, color: ochre, param: COMPRESSION, direction: high, audible_tendency: "higher = more compressed/punchy", reason: "hard compression"}
+    envelope_hint: "instant attack, short release"
+    lfo_hint: "none (static) preferred"
+
+  metallic:
+    acoustic_meaning: "high filter, high resonance, FM/ring-mod waveform, short reverb"
+    params:
+      - {engine: fm, color: blue, param: "FREQ (FM AMOUNT)", direction: high, audible_tendency: "higher = brighter/clangier/more bite", reason: "FM produces metallic inharmonic partials"}
+      - {engine: digital, color: grey, param: "DETUNE / RING MOD", direction: high, audible_tendency: "upper half = clangorous/metallic", reason: "ring modulation = metallic clang"}
+      - {engine: fm, color: orange, param: DETUNE, direction: high, audible_tendency: "higher = more movement/clang", reason: "operator detune adds metallic shimmer"}
+    fx_overlays:
+      - {fx: cwo, color: orange, param: SIDEBAND, direction: high, audible_tendency: "higher = more extreme/metallic", reason: "metallic sideband audio"}
+      - {fx: spring, color: ochre, param: TURNS, direction: high, audible_tendency: "higher = bigger/more metallic", reason: "metallic spring character"}
+    envelope_hint: "instant attack, short-medium release"
+    lfo_hint: "medium, metallic detune movement"
+
+  organic:
+    acoustic_meaning: "mid filter, low resonance, complex/physical waveform, slow random modulation, warm reverb"
+    params:
+      - {engine: string, color: blue, param: TENSION, direction: low, audible_tendency: "low = loose/sustained/warm", reason: "loose string = organic sustained tone"}
+      - {engine: string, color: ochre, param: "IMP (DECAY)", direction: high, audible_tendency: "high = long bow/strum/sustain", reason: "long natural decay = organic"}
+      - {engine: cluster, color: orange, param: UNISON, direction: high, audible_tendency: "higher = more movement/shimmer", reason: "natural drift = organic movement"}
+    fx_overlays:
+      - {fx: spring, color: blue, param: TONE, direction: low, audible_tendency: "higher = brighter", reason: "warm spring tone"}
+    envelope_hint: "medium attack, natural decay"
+    lfo_hint: "random LFO, slow speed for organic drift"
+
+  digital:
+    acoustic_meaning: "harsh digital waveform, bit reduction, sample-rate reduction, digital noise"
+    params:
+      - {engine: digital, color: orange, param: DIGITALNESS, direction: high, audible_tendency: "higher = grittier/lo-fi", reason: "digital noise and grit"}
+      - {engine: dr_wave, color: blue, param: "TYPE & LENGTH", direction: high, audible_tendency: "higher = more lo-fi/crushed", reason: "sample-rate reduction = digital character"}
+      - {engine: digital, color: grey, param: "DETUNE / RING MOD", direction: high, audible_tendency: "upper half = clangorous/metallic", reason: "ring mod = digital metallic"}
+    fx_overlays:
+      - {fx: terminal, color: blue, param: KHZ, direction: low, audible_tendency: "lower = crunchier", reason: "low sample-rate = digital crunch"}
+      - {fx: terminal, color: ochre, param: BITS, direction: low, audible_tendency: "lower = more crushed", reason: "bit reduction = digital character"}
+      - {fx: phone, color: grey, param: BAUD, direction: high, audible_tendency: "higher = more digital destruction", reason: "digital grain destruction"}
+    envelope_hint: "fast attack, short release"
+    lfo_hint: "fast, rhythmic digital modulation"
+
+  analog:
+    acoustic_meaning: "warm saturation, slight detune, low-pass filter, vintage character"
+    params:
+      - {engine: voltage, color: blue, param: AMPERE, direction: high, audible_tendency: "higher = warmer saturation", reason: "analog-modeled saturation"}
+      - {engine: voltage, color: orange, param: DETUNE, direction: high, audible_tendency: "higher = thicker/detuned", reason: "sub-osc detune = analog warmth"}
+      - {engine: voltage, color: grey, param: "VOLT (FILTER)", direction: medium, audible_tendency: "higher = brighter", reason: "medium filter = warm analog tone"}
+      - {engine: voltage, color: ochre, param: GROUND NOISE, direction: medium, audible_tendency: "higher = grittier/noisier", reason: "moderate noise = analog character"}
+    fx_overlays: []
+    envelope_hint: "medium attack, medium release"
+    lfo_hint: "slow, subtle detune drift"
+
+  retro:
+    acoustic_meaning: "warm filter, vintage waveform, tape/spring reverb, nostalgic character"
+    params:
+      - {engine: phase, color: blue, param: PHASE, direction: medium, audible_tendency: "higher = brighter/buzzier", reason: "phase distortion = retro CZ-style tone"}
+      - {engine: dr_wave, color: blue, param: "TYPE & LENGTH", direction: medium, audible_tendency: "higher = more lo-fi/crushed", reason: "moderate lo-fi = retro character"}
+      - {engine: voltage, color: blue, param: AMPERE, direction: high, audible_tendency: "higher = warmer saturation", reason: "warm vintage saturation"}
+    fx_overlays:
+      - {fx: spring, color: blue, param: TONE, direction: low, audible_tendency: "higher = brighter", reason: "dark retro spring tone"}
+      - {fx: terminal, color: blue, param: KHZ, direction: low, audible_tendency: "lower = crunchier", reason: "retro sample-rate reduction"}
+    envelope_hint: "medium attack, medium release"
+    lfo_hint: "slow, warm detune"
+
+  futuristic:
+    acoustic_meaning: "high filter, FM/ring-mod/digital waveform, metallic resonance, evolving modulation"
+    params:
+      - {engine: dna, color: orange, param: NOISE, direction: high, audible_tendency: "higher = noisier", reason: "CPU-noise synthesis = futuristic alien tone"}
+      - {engine: digital, color: grey, param: "DETUNE / RING MOD", direction: high, audible_tendency: "upper half = clangorous/metallic", reason: "ring mod = futuristic clang"}
+      - {engine: fm, color: blue, param: "FREQ (FM AMOUNT)", direction: high, audible_tendency: "higher = brighter/clangier/more bite", reason: "FM = futuristic metallic"}
+    fx_overlays:
+      - {fx: cwo, color: blue, param: FREQ, direction: high, audible_tendency: "higher = weirder/detuned", reason: "frequency shifting = futuristic"}
+      - {fx: grid, color: grey, param: FEEDBACK, direction: high, audible_tendency: "higher = denser/self-oscillating", reason: "comb grid = futuristic space"}
+      - {fx: nitro, color: grey, param: Q, direction: high, audible_tendency: "higher = squelchier", reason: "high Q = futuristic filter sweep"}
+    envelope_hint: "medium attack, long release"
+    lfo_hint: "fast, evolving modulation"
+
+  detuned:
+    acoustic_meaning: "multiple oscillators, pitch drift, wide stereo, slow modulation"
+    params:
+      - {engine: cluster, color: grey, param: SPREAD, direction: high, audible_tendency: "higher = wider/more detuned", reason: "detune spread across oscillators"}
+      - {engine: voltage, color: orange, param: DETUNE, direction: high, audible_tendency: "higher = thicker/detuned", reason: "sub-osc detune"}
+      - {engine: fm, color: orange, param: DETUNE, direction: high, audible_tendency: "higher = more movement/clang", reason: "operator detune for movement"}
+      - {engine: cluster, color: orange, param: UNISON, direction: high, audible_tendency: "higher = more movement/shimmer", reason: "drift speed/range of detuning"}
+    fx_overlays: []
+    envelope_hint: "medium attack, medium release"
+    lfo_hint: "slow Value LFO on detune parameter for organic drift"
+
+  noisy:
+    acoustic_meaning: "high noise floor, distorted waveform, chaotic modulation"
+    params:
+      - {engine: dna, color: orange, param: NOISE, direction: high, audible_tendency: "higher = noisier", reason: "noise amount mixed into synthesis"}
+      - {engine: voltage, color: ochre, param: GROUND NOISE, direction: high, audible_tendency: "higher = grittier/noisier", reason: "ground noise distortion"}
+      - {engine: digital, color: orange, param: DIGITALNESS, direction: high, audible_tendency: "higher = grittier/lo-fi", reason: "digital noise/grit"}
+    fx_overlays:
+      - {fx: phone, color: ochre, param: GSM, direction: high, audible_tendency: "higher = chunkier glitch", reason: "granular noise"}
+      - {fx: phone, color: grey, param: BAUD, direction: high, audible_tendency: "higher = more digital destruction", reason: "bit-crush noise"}
+    envelope_hint: "fast attack, short release"
+    lfo_hint: "random LFO for chaotic noise modulation"
+
+  bell-like:
+    acoustic_meaning: "inharmonic FM partials, high resonance, sine carrier, medium-fast decay"
+    params:
+      - {engine: fm, color: blue, param: "FREQ (FM AMOUNT)", direction: medium, audible_tendency: "higher = brighter/clangier/more bite", reason: "moderate FM = bell partials (raise from sine)"}
+      - {engine: fm, color: ochre, param: "FREQUENCY RATIO", direction: specific_value, audible_tendency: "harmonic vs discordant jumps", reason: "step to an inharmonic ratio for bell character"}
+      - {engine: fm, color: orange, param: DETUNE, direction: high, audible_tendency: "higher = more movement/clang", reason: "detune adds bell shimmer"}
+    fx_overlays:
+      - {fx: delay, color: blue, param: RANGE, direction: low, audible_tendency: "higher = longer", reason: "short echo = bell reflections"}
+    envelope_hint: "instant attack, long natural decay (bell archetype)"
+    lfo_hint: "slow, subtle detune for shimmer"
+
+  plucky:
+    acoustic_meaning: "instant attack, short decay, low sustain, physical model waveform"
+    params:
+      - {engine: string, color: blue, param: TENSION, direction: high, audible_tendency: "high = tight/plucky/short", reason: "tight string = plucky"}
+      - {engine: string, color: ochre, param: "IMP (DECAY)", direction: low, audible_tendency: "low = short pluck", reason: "short impulse decay = pluck"}
+      - {engine: string, color: orange, param: IMP TYPE, direction: low, audible_tendency: "low = hard strike (plectrum)", reason: "hard strike = plucky transient"}
+    fx_overlays: []
+    envelope_hint: "instant attack, short decay, low sustain, short release (pluck archetype)"
+    lfo_hint: "none (static)"
+
+  punchy:
+    acoustic_meaning: "compressed, resonant filter, fast attack, medium decay"
+    params:
+      - {engine: pulse, color: blue, param: FILTERO, direction: high, audible_tendency: "higher = brighter", reason: "bright filter for punch clarity"}
+      - {engine: cluster, color: ochre, param: WAVE ENV, direction: high, audible_tendency: "higher = brighter/more aggressive", reason: "aggressive envelope = punch"}
+    fx_overlays:
+      - {fx: punch, color: ochre, param: PUNCH, direction: high, audible_tendency: "higher = punchier/more resonant", reason: "punch + compression"}
+      - {fx: punch, color: grey, param: ROUNDS, direction: high, audible_tendency: "higher = steeper/more aggressive", reason: "steep filter slope = punch"}
+      - {fx: amp, color: ochre, param: COMPRESSION, direction: high, audible_tendency: "higher = more compressed/punchy", reason: "compression adds punch"}
+    envelope_hint: "instant attack, controlled decay, high sustain (bass archetype)"
+    lfo_hint: "none (static)"
+
+  squelchy:
+    acoustic_meaning: "high resonance, mid filter cutoff, acid 303-style, envelope follower"
+    params:
+      - {engine: dimension, color: orange, param: RES, direction: high, audible_tendency: "higher = squelchier/acid", reason: "filter resonance = squelch"}
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: medium, audible_tendency: "higher Hz = brighter", reason: "mid cutoff for squelch sweet spot"}
+    fx_overlays:
+      - {fx: nitro, color: grey, param: Q, direction: high, audible_tendency: "higher = squelchier", reason: "dual-filter resonance = squelch"}
+      - {fx: nitro, color: ochre, param: "FREQ FOLLOW", direction: high, audible_tendency: "higher = more auto-wah motion", reason: "envelope follower = squelchy auto-wah"}
+    envelope_hint: "instant attack, medium decay"
+    lfo_hint: "medium-speed Value LFO on filter cutoff for classic acid motion"
+
+  brassy:
+    acoustic_meaning: "bright saw waveform, high filter, punchy envelope, harmonic richness"
+    params:
+      - {engine: cluster, color: blue, param: WAVES, direction: high, audible_tendency: "higher = thicker, wider", reason: "thick supersaw = brassy ensemble"}
+      - {engine: cluster, color: ochre, param: WAVE ENV, direction: high, audible_tendency: "higher = brighter/more aggressive", reason: "bright filter = brassy edge"}
+      - {engine: pulse, color: blue, param: FILTERO, direction: high, audible_tendency: "higher = brighter", reason: "bright pulse = brassy"}
+    fx_overlays: []
+    envelope_hint: "instant attack, moderate drop, solid sustain (lead archetype)"
+    lfo_hint: "none (static) or slow vibrato"
+
+  woody:
+    acoustic_meaning: "mid filter, physical model, soft excitation, warm resonance"
+    params:
+      - {engine: string, color: orange, param: IMP TYPE, direction: high, audible_tendency: "high = soft (finger/bow)", reason: "soft excitation = woody"}
+      - {engine: string, color: blue, param: TENSION, direction: medium, audible_tendency: "high = tight/plucky/short, low = loose/sustained/warm", reason: "medium tension = woody body"}
+      - {engine: dr_wave, color: blue, param: "TYPE & LENGTH", direction: low, audible_tendency: "higher = more lo-fi/crushed", reason: "low type = clean morph for woody tone"}
+    fx_overlays:
+      - {fx: spring, color: blue, param: TONE, direction: low, audible_tendency: "higher = brighter", reason: "warm spring = woody body"}
+    envelope_hint: "medium attack, natural decay"
+    lfo_hint: "none (static)"
+
+  shimmer:
+    acoustic_meaning: "high-frequency movement, slow detune drift, bright reverb tail"
+    params:
+      - {engine: cluster, color: orange, param: UNISON, direction: high, audible_tendency: "higher = more movement/shimmer", reason: "drift = shimmer"}
+      - {engine: fm, color: orange, param: DETUNE, direction: high, audible_tendency: "higher = more movement/clang", reason: "operator detune = shimmer"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: high, audible_tendency: "higher = wider/more detuned", reason: "wide spread = shimmering width"}
+    fx_overlays:
+      - {fx: mother, color: blue, param: DISTANCE, direction: high, audible_tendency: "higher = bigger/farther", reason: "large reverb = shimmer tail"}
+      - {fx: delay, color: grey, param: FEEDBACK, direction: medium, audible_tendency: "higher = more repeats", reason: "moderate repeats = shimmer echoes"}
+    envelope_hint: "slow attack, long release"
+    lfo_hint: "slow Value LFO on SPREAD or DETUNE for shimmer movement"
+
+  wobble:
+    acoustic_meaning: "pitch instability, slow modulation, tape-style drift, detuned"
+    params:
+      - {engine: cluster, color: orange, param: UNISON, direction: high, audible_tendency: "higher = more movement/shimmer", reason: "drift speed = wobble"}
+      - {engine: voltage, color: orange, param: DETUNE, direction: high, audible_tendency: "higher = thicker/detuned", reason: "detune contributes to wobble"}
+    fx_overlays:
+      - {fx: cwo, color: blue, param: FREQ, direction: medium, audible_tendency: "higher = weirder/detuned", reason: "frequency shift in feedback = wobble"}
+    envelope_hint: "medium attack, medium release"
+    lfo_hint: "Random LFO at slow speed on pitch/detune for tape-style wobble"
+
+  fuzzy:
+    acoustic_meaning: "fuzz distortion, mid-high filter, square waveform, sustained"
+    params:
+      - {engine: voltage, color: ochre, param: GROUND NOISE, direction: high, audible_tendency: "higher = grittier/noisier", reason: "ground noise = fuzzy distortion"}
+      - {engine: phase, color: ochre, param: DIST, direction: high, audible_tendency: "higher = grittier", reason: "wave distortion = fuzzy"}
+      - {engine: digital, color: orange, param: DIGITALNESS, direction: high, audible_tendency: "higher = grittier/lo-fi", reason: "digital fuzz grit"}
+    fx_overlays:
+      - {fx: amp, color: orange, param: DRIVE, direction: high, audible_tendency: "higher = more distortion", reason: "drive = fuzz"}
+    envelope_hint: "medium attack, long release"
+    lfo_hint: "none (static) or slow tremolo"
+
+  distorted:
+    acoustic_meaning: "heavy distortion, high drive, clipped waveform, compressed"
+    params:
+      - {engine: voltage, color: ochre, param: GROUND NOISE, direction: high, audible_tendency: "higher = grittier/noisier", reason: "heavy ground noise = distortion"}
+      - {engine: phase, color: ochre, param: DIST, direction: high, audible_tendency: "higher = grittier", reason: "wave distortion/clipping"}
+      - {engine: phase, color: orange, param: TILT, direction: high, audible_tendency: "higher = noisier/harsher", reason: "asymmetric folding = harsh distortion"}
+    fx_overlays:
+      - {fx: amp, color: orange, param: DRIVE, direction: high, audible_tendency: "higher = more distortion", reason: "amp drive = primary distortion"}
+      - {fx: terminal, color: ochre, param: BITS, direction: low, audible_tendency: "lower = more crushed", reason: "bit crushing = digital distortion"}
+    envelope_hint: "fast attack, medium release"
+    lfo_hint: "none (static)"
+
+  broken:
+    acoustic_meaning: "glitchy, bit-crushed, noisy, unstable, digital destruction"
+    params:
+      - {engine: dna, color: orange, param: NOISE, direction: high, audible_tendency: "higher = noisier", reason: "noise = broken character"}
+      - {engine: dna, color: ochre, param: "CPU ID / WAVE NUMBER", direction: medium, audible_tendency: "varies wildly", reason: "navigating noise segments = broken"}
+    fx_overlays:
+      - {fx: phone, color: grey, param: BAUD, direction: high, audible_tendency: "higher = more digital destruction", reason: "granular destruction = broken"}
+      - {fx: terminal, color: blue, param: KHZ, direction: low, audible_tendency: "lower = crunchier", reason: "extreme sample-rate reduction = broken"}
+      - {fx: terminal, color: ochre, param: BITS, direction: low, audible_tendency: "lower = more crushed", reason: "extreme bit reduction = broken"}
+    envelope_hint: "erratic attack, short release (percussive archetype)"
+    lfo_hint: "Random LFO at fast speed for broken, glitchy modulation"
+
+  glitched:
+    acoustic_meaning: "digital artifacts, granular processing, rhythmic destruction, random modulation"
+    params:
+      - {engine: dna, color: orange, param: NOISE, direction: high, audible_tendency: "higher = noisier", reason: "CPU-noise glitch"}
+      - {engine: dna, color: grey, param: "WAVE MODIFIER", direction: medium, audible_tendency: "varies", reason: "mutating timbre = glitch"}
+    fx_overlays:
+      - {fx: phone, color: ochre, param: GSM, direction: high, audible_tendency: "higher = chunkier glitch", reason: "grain size = glitch chunks"}
+      - {fx: phone, color: grey, param: BAUD, direction: high, audible_tendency: "higher = more digital destruction", reason: "pattern/timing glitch"}
+      - {fx: grid, color: grey, param: FEEDBACK, direction: high, audible_tendency: "higher = denser/self-oscillating", reason: "comb glitch grid"}
+    envelope_hint: "instant attack, short release (percussive archetype)"
+    lfo_hint: "Random LFO at fast speed on FX or engine param for rhythmic glitch"
+
+  cold:
+    acoustic_meaning: "pure sine, no warmth, no detune, no distortion, clean and sterile"
+    params:
+      - {engine: fm, color: blue, param: "FREQ (FM AMOUNT)", direction: low, audible_tendency: "higher = brighter/clangier/more bite", reason: "low FM = pure sine = cold"}
+      - {engine: digital, color: orange, param: DIGITALNESS, direction: low, audible_tendency: "higher = grittier/lo-fi", reason: "clean = cold/sterile"}
+      - {engine: digital, color: grey, param: "DETUNE / RING MOD", direction: low, audible_tendency: "upper half = clangorous/metallic", reason: "detune (not ring mod) = cold precision"}
+      - {engine: voltage, color: ochre, param: GROUND NOISE, direction: low, audible_tendency: "higher = grittier/noisier", reason: "no noise = cold"}
+    fx_overlays: []
+    envelope_hint: "instant attack, medium release"
+    lfo_hint: "none (static) — cold implies no movement"
+
+  vintage:
+    acoustic_meaning: "warm saturation, tape character, dark filter, spring reverb, nostalgic"
+    params:
+      - {engine: voltage, color: blue, param: AMPERE, direction: high, audible_tendency: "higher = warmer saturation", reason: "warm vintage saturation"}
+      - {engine: dr_wave, color: blue, param: "TYPE & LENGTH", direction: medium, audible_tendency: "higher = more lo-fi/crushed", reason: "moderate lo-fi = vintage character"}
+    fx_overlays:
+      - {fx: spring, color: blue, param: TONE, direction: low, audible_tendency: "higher = brighter", reason: "dark vintage spring"}
+      - {fx: terminal, color: blue, param: KHZ, direction: low, audible_tendency: "lower = crunchier", reason: "tape-like sample-rate reduction"}
+      - {fx: terminal, color: grey, param: MODEL, direction: high, audible_tendency: "depends on side", reason: "low-pass filter = vintage warmth"}
+    envelope_hint: "medium attack, medium release"
+    lfo_hint: "Random LFO at slow speed for vintage tape drift"
+
+  modern:
+    acoustic_meaning: "bright, clean, wide, digital clarity, punchy filter"
+    params:
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: high, audible_tendency: "higher Hz = brighter", reason: "bright modern filter"}
+      - {engine: digital, color: blue, param: "WAVE SHAPER", direction: high, audible_tendency: "higher = brighter/grittier", reason: "bright modern wave shaping"}
+      - {engine: dimension, color: ochre, param: STEREO, direction: high, audible_tendency: "higher = wider", reason: "wide modern stereo"}
+    fx_overlays:
+      - {fx: nitro, color: grey, param: Q, direction: high, audible_tendency: "higher = squelchier", reason: "modern resonant filter"}
+    envelope_hint: "fast attack, medium release"
+    lfo_hint: "medium-speed Value LFO on filter for modern motion"
+
+  tape-like:
+    acoustic_meaning: "wow and flutter, sample-rate reduction, bit reduction, warm saturation, pitch drift"
+    params:
+      - {engine: voltage, color: blue, param: AMPERE, direction: high, audible_tendency: "higher = warmer saturation", reason: "warm tape saturation"}
+      - {engine: voltage, color: ochre, param: GROUND NOISE, direction: medium, audible_tendency: "higher = grittier/noisier", reason: "moderate noise = tape hiss"}
+    fx_overlays:
+      - {fx: terminal, color: blue, param: KHZ, direction: low, audible_tendency: "lower = crunchier", reason: "tape sample-rate reduction"}
+      - {fx: terminal, color: ochre, param: BITS, direction: low, audible_tendency: "lower = more crushed", reason: "tape bit reduction"}
+      - {fx: spring, color: grey, param: DAMPING, direction: medium, audible_tendency: "higher = shorter/softer tail", reason: "medium damping = tape-like reverb"}
+    envelope_hint: "medium attack, medium release"
+    lfo_hint: "Random LFO at slow speed on pitch for tape wow/flutter"
+
+  cinematic:
+    acoustic_meaning: "wide stereo, large reverb, evolving texture, deep low end, slow motion"
+    params:
+      - {engine: cluster, color: grey, param: SPREAD, direction: high, audible_tendency: "higher = wider/more detuned", reason: "wide cinematic stereo"}
+      - {engine: cluster, color: blue, param: WAVES, direction: high, audible_tendency: "higher = thicker, wider", reason: "thick cinematic wall"}
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: low, audible_tendency: "higher Hz = brighter", reason: "dark cinematic pad"}
+    fx_overlays:
+      - {fx: mother, color: blue, param: DISTANCE, direction: high, audible_tendency: "higher = bigger/farther", reason: "huge cinematic space"}
+      - {fx: cwo, color: blue, param: FREQ, direction: medium, audible_tendency: "higher = weirder/detuned", reason: "evolving freq-shifted tail"}
+    envelope_hint: "very slow attack, very long release (drone archetype)"
+    lfo_hint: "slow Value LFO on filter or waveform for cinematic evolution"
+
+  haunting:
+    acoustic_meaning: "dark evolving texture, large reverb, frequency-shifted tail, slow modulation"
+    params:
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: low, audible_tendency: "higher Hz = brighter", reason: "dark haunting pad"}
+      - {engine: voltage, color: grey, param: "VOLT (FILTER)", direction: low, audible_tendency: "higher = brighter", reason: "dark filter = haunting"}
+    fx_overlays:
+      - {fx: cwo, color: blue, param: FREQ, direction: high, audible_tendency: "higher = weirder/detuned", reason: "alien freq-shifted = haunting tail"}
+      - {fx: mother, color: blue, param: DISTANCE, direction: high, audible_tendency: "higher = bigger/farther", reason: "huge empty space = haunting"}
+      - {fx: spring, color: grey, param: DAMPING, direction: low, audible_tendency: "higher = shorter/softer tail", reason: "long decaying tail = haunting"}
+    envelope_hint: "very slow attack, very long release (drone archetype)"
+    lfo_hint: "slow Value LFO on filter for haunting evolution"
+
+  ghostly:
+    acoustic_meaning: "ethereal, frequency-shifted, dark reverb tail, slow drift"
+    params:
+      - {engine: voltage, color: grey, param: "VOLT (FILTER)", direction: low, audible_tendency: "higher = brighter", reason: "dark filter = ghostly"}
+      - {engine: cluster, color: orange, param: UNISON, direction: high, audible_tendency: "higher = more movement/shimmer", reason: "slow drift = ghostly movement"}
+    fx_overlays:
+      - {fx: cwo, color: blue, param: FREQ, direction: high, audible_tendency: "higher = weirder/detuned", reason: "freq shift = ghostly detuned tail"}
+      - {fx: spring, color: grey, param: DAMPING, direction: low, audible_tendency: "higher = shorter/softer tail", reason: "long tail = ghostly decay"}
+    envelope_hint: "slow attack, very long release"
+    lfo_hint: "slow Random LFO for ghostly drift"
+
+  dreamy:
+    acoustic_meaning: "wide stereo, large reverb, slow attack, lush detune, soft"
+    params:
+      - {engine: cluster, color: grey, param: SPREAD, direction: high, audible_tendency: "higher = wider/more detuned", reason: "wide dreamy spread"}
+      - {engine: cluster, color: orange, param: UNISON, direction: high, audible_tendency: "higher = more movement/shimmer", reason: "slow dreamy movement"}
+      - {engine: string, color: blue, param: TENSION, direction: low, audible_tendency: "low = loose/sustained/warm", reason: "loose = dreamy sustain"}
+    fx_overlays:
+      - {fx: mother, color: blue, param: DISTANCE, direction: high, audible_tendency: "higher = bigger/farther", reason: "large dreamy reverb"}
+      - {fx: spring, color: grey, param: DAMPING, direction: low, audible_tendency: "higher = shorter/softer tail", reason: "long tail = dreamy"}
+    envelope_hint: "slow attack, long release (pad archetype)"
+    lfo_hint: "slow Value LFO on SPREAD for dreamy movement"
+
+  lush:
+    acoustic_meaning: "very wide, very thick, slow movement, large reverb, high sustain"
+    params:
+      - {engine: cluster, color: blue, param: WAVES, direction: high, audible_tendency: "higher = thicker, wider", reason: "max oscillators = lush thickness"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: high, audible_tendency: "higher = wider/more detuned", reason: "wide detune = lush width"}
+      - {engine: cluster, color: orange, param: UNISON, direction: high, audible_tendency: "higher = more movement/shimmer", reason: "shimmer = lush movement"}
+    fx_overlays:
+      - {fx: mother, color: blue, param: DISTANCE, direction: high, audible_tendency: "higher = bigger/farther", reason: "large lush reverb"}
+      - {fx: mother, color: orange, param: MIX, direction: medium, audible_tendency: "higher = wetter", reason: "medium mix = lush but not washed"}
+    envelope_hint: "slow attack (gradual rise), high sustain, long release (pad archetype)"
+    lfo_hint: "slow Value LFO on SPREAD for lush cyclic motion"
+
+  thin:
+    acoustic_meaning: "narrow, low density, high-pass filter, single oscillator"
+    params:
+      - {engine: cluster, color: blue, param: WAVES, direction: low, audible_tendency: "higher = thicker, wider", reason: "few oscillators = thin"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: low, audible_tendency: "higher = wider/more detuned", reason: "no spread = thin/narrow"}
+      - {engine: digital, color: ochre, param: OCTAVE, direction: high, audible_tendency: "lower = deeper sub", reason: "high octave = unison, no sub weight = thin"}
+    fx_overlays:
+      - {fx: nitro, color: blue, param: LOWS, direction: high, audible_tendency: "higher = thinner", reason: "high-pass cuts lows = thin"}
+      - {fx: terminal, color: grey, param: MODEL, direction: low, audible_tendency: "depends on side", reason: "below 3 = high-pass filter = thin"}
+    envelope_hint: "fast attack, short release"
+    lfo_hint: "none (static)"
+
+  thick:
+    acoustic_meaning: "wide, high density, multiple detuned oscillators, sub weight"
+    params:
+      - {engine: cluster, color: blue, param: WAVES, direction: high, audible_tendency: "higher = thicker, wider", reason: "max oscillators = thick"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: high, audible_tendency: "higher = wider/more detuned", reason: "wide detune = thick"}
+      - {engine: voltage, color: orange, param: DETUNE, direction: high, audible_tendency: "higher = thicker/detuned", reason: "sub-osc detune = thick"}
+      - {engine: digital, color: ochre, param: OCTAVE, direction: low, audible_tendency: "lower = deeper sub", reason: "sub octave = thick low end"}
+    fx_overlays: []
+    envelope_hint: "medium attack, medium-long release"
+    lfo_hint: "slow, subtle detune movement"
+
+  evolving:
+    acoustic_meaning: "slowly changing timbre, frequency-shifted tail, wavetable movement, organic drift"
+    params:
+      - {engine: cluster, color: orange, param: UNISON, direction: high, audible_tendency: "higher = more movement/shimmer", reason: "drift = evolving"}
+      - {engine: dimension, color: blue, param: WAVEFORM, direction: medium, audible_tendency: "varies by wave", reason: "wavetable position changes = evolving timbre"}
+    fx_overlays:
+      - {fx: cwo, color: blue, param: FREQ, direction: high, audible_tendency: "higher = weirder/detuned", reason: "freq-shifted feedback = evolving tail"}
+      - {fx: cwo, color: grey, param: FEEDBACK, direction: medium, audible_tendency: "higher = more repeats/runaway weirdness", reason: "moderate feedback = evolving repeats"}
+    envelope_hint: "very slow attack, very long release (drone archetype)"
+    lfo_hint: "slow Value LFO on WAVEFORM or FILTER FREQ for evolving timbral change"
+
+  static:
+    acoustic_meaning: "no movement, no modulation, fixed timbre, stable pitch"
+    params:
+      - {engine: pulse, color: orange, param: MOD, direction: specific_value, audible_tendency: "off-center = animated PWM", reason: "50 = center detent = no modulation = static"}
+      - {engine: cluster, color: orange, param: UNISON, direction: low, audible_tendency: "higher = more movement/shimmer", reason: "low unison = no drift = static"}
+      - {engine: fm, color: orange, param: DETUNE, direction: low, audible_tendency: "higher = more movement/clang", reason: "low detune = stable pitch"}
+    fx_overlays: []
+    envelope_hint: "medium attack, medium release"
+    lfo_hint: "none (static patch — no LFO)"
+
+  percussive:
+    acoustic_meaning: "instant attack, very fast decay, no sustain, short release, inharmonic"
+    params:
+      - {engine: string, color: blue, param: TENSION, direction: high, audible_tendency: "high = tight/plucky/short", reason: "tight = percussive"}
+      - {engine: string, color: ochre, param: "IMP (DECAY)", direction: low, audible_tendency: "low = short pluck", reason: "short decay = percussive hit"}
+      - {engine: fm, color: blue, param: "FREQ (FM AMOUNT)", direction: high, audible_tendency: "higher = brighter/clangier/more bite", reason: "FM = inharmonic metallic percussion"}
+    fx_overlays: []
+    envelope_hint: "instant attack, very fast decay, no sustain, minimal release (percussive archetype)"
+    lfo_hint: "none (static)"
+
+  sub-heavy:
+    acoustic_meaning: "very low frequency emphasis, sub oscillator, deep bass, dark filter"
+    params:
+      - {engine: digital, color: ochre, param: OCTAVE, direction: low, audible_tendency: "lower = deeper sub", reason: "sub-oscillator drops octave = sub-heavy"}
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: low, audible_tendency: "higher Hz = brighter", reason: "low Hz = sub-heavy dark cutoff"}
+      - {engine: voltage, color: grey, param: "VOLT (FILTER)", direction: low, audible_tendency: "higher = brighter", reason: "low filter = sub-heavy"}
+    fx_overlays: []
+    envelope_hint: "slow attack, long release"
+    lfo_hint: "none (static) or very slow filter movement"
+
+  # ============================================================
+  # NEW DESCRIPTORS — sourced from Grok 16-agent research 2026-06
+  # Every mapping cites real params from op1_recipe_compiler_reference.yaml
+  # with their audible_tendency as evidence.
+  # ============================================================
+
+  velvety:
+    acoustic_meaning: "smooth, lush, enveloping warmth with soft edges — like velvet or heavy cloth"
+    params:
+      - {engine: voltage, color: blue, param: AMPERE, direction: high, audible_tendency: "higher = warmer saturation", reason: "tube-style saturation = velvet warmth"}
+      - {engine: dimension, color: orange, param: RES, direction: low, audible_tendency: "higher = squelchier/acid", reason: "low resonance = smooth, no peaks"}
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: medium, audible_tendency: "higher Hz = brighter", reason: "mid cutoff = warm body without harsh highs"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: medium, audible_tendency: "higher = wider/more detuned", reason: "moderate spread = velvety thickness"}
+    fx_overlays:
+      - {fx: mother, color: grey, param: COLOR, direction: low, audible_tendency: "lower = darker", reason: "dark reverb = velvet space"}
+      - {fx: punch, color: ochre, param: PUNCH, direction: medium, audible_tendency: "higher = punchier/more resonant", reason: "light compression glues without harshness"}
+    envelope_hint: "slow attack (50-150ms), long release"
+    lfo_hint: "slow, subtle detune or filter movement for velvet life"
+
+  creamy:
+    acoustic_meaning: "smooth and thick with chorusing movement — like cream poured, distinct from velvety (which is static warmth)"
+    params:
+      - {engine: cluster, color: blue, param: WAVES, direction: high, audible_tendency: "higher = thicker, wider", reason: "thick oscillators = creamy body"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: high, audible_tendency: "higher = wider/more detuned", reason: "wide detune = creamy chorus"}
+      - {engine: voltage, color: blue, param: AMPERE, direction: medium, audible_tendency: "higher = warmer saturation", reason: "moderate saturation = creamy warmth"}
+    fx_overlays:
+      - {fx: cwo, color: blue, param: FREQ, direction: low, audible_tendency: "higher = weirder/detuned", reason: "low freq shift = creamy chorusing"}
+      - {fx: cwo, color: grey, param: FEEDBACK, direction: medium, audible_tendency: "higher = more repeats/runaway weirdness", reason: "moderate feedback = creamy swirl"}
+      - {fx: mother, color: orange, param: MIX, direction: medium, audible_tendency: "higher = wetter", reason: "medium wash = creamy space"}
+    envelope_hint: "medium-slow attack, long release"
+    lfo_hint: "slow Value LFO on SPREAD for creamy chorus movement"
+
+  crystalline:
+    acoustic_meaning: "sparkling pure highs with defined partials — like ice crystals, distinct from glassy (which is simpler/cleaner)"
+    params:
+      - {engine: fm, color: blue, param: "FREQ (FM AMOUNT)", direction: medium, audible_tendency: "higher = brighter/clangier/more bite", reason: "moderate FM = crystalline partials"}
+      - {engine: fm, color: orange, param: DETUNE, direction: high, audible_tendency: "higher = more movement/clang", reason: "detune = crystalline shimmer"}
+      - {engine: dimension, color: orange, param: RES, direction: high, audible_tendency: "higher = squelchier/acid", reason: "high resonance = crystalline ring"}
+    fx_overlays:
+      - {fx: spring, color: blue, param: TONE, direction: high, audible_tendency: "higher = brighter", reason: "bright spring = crystalline reflections"}
+      - {fx: cwo, color: blue, param: FREQ, direction: medium, audible_tendency: "higher = weirder/detuned", reason: "freq shift = crystalline shimmer"}
+    envelope_hint: "instant attack, medium decay (let partials ring)"
+    lfo_hint: "slow, subtle detune for crystalline life"
+
+  molten:
+    acoustic_meaning: "flowing, viscous, hot — timbre that pours and shifts like lava"
+    params:
+      - {engine: phase, color: blue, param: PHASE, direction: medium, audible_tendency: "higher = brighter/buzzier", reason: "phase distortion = molten flow"}
+      - {engine: fm, color: blue, param: "FREQ (FM AMOUNT)", direction: medium, audible_tendency: "higher = brighter/clangier/more bite", reason: "moderate FM = molten harmonics"}
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: medium, audible_tendency: "higher Hz = brighter", reason: "mid cutoff for molten body"}
+    fx_overlays:
+      - {fx: cwo, color: blue, param: FREQ, direction: medium, audible_tendency: "higher = weirder/detuned", reason: "freq shift = molten flow"}
+      - {fx: delay, color: grey, param: FEEDBACK, direction: medium, audible_tendency: "higher = more repeats", reason: "moderate feedback = molten pour"}
+    envelope_hint: "slow attack, long release — let it flow"
+    lfo_hint: "slow Value LFO on filter cutoff for molten undulation"
+
+  brittle:
+    acoustic_meaning: "fragile, thin, with harsh edges — like dry twigs or cracking ice"
+    params:
+      - {engine: dr_wave, color: blue, param: "TYPE & LENGTH", direction: high, audible_tendency: "higher = more lo-fi/crushed", reason: "sample-rate reduction = brittle degradation"}
+      - {engine: digital, color: orange, param: DIGITALNESS, direction: high, audible_tendency: "higher = grittier/lo-fi", reason: "digital grit = brittle edges"}
+      - {engine: dimension, color: orange, param: RES, direction: high, audible_tendency: "higher = squelchier/acid", reason: "high resonance = brittle peak"}
+    fx_overlays:
+      - {fx: terminal, color: ochre, param: BITS, direction: low, audible_tendency: "lower = more crushed", reason: "bit reduction = brittle crush"}
+      - {fx: terminal, color: blue, param: KHZ, direction: low, audible_tendency: "lower = crunchier", reason: "sample-rate reduction = brittle"}
+    envelope_hint: "fast attack, short decay — snaps brittle"
+    lfo_hint: "none (static) or fast random for brittle crackle"
+
+  rubbery:
+    acoustic_meaning: "bouncy, elastic, squelchy with pitch bounce — like rubber or acid 303"
+    params:
+      - {engine: pulse, color: orange, param: MOD, direction: off_center, audible_tendency: "off-center = animated PWM", reason: "PWM = rubbery bounce"}
+      - {engine: dimension, color: orange, param: RES, direction: high, audible_tendency: "higher = squelchier/acid", reason: "high resonance = rubbery squelch"}
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: medium, audible_tendency: "higher Hz = brighter", reason: "mid cutoff for rubbery sweet spot"}
+    fx_overlays:
+      - {fx: nitro, color: grey, param: Q, direction: high, audible_tendency: "higher = squelchier", reason: "high Q = rubbery resonance"}
+      - {fx: nitro, color: ochre, param: "FREQ FOLLOW", direction: high, audible_tendency: "higher = more auto-wah motion", reason: "envelope follower = rubbery bounce"}
+    envelope_hint: "instant attack, medium decay with bounce"
+    lfo_hint: "medium-speed Value LFO on filter cutoff for rubbery motion"
+
+  plastic:
+    acoustic_meaning: "artificial, toy-like, cheap and brittle — like a Casio or toy keyboard"
+    params:
+      - {engine: dr_wave, color: blue, param: "TYPE & LENGTH", direction: high, audible_tendency: "higher = more lo-fi/crushed", reason: "sample-rate reduction = plastic toy sound"}
+      - {engine: digital, color: blue, param: "WAVE SHAPER", direction: high, audible_tendency: "higher = brighter/grittier", reason: "wave shaping = plastic artificial tone"}
+      - {engine: pulse, color: grey, param: "TIME (2ND PULSE)", direction: off_center, audible_tendency: "off-center = hollow/PWM-ready", reason: "pulse width = plastic hollow"}
+    fx_overlays:
+      - {fx: phone, color: grey, param: BAUD, direction: high, audible_tendency: "higher = more digital destruction", reason: "phone = plastic lo-fi EQ"}
+      - {fx: terminal, color: ochre, param: BITS, direction: low, audible_tendency: "lower = more crushed", reason: "bit reduction = plastic degradation"}
+    envelope_hint: "instant attack, short release"
+    lfo_hint: "none (static) or medium LFO for plastic wobble"
+
+  papery:
+    acoustic_meaning: "thin, raspy, dry — like rustling paper or a thin membrane"
+    params:
+      - {engine: string, color: blue, param: TENSION, direction: low, audible_tendency: "low = loose/sustained/warm", reason: "loose string = papery thin body"}
+      - {engine: string, color: ochre, param: "IMP (DECAY)", direction: low, audible_tendency: "low = short pluck", reason: "short decay = papery rustle"}
+      - {engine: cluster, color: blue, param: WAVES, direction: low, audible_tendency: "higher = thicker, wider", reason: "few oscillators = papery thin"}
+    fx_overlays:
+      - {fx: terminal, color: grey, param: MODEL, direction: low, audible_tendency: "depends on side", reason: "below 3 = high-pass = papery thin"}
+      - {fx: nitro, color: blue, param: LOWS, direction: high, audible_tendency: "higher = thinner", reason: "high-pass = papery"}
+    envelope_hint: "fast attack, short decay"
+    lfo_hint: "none (static) or fast random for papery rustle"
+
+  ceramic:
+    acoustic_meaning: "brittle, ringing, hollow — like a struck ceramic bowl"
+    params:
+      - {engine: fm, color: blue, param: "FREQ (FM AMOUNT)", direction: medium, audible_tendency: "higher = brighter/clangier/more bite", reason: "moderate FM = ceramic ring"}
+      - {engine: fm, color: ochre, param: "FREQUENCY RATIO", direction: specific_value, audible_tendency: "harmonic vs discordant jumps", reason: "inharmonic ratio = ceramic bowl"}
+      - {engine: dimension, color: orange, param: RES, direction: high, audible_tendency: "higher = squelchier/acid", reason: "high resonance = ceramic ringing"}
+    fx_overlays:
+      - {fx: spring, color: blue, param: TONE, direction: high, audible_tendency: "higher = brighter", reason: "bright short spring = ceramic reflection"}
+      - {fx: delay, color: blue, param: RANGE, direction: low, audible_tendency: "higher = longer", reason: "short echo = ceramic ring"}
+    envelope_hint: "instant attack, long natural decay"
+    lfo_hint: "slow, subtle detune for ceramic life"
+
+  tubular:
+    acoustic_meaning: "hollow, resonant, sustained ring — like a struck tube or pipe"
+    params:
+      - {engine: string, color: blue, param: TENSION, direction: medium, audible_tendency: "high = tight/plucky/short, low = loose/sustained/warm", reason: "medium tension = tubular body"}
+      - {engine: fm, color: blue, param: "FREQ (FM AMOUNT)", direction: medium, audible_tendency: "higher = brighter/clangier/more bite", reason: "moderate FM = tubular ring"}
+      - {engine: pulse, color: grey, param: "TIME (2ND PULSE)", direction: off_center, audible_tendency: "off-center = hollow/PWM-ready", reason: "hollow pulse = tubular"}
+    fx_overlays:
+      - {fx: spring, color: ochre, param: TURNS, direction: high, audible_tendency: "higher = bigger/more metallic", reason: "metallic spring = tubular ring"}
+    envelope_hint: "instant attack, long decay"
+    lfo_hint: "none (static) or very slow detune"
+
+  corroded:
+    acoustic_meaning: "degraded, rusted, decayed — like old metal or neglected equipment"
+    params:
+      - {engine: digital, color: orange, param: DIGITALNESS, direction: high, audible_tendency: "higher = grittier/lo-fi", reason: "digital grit = corrosion"}
+      - {engine: voltage, color: ochre, param: GROUND NOISE, direction: high, audible_tendency: "higher = grittier/noisier", reason: "ground noise = corroded texture"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: medium, audible_tendency: "higher = wider/more detuned", reason: "moderate detune = corroded instability"}
+    fx_overlays:
+      - {fx: terminal, color: blue, param: KHZ, direction: low, audible_tendency: "lower = crunchier", reason: "sample-rate reduction = corroded"}
+      - {fx: phone, color: grey, param: BAUD, direction: high, audible_tendency: "higher = more digital destruction", reason: "bit destruction = corroded"}
+      - {fx: terminal, color: grey, param: MODEL, direction: high, audible_tendency: "depends on side", reason: "low-pass = corroded warmth"}
+    envelope_hint: "medium attack, medium release"
+    lfo_hint: "slow Random LFO for corroded instability"
+
+  dilapidated:
+    acoustic_meaning: "old, broken-down, barely functional — like a dying machine or abandoned equipment"
+    params:
+      - {engine: dr_wave, color: blue, param: "TYPE & LENGTH", direction: high, audible_tendency: "higher = more lo-fi/crushed", reason: "extreme lo-fi = dilapidated"}
+      - {engine: dna, color: orange, param: NOISE, direction: high, audible_tendency: "higher = noisier", reason: "noise = dilapidated decay"}
+      - {engine: voltage, color: ochre, param: GROUND NOISE, direction: high, audible_tendency: "higher = grittier/noisier", reason: "noise = dilapidated hiss"}
+    fx_overlays:
+      - {fx: phone, color: grey, param: BAUD, direction: high, audible_tendency: "higher = more digital destruction", reason: "destruction = dilapidated"}
+      - {fx: terminal, color: ochre, param: BITS, direction: low, audible_tendency: "lower = more crushed", reason: "bit crush = dilapidated"}
+      - {fx: spring, color: blue, param: TONE, direction: low, audible_tendency: "higher = brighter", reason: "dark spring = dilapidated space"}
+    envelope_hint: "erratic attack, medium release"
+    lfo_hint: "Random LFO at slow speed for dilapidated drift"
+
+  breathing:
+    acoustic_meaning: "slow cyclic swell and fall — like lungs or wind, distinct from evolving (which is timbral, not dynamic)"
+    params:
+      - {engine: cluster, color: orange, param: UNISON, direction: medium, audible_tendency: "higher = more movement/shimmer", reason: "moderate drift = breathing motion"}
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: medium, audible_tendency: "higher Hz = brighter", reason: "mid filter for breathing body"}
+    fx_overlays:
+      - {fx: mother, color: blue, param: DISTANCE, direction: medium, audible_tendency: "higher = bigger/farther", reason: "medium space = breathing room"}
+    envelope_hint: "slow attack, long release with swell"
+    lfo_hint: "slow Tremolo LFO on volume + slow Value LFO on filter for breathing"
+
+  bouncing:
+    acoustic_meaning: "rhythmic, elastic, springy — like a ball bouncing"
+    params:
+      - {engine: pulse, color: orange, param: MOD, direction: off_center, audible_tendency: "off-center = animated PWM", reason: "PWM = bouncing motion"}
+      - {engine: string, color: blue, param: TENSION, direction: high, audible_tendency: "high = tight/plucky/short", reason: "tight = bouncy transient"}
+    fx_overlays:
+      - {fx: delay, color: blue, param: RANGE, direction: low, audible_tendency: "higher = longer", reason: "short echo = bouncing repeats"}
+      - {fx: delay, color: grey, param: FEEDBACK, direction: medium, audible_tendency: "higher = more repeats", reason: "moderate feedback = bouncy decay"}
+    envelope_hint: "instant attack, short decay"
+    lfo_hint: "medium Tremolo LFO synced to tempo for bouncing"
+
+  crawling:
+    acoustic_meaning: "slow, ground-level, persistent movement — like something crawling forward"
+    params:
+      - {engine: dna, color: orange, param: NOISE, direction: medium, audible_tendency: "higher = noisier", reason: "moderate noise = crawling texture"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: low, audible_tendency: "higher = wider/more detuned", reason: "low spread = crawling narrow focus"}
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: low, audible_tendency: "higher Hz = brighter", reason: "low cutoff = crawling dark"}
+    fx_overlays:
+      - {fx: cwo, color: blue, param: FREQ, direction: low, audible_tendency: "higher = weirder/detuned", reason: "low freq shift = crawling movement"}
+    envelope_hint: "very slow attack, long release"
+    lfo_hint: "slow Random LFO on filter or pitch for crawling"
+
+  seeping:
+    acoustic_meaning: "slow, dark, spreading — like something seeping through cracks"
+    params:
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: low, audible_tendency: "higher Hz = brighter", reason: "low cutoff = seeping dark"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: medium, audible_tendency: "higher = wider/more detuned", reason: "moderate spread = seeping width"}
+      - {engine: voltage, color: grey, param: "VOLT (FILTER)", direction: low, audible_tendency: "higher = brighter", reason: "low filter = seeping"}
+    fx_overlays:
+      - {fx: mother, color: grey, param: COLOR, direction: low, audible_tendency: "lower = darker", reason: "dark reverb = seeping space"}
+      - {fx: delay, color: grey, param: FEEDBACK, direction: high, audible_tendency: "higher = more repeats", reason: "high feedback = seeping spread"}
+    envelope_hint: "very slow attack, very long release"
+    lfo_hint: "very slow Value LFO on filter for seeping movement"
+
+  cascading:
+    acoustic_meaning: "flowing downward in steps — like water cascading or notes falling"
+    params:
+      - {engine: fm, color: blue, param: "FREQ (FM AMOUNT)", direction: medium, audible_tendency: "higher = brighter/clangier/more bite", reason: "moderate FM = cascading partials"}
+      - {engine: string, color: ochre, param: "IMP (DECAY)", direction: high, audible_tendency: "high = long bow/strum/sustain", reason: "long decay = cascading sustain"}
+    fx_overlays:
+      - {fx: delay, color: grey, param: FEEDBACK, direction: high, audible_tendency: "higher = more repeats", reason: "high feedback = cascading repeats"}
+      - {fx: delay, color: blue, param: RANGE, direction: medium, audible_tendency: "higher = longer", reason: "medium echo = cascading steps"}
+      - {fx: cwo, color: blue, param: FREQ, direction: medium, audible_tendency: "higher = weirder/detuned", reason: "freq shift = cascading warble"}
+    envelope_hint: "medium attack, long release"
+    lfo_hint: "medium Value LFO on delay time or filter for cascading"
+
+  trickling:
+    acoustic_meaning: "fast, light, intermittent drops — like water trickling"
+    params:
+      - {engine: dr_wave, color: blue, param: "TYPE & LENGTH", direction: medium, audible_tendency: "higher = more lo-fi/crushed", reason: "moderate lo-fi = trickling texture"}
+      - {engine: dna, color: orange, param: NOISE, direction: low, audible_tendency: "higher = noisier", reason: "low noise = trickling detail"}
+    fx_overlays:
+      - {fx: delay, color: blue, param: RANGE, direction: low, audible_tendency: "higher = longer", reason: "short echo = trickling drops"}
+      - {fx: delay, color: grey, param: FEEDBACK, direction: medium, audible_tendency: "higher = more repeats", reason: "moderate repeats = trickling"}
+      - {fx: grid, color: grey, param: FEEDBACK, direction: medium, audible_tendency: "higher = denser/self-oscillating", reason: "comb grid = trickling texture"}
+    envelope_hint: "instant attack, very short decay"
+    lfo_hint: "fast Random LFO on pitch or filter for trickling"
+
+  dripping:
+    acoustic_meaning: "pitched droplets with resonance — like water dripping in a cave"
+    params:
+      - {engine: fm, color: blue, param: "FREQ (FM AMOUNT)", direction: medium, audible_tendency: "higher = brighter/clangier/more bite", reason: "moderate FM = dripping partials"}
+      - {engine: dimension, color: orange, param: RES, direction: high, audible_tendency: "higher = squelchier/acid", reason: "high resonance = dripping ring"}
+    fx_overlays:
+      - {fx: delay, color: blue, param: RANGE, direction: low, audible_tendency: "higher = longer", reason: "short echo = dripping repeats"}
+      - {fx: spring, color: grey, param: DAMPING, direction: medium, audible_tendency: "higher = shorter/softer tail", reason: "medium damping = drip space"}
+    envelope_hint: "instant attack, short-medium decay"
+    lfo_hint: "medium Random LFO on pitch for dripping variation"
+
+  blooming:
+    acoustic_meaning: "slow swell that grows from nothing — like a flower opening"
+    params:
+      - {engine: cluster, color: blue, param: WAVES, direction: high, audible_tendency: "higher = thicker, wider", reason: "thick oscillators = blooming body"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: high, audible_tendency: "higher = wider/more detuned", reason: "wide spread = blooming width"}
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: medium, audible_tendency: "higher Hz = brighter", reason: "mid filter for blooming body"}
+    fx_overlays:
+      - {fx: mother, color: blue, param: DISTANCE, direction: high, audible_tendency: "higher = bigger/farther", reason: "large reverb = blooming space"}
+      - {fx: mother, color: orange, param: MIX, direction: medium, audible_tendency: "higher = wetter", reason: "medium wash = blooming tail"}
+    envelope_hint: "very slow attack (200ms+), long release — the defining feature"
+    lfo_hint: "slow Value LFO on filter for blooming timbral change"
+
+  wilting:
+    acoustic_meaning: "slow decay with diminishing energy — like a flower wilting"
+    params:
+      - {engine: string, color: blue, param: TENSION, direction: low, audible_tendency: "low = loose/sustained/warm", reason: "loose = wilting sustained decay"}
+      - {engine: string, color: ochre, param: "IMP (DECAY)", direction: medium, audible_tendency: "high = long bow/strum/sustain", reason: "medium decay = wilting"}
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: low, audible_tendency: "higher Hz = brighter", reason: "low cutoff = wilting dark"}
+    fx_overlays:
+      - {fx: spring, color: grey, param: DAMPING, direction: high, audible_tendency: "higher = shorter/softer tail", reason: "dampened = wilting fade"}
+    envelope_hint: "medium attack, medium-long decay (downward slope)"
+    lfo_hint: "slow Random LFO on pitch (slight downward) for wilting"
+
+  erupting:
+    acoustic_meaning: "building from quiet to explosive intensity — like an eruption"
+    params:
+      - {engine: cluster, color: ochre, param: WAVE ENV, direction: high, audible_tendency: "higher = brighter/more aggressive", reason: "aggressive envelope = erupting"}
+      - {engine: fm, color: blue, param: "FREQ (FM AMOUNT)", direction: high, audible_tendency: "higher = brighter/clangier/more bite", reason: "high FM = erupting intensity"}
+      - {engine: digital, color: orange, param: DIGITALNESS, direction: high, audible_tendency: "higher = grittier/lo-fi", reason: "grit = erupting aggression"}
+    fx_overlays:
+      - {fx: nitro, color: grey, param: Q, direction: high, audible_tendency: "higher = squelchier", reason: "high Q = erupting resonance"}
+      - {fx: punch, color: ochre, param: PUNCH, direction: high, audible_tendency: "higher = punchier/more resonant", reason: "punch = erupting impact"}
+    envelope_hint: "slow attack building, long release"
+    lfo_hint: "medium Value LFO on filter (upward sweep) for erupting"
+
+  imploding:
+    acoustic_meaning: "pulling inward, collapsing — pitch and filter dropping"
+    params:
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: low, audible_tendency: "higher Hz = brighter", reason: "closing filter = imploding"}
+      - {engine: fm, color: blue, param: "FREQ (FM AMOUNT)", direction: low, audible_tendency: "higher = brighter/clangier/more bite", reason: "low FM = imploding dark"}
+      - {engine: voltage, color: grey, param: "VOLT (FILTER)", direction: low, audible_tendency: "higher = brighter", reason: "closing filter = imploding"}
+    fx_overlays:
+      - {fx: spring, color: grey, param: DAMPING, direction: high, audible_tendency: "higher = shorter/softer tail", reason: "dampened = imploding"}
+    envelope_hint: "medium attack, short release (collapsing)"
+    lfo_hint: "slow Value LFO on filter (downward) or pitch for imploding"
+
+  shattering:
+    acoustic_meaning: "bursting outward with high-frequency energy — like glass breaking"
+    params:
+      - {engine: fm, color: blue, param: "FREQ (FM AMOUNT)", direction: high, audible_tendency: "higher = brighter/clangier/more bite", reason: "high FM = shattering partials"}
+      - {engine: dimension, color: orange, param: RES, direction: high, audible_tendency: "higher = squelchier/acid", reason: "high resonance = shattering peak"}
+      - {engine: digital, color: grey, param: "DETUNE / RING MOD", direction: high, audible_tendency: "upper half = clangorous/metallic", reason: "ring mod = shattering clang"}
+    fx_overlays:
+      - {fx: cwo, color: orange, param: SIDEBAND, direction: high, audible_tendency: "higher = more extreme/metallic", reason: "extreme sideband = shattering"}
+    envelope_hint: "instant attack, short decay (sharp burst)"
+    lfo_hint: "fast Random LFO on pitch for shattering"
+
+  melting:
+    acoustic_meaning: "pitch dropping, timbre blurring — like something melting"
+    params:
+      - {engine: phase, color: blue, param: PHASE, direction: medium, audible_tendency: "higher = brighter/buzzier", reason: "phase distortion = melting flow"}
+      - {engine: cluster, color: orange, param: UNISON, direction: high, audible_tendency: "higher = more movement/shimmer", reason: "drift = melting instability"}
+    fx_overlays:
+      - {fx: cwo, color: blue, param: FREQ, direction: medium, audible_tendency: "higher = weirder/detuned", reason: "freq shift = melting blur"}
+      - {fx: delay, color: grey, param: FEEDBACK, direction: high, audible_tendency: "higher = more repeats", reason: "high feedback = melting smear"}
+    envelope_hint: "medium attack, long release"
+    lfo_hint: "slow Value LFO on pitch (downward) for melting"
+
+  freezing:
+    acoustic_meaning: "stasis, cold, suspended — like sound frozen in ice"
+    params:
+      - {engine: fm, color: blue, param: "FREQ (FM AMOUNT)", direction: low, audible_tendency: "higher = brighter/clangier/more bite", reason: "low FM = cold sine = freezing"}
+      - {engine: digital, color: orange, param: DIGITALNESS, direction: low, audible_tendency: "higher = grittier/lo-fi", reason: "clean = freezing sterile"}
+      - {engine: cluster, color: orange, param: UNISON, direction: low, audible_tendency: "higher = more movement/shimmer", reason: "no drift = frozen static"}
+    fx_overlays:
+      - {fx: mother, color: blue, param: DISTANCE, direction: high, audible_tendency: "higher = bigger/farther", reason: "vast space = freezing cavern"}
+      - {fx: spring, color: grey, param: DAMPING, direction: low, audible_tendency: "higher = shorter/softer tail", reason: "long tail = frozen echo"}
+    envelope_hint: "slow attack, very long release"
+    lfo_hint: "none (static) — frozen implies no movement"
+
+  underwater:
+    acoustic_meaning: "muffled, warm, with bubbly modulation — like listening underwater"
+    params:
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: low, audible_tendency: "higher Hz = brighter", reason: "low cutoff = underwater muffle"}
+      - {engine: voltage, color: grey, param: "VOLT (FILTER)", direction: low, audible_tendency: "higher = brighter", reason: "low filter = underwater"}
+      - {engine: cluster, color: orange, param: UNISON, direction: medium, audible_tendency: "higher = more movement/shimmer", reason: "moderate drift = underwater bubble"}
+    fx_overlays:
+      - {fx: phone, color: grey, param: BAUD, direction: high, audible_tendency: "higher = more digital destruction", reason: "phone = underwater EQ"}
+      - {fx: cwo, color: blue, param: FREQ, direction: low, audible_tendency: "higher = weirder/detuned", reason: "low freq shift = underwater warble"}
+      - {fx: spring, color: grey, param: DAMPING, direction: high, audible_tendency: "higher = shorter/softer tail", reason: "dampened = underwater"}
+    envelope_hint: "medium-slow attack, long release"
+    lfo_hint: "slow Random LFO on pitch for underwater bubbly modulation"
+
+  feathered:
+    acoustic_meaning: "light, soft-edged, barely there — like feathers or breath"
+    params:
+      - {engine: cluster, color: blue, param: WAVES, direction: low, audible_tendency: "higher = thicker, wider", reason: "few oscillators = feathered light"}
+      - {engine: dimension, color: orange, param: RES, direction: low, audible_tendency: "higher = squelchier/acid", reason: "low resonance = feathered soft"}
+      - {engine: string, color: orange, param: IMP TYPE, direction: high, audible_tendency: "high = soft (finger/bow)", reason: "soft excitation = feathered"}
+    fx_overlays:
+      - {fx: mother, color: orange, param: MIX, direction: low, audible_tendency: "higher = wetter", reason: "light mix = feathered space"}
+      - {fx: spring, color: grey, param: DAMPING, direction: high, audible_tendency: "higher = shorter/softer tail", reason: "soft tail = feathered"}
+    envelope_hint: "slow attack, long release"
+    lfo_hint: "slow, very subtle filter movement"
+
+  gnarly:
+    acoustic_meaning: "aggressive, twisted, complex distortion — like something gnarled and ugly"
+    params:
+      - {engine: digital, color: grey, param: "DETUNE / RING MOD", direction: high, audible_tendency: "upper half = clangorous/metallic", reason: "ring mod = gnarly clang"}
+      - {engine: phase, color: ochre, param: DIST, direction: high, audible_tendency: "higher = grittier", reason: "wave distortion = gnarly"}
+      - {engine: phase, color: orange, param: TILT, direction: high, audible_tendency: "higher = noisier/harsher", reason: "harsh folding = gnarly"}
+    fx_overlays:
+      - {fx: amp, color: orange, param: DRIVE, direction: high, audible_tendency: "higher = more distortion", reason: "drive = gnarly distortion"}
+      - {fx: nitro, color: grey, param: Q, direction: high, audible_tendency: "higher = squelchier", reason: "high Q = gnarly resonance"}
+    envelope_hint: "fast attack, medium release"
+    lfo_hint: "fast Random LFO on pitch or filter for gnarly chaos"
+
+  feral:
+    acoustic_meaning: "wild, unpredictable, untamed — like a feral animal"
+    params:
+      - {engine: dna, color: orange, param: NOISE, direction: high, audible_tendency: "higher = noisier", reason: "noise = feral chaos"}
+      - {engine: digital, color: grey, param: "DETUNE / RING MOD", direction: high, audible_tendency: "upper half = clangorous/metallic", reason: "ring mod = feral clang"}
+      - {engine: cluster, color: orange, param: UNISON, direction: high, audible_tendency: "higher = more movement/shimmer", reason: "wild drift = feral"}
+    fx_overlays:
+      - {fx: phone, color: ochre, param: GSM, direction: high, audible_tendency: "higher = chunkier glitch", reason: "glitch = feral chaos"}
+      - {fx: grid, color: grey, param: FEEDBACK, direction: high, audible_tendency: "higher = denser/self-oscillating", reason: "wild feedback = feral"}
+    envelope_hint: "erratic attack, short release"
+    lfo_hint: "fast Random LFO on multiple params for feral unpredictability"
+
+  pointillist:
+    acoustic_meaning: "discrete, separated notes in space — like pointillist painting"
+    params:
+      - {engine: string, color: blue, param: TENSION, direction: high, audible_tendency: "high = tight/plucky/short", reason: "tight = pointillist short notes"}
+      - {engine: string, color: ochre, param: "IMP (DECAY)", direction: low, audible_tendency: "low = short pluck", reason: "short decay = pointillist"}
+    fx_overlays:
+      - {fx: delay, color: blue, param: RANGE, direction: low, audible_tendency: "higher = longer", reason: "short echo = pointillist dots"}
+      - {fx: mother, color: orange, param: MIX, direction: low, audible_tendency: "higher = wetter", reason: "light mix = pointillist space between notes"}
+    envelope_hint: "instant attack, very short decay, no sustain"
+    lfo_hint: "none (static) — pointillist is about discrete hits"
+
+  smeared:
+    acoustic_meaning: "blurred, indistinct, washed — like smeared paint"
+    params:
+      - {engine: cluster, color: blue, param: WAVES, direction: high, audible_tendency: "higher = thicker, wider", reason: "thick = smeared blur"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: high, audible_tendency: "higher = wider/more detuned", reason: "wide = smeared"}
+    fx_overlays:
+      - {fx: delay, color: grey, param: FEEDBACK, direction: high, audible_tendency: "higher = more repeats", reason: "high feedback = smeared blur"}
+      - {fx: mother, color: orange, param: MIX, direction: high, audible_tendency: "higher = wetter", reason: "heavy wash = smeared"}
+      - {fx: cwo, color: grey, param: FEEDBACK, direction: high, audible_tendency: "higher = more repeats/runaway weirdness", reason: "CWO smear"}
+    envelope_hint: "slow attack, very long release"
+    lfo_hint: "slow Value LFO on filter for smeared movement"
+
+  pristine:
+    acoustic_meaning: "ultra-clean, perfect, untouched — like crystal-clear water"
+    params:
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: high, audible_tendency: "higher Hz = brighter", reason: "open filter = pristine clarity"}
+      - {engine: digital, color: orange, param: DIGITALNESS, direction: low, audible_tendency: "higher = grittier/lo-fi", reason: "no grit = pristine"}
+      - {engine: dimension, color: orange, param: RES, direction: low, audible_tendency: "higher = squelchier/acid", reason: "no resonance = pristine flat"}
+    fx_overlays: []
+    envelope_hint: "medium attack, clean release"
+    lfo_hint: "none (static) — pristine implies perfection"
+
+  sterile:
+    acoustic_meaning: "clean but lifeless, cold, no character — like a sterile lab"
+    params:
+      - {engine: fm, color: blue, param: "FREQ (FM AMOUNT)", direction: low, audible_tendency: "higher = brighter/clangier/more bite", reason: "low FM = sterile sine"}
+      - {engine: digital, color: orange, param: DIGITALNESS, direction: low, audible_tendency: "higher = grittier/lo-fi", reason: "clean = sterile"}
+      - {engine: cluster, color: orange, param: UNISON, direction: low, audible_tendency: "higher = more movement/shimmer", reason: "no movement = sterile"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: low, audible_tendency: "higher = wider/more detuned", reason: "no detune = sterile"}
+    fx_overlays: []
+    envelope_hint: "instant attack, medium release"
+    lfo_hint: "none (static) — sterile implies no life"
+
+  saturated:
+    acoustic_meaning: "driven, full, warm compression — like tape saturation or tube drive"
+    params:
+      - {engine: voltage, color: blue, param: AMPERE, direction: high, audible_tendency: "higher = warmer saturation", reason: "tube saturation = saturated"}
+      - {engine: voltage, color: ochre, param: GROUND NOISE, direction: medium, audible_tendency: "higher = grittier/noisier", reason: "moderate noise = saturated character"}
+    fx_overlays:
+      - {fx: punch, color: ochre, param: PUNCH, direction: high, audible_tendency: "higher = punchier/more resonant", reason: "compression = saturated glue"}
+      - {fx: amp, color: orange, param: DRIVE, direction: high, audible_tendency: "higher = more distortion", reason: "drive = saturated"}
+      - {fx: amp, color: ochre, param: COMPRESSION, direction: high, audible_tendency: "higher = more compressed/punchy", reason: "compression = saturated"}
+    envelope_hint: "fast attack, medium release"
+    lfo_hint: "none (static) or very slow tremolo for saturated pulse"
+
+  compressed:
+    acoustic_meaning: "tight, controlled dynamics — punchy and glued"
+    params:
+      - {engine: pulse, color: blue, param: FILTERO, direction: high, audible_tendency: "higher = brighter", reason: "bright filter for compressed clarity"}
+    fx_overlays:
+      - {fx: punch, color: ochre, param: PUNCH, direction: high, audible_tendency: "higher = punchier/more resonant", reason: "punch = compressed dynamics"}
+      - {fx: punch, color: grey, param: ROUNDS, direction: high, audible_tendency: "higher = steeper/more aggressive", reason: "steep filter = compressed tight"}
+      - {fx: amp, color: ochre, param: COMPRESSION, direction: high, audible_tendency: "higher = more compressed/punchy", reason: "compression = the point"}
+    envelope_hint: "instant attack, controlled decay"
+    lfo_hint: "none (static) — compressed implies controlled"
+
+  # ============================================================
+  # GENRE-SPECIFIC DESCRIPTORS
+  # These map multi-param recipes for recognizable genre vibes.
+  # ============================================================
+
+  boards_of_canada:
+    acoustic_meaning: "nostalgic, warbly tape, warm detuned pads, lo-fi childhood memory"
+    params:
+      - {engine: voltage, color: blue, param: AMPERE, direction: high, audible_tendency: "higher = warmer saturation", reason: "warm saturation = BoC nostalgia"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: medium, audible_tendency: "higher = wider/more detuned", reason: "moderate detune = BoC warmth"}
+      - {engine: cluster, color: orange, param: UNISON, direction: medium, audible_tendency: "higher = more movement/shimmer", reason: "moderate drift = BoC warble"}
+    fx_overlays:
+      - {fx: phone, color: grey, param: BAUD, direction: medium, audible_tendency: "higher = more digital destruction", reason: "moderate phone = BoC lo-fi EQ"}
+      - {fx: spring, color: blue, param: TONE, direction: low, audible_tendency: "higher = brighter", reason: "dark spring = BoC nostalgia"}
+      - {fx: terminal, color: blue, param: KHZ, direction: low, audible_tendency: "lower = crunchier", reason: "tape-like SRR = BoC character"}
+    envelope_hint: "medium-slow attack, long release"
+    lfo_hint: "slow Random LFO on pitch for BoC tape wow/flutter"
+
+  aphex_twin:
+    acoustic_meaning: "IDM, angular, glitchy, complex, chaotic — brain-bending"
+    params:
+      - {engine: fm, color: blue, param: "FREQ (FM AMOUNT)", direction: high, audible_tendency: "higher = brighter/clangier/more bite", reason: "complex FM = Aphex angular harmonics"}
+      - {engine: digital, color: grey, param: "DETUNE / RING MOD", direction: high, audible_tendency: "upper half = clangorous/metallic", reason: "ring mod = Aphex metallic chaos"}
+      - {engine: dna, color: orange, param: NOISE, direction: high, audible_tendency: "higher = noisier", reason: "noise = Aphex glitch"}
+    fx_overlays:
+      - {fx: grid, color: grey, param: FEEDBACK, direction: high, audible_tendency: "higher = denser/self-oscillating", reason: "comb grid = Aphex density"}
+      - {fx: terminal, color: ochre, param: BITS, direction: low, audible_tendency: "lower = more crushed", reason: "bit crush = Aphex digital edge"}
+      - {fx: cwo, color: blue, param: FREQ, direction: high, audible_tendency: "higher = weirder/detuned", reason: "freq shift = Aphex alien"}
+    envelope_hint: "erratic attack, short release"
+    lfo_hint: "fast Random LFO on multiple params for Aphex chaos"
+
+  shoegaze:
+    acoustic_meaning: "washed walls of sound, blurred edges, heavy reverb and modulation"
+    params:
+      - {engine: cluster, color: blue, param: WAVES, direction: high, audible_tendency: "higher = thicker, wider", reason: "thick wall = shoegaze"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: high, audible_tendency: "higher = wider/more detuned", reason: "wide = shoegaze blur"}
+      - {engine: cluster, color: ochre, param: WAVE ENV, direction: high, audible_tendency: "higher = brighter/more aggressive", reason: "bright = shoegaze wall"}
+    fx_overlays:
+      - {fx: mother, color: orange, param: MIX, direction: high, audible_tendency: "higher = wetter", reason: "heavy wash = shoegaze"}
+      - {fx: delay, color: grey, param: FEEDBACK, direction: high, audible_tendency: "higher = more repeats", reason: "high feedback = shoegaze smear"}
+      - {fx: cwo, color: blue, param: FREQ, direction: medium, audible_tendency: "higher = weirder/detuned", reason: "chorusing = shoegaze swirl"}
+    envelope_hint: "slow attack, long release"
+    lfo_hint: "slow Value LFO on filter or detune for shoegaze movement"
+
+  dub_techno:
+    acoustic_meaning: "pulsing chords with deep space, modulated delay, minimal and hypnotic"
+    params:
+      - {engine: voltage, color: blue, param: AMPERE, direction: medium, audible_tendency: "higher = warmer saturation", reason: "moderate warmth = dub techno"}
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: low, audible_tendency: "higher Hz = brighter", reason: "dark filter = dub techno deep"}
+      - {engine: string, color: blue, param: TENSION, direction: low, audible_tendency: "low = loose/sustained/warm", reason: "sustained chord = dub techno pulse"}
+    fx_overlays:
+      - {fx: delay, color: grey, param: FEEDBACK, direction: high, audible_tendency: "higher = more repeats", reason: "high feedback = dub techno echo"}
+      - {fx: mother, color: blue, param: DISTANCE, direction: high, audible_tendency: "higher = bigger/farther", reason: "deep space = dub techno"}
+      - {fx: spring, color: grey, param: DAMPING, direction: low, audible_tendency: "higher = shorter/softer tail", reason: "long tail = dub techno space"}
+    envelope_hint: "slow attack, long release"
+    lfo_hint: "medium Tremolo LFO on volume for dub techno pulse"
+
+  vaporwave:
+    acoustic_meaning: "plastic, slowed, nostalgic 80s — like a degraded VHS"
+    params:
+      - {engine: fm, color: blue, param: "FREQ (FM AMOUNT)", direction: medium, audible_tendency: "higher = brighter/clangier/more bite", reason: "moderate FM = vaporwave e-piano"}
+      - {engine: dr_wave, color: blue, param: "TYPE & LENGTH", direction: medium, audible_tendency: "higher = more lo-fi/crushed", reason: "moderate lo-fi = vaporwave VHS"}
+    fx_overlays:
+      - {fx: phone, color: grey, param: BAUD, direction: high, audible_tendency: "higher = more digital destruction", reason: "phone = vaporwave plastic EQ"}
+      - {fx: terminal, color: blue, param: KHZ, direction: low, audible_tendency: "lower = crunchier", reason: "SRR = vaporwave degradation"}
+      - {fx: spring, color: blue, param: TONE, direction: low, audible_tendency: "higher = brighter", reason: "dark spring = vaporwave nostalgia"}
+    envelope_hint: "slow attack, long release"
+    lfo_hint: "slow Random LFO on pitch for vaporwave wow/flutter"
+
+  lofi_hip_hop:
+    acoustic_meaning: "warm, dirty, chopped, vinyl-like — relaxed and nostalgic"
+    params:
+      - {engine: voltage, color: blue, param: AMPERE, direction: high, audible_tendency: "higher = warmer saturation", reason: "warm saturation = lo-fi hip-hop"}
+      - {engine: voltage, color: ochre, param: GROUND NOISE, direction: medium, audible_tendency: "higher = grittier/noisier", reason: "moderate noise = lo-fi hiss"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: medium, audible_tendency: "higher = wider/more detuned", reason: "moderate detune = lo-fi warmth"}
+    fx_overlays:
+      - {fx: phone, color: grey, param: BAUD, direction: medium, audible_tendency: "higher = more digital destruction", reason: "moderate phone = lo-fi EQ"}
+      - {fx: terminal, color: blue, param: KHZ, direction: low, audible_tendency: "lower = crunchier", reason: "SRR = lo-fi crunch"}
+      - {fx: spring, color: blue, param: TONE, direction: low, audible_tendency: "higher = brighter", reason: "dark spring = lo-fi warmth"}
+    envelope_hint: "medium attack, medium release"
+    lfo_hint: "slow Random LFO on pitch for lo-fi wow/flutter"
+
+  dungeon_synth:
+    acoustic_meaning: "dark, medieval, atmospheric — like a cathedral or crypt"
+    params:
+      - {engine: voltage, color: grey, param: "VOLT (FILTER)", direction: low, audible_tendency: "higher = brighter", reason: "dark filter = dungeon synth"}
+      - {engine: cluster, color: blue, param: WAVES, direction: high, audible_tendency: "higher = thicker, wider", reason: "thick = dungeon synth wall"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: medium, audible_tendency: "higher = wider/more detuned", reason: "moderate detune = dungeon synth unease"}
+    fx_overlays:
+      - {fx: mother, color: blue, param: DISTANCE, direction: high, audible_tendency: "higher = bigger/farther", reason: "cathedral space = dungeon synth"}
+      - {fx: spring, color: blue, param: TONE, direction: low, audible_tendency: "higher = brighter", reason: "dark spring = dungeon synth"}
+    envelope_hint: "slow attack, very long release"
+    lfo_hint: "very slow Value LFO on filter for dungeon synth evolution"
+
+  darksynth:
+    acoustic_meaning: "aggressive, dark, heavy — like a horror synthwave soundtrack"
+    params:
+      - {engine: cluster, color: ochre, param: WAVE ENV, direction: high, audible_tendency: "higher = brighter/more aggressive", reason: "aggressive = darksynth"}
+      - {engine: digital, color: orange, param: DIGITALNESS, direction: high, audible_tendency: "higher = grittier/lo-fi", reason: "grit = darksynth aggression"}
+      - {engine: digital, color: grey, param: "DETUNE / RING MOD", direction: high, audible_tendency: "upper half = clangorous/metallic", reason: "ring mod = darksynth clang"}
+    fx_overlays:
+      - {fx: nitro, color: grey, param: Q, direction: high, audible_tendency: "higher = squelchier", reason: "high Q = darksynth resonance"}
+      - {fx: amp, color: orange, param: DRIVE, direction: high, audible_tendency: "higher = more distortion", reason: "drive = darksynth aggression"}
+      - {fx: mother, color: blue, param: DISTANCE, direction: high, audible_tendency: "higher = bigger/farther", reason: "dark space = darksynth"}
+    envelope_hint: "fast attack, medium release"
+    lfo_hint: "medium Value LFO on filter for darksynth motion"
+
+  chillwave:
+    acoustic_meaning: "dreamy, retro, washed, nostalgic 80s — like a summer memory"
+    params:
+      - {engine: cluster, color: grey, param: SPREAD, direction: high, audible_tendency: "higher = wider/more detuned", reason: "wide = chillwave dreamy"}
+      - {engine: cluster, color: orange, param: UNISON, direction: high, audible_tendency: "higher = more movement/shimmer", reason: "shimmer = chillwave nostalgia"}
+      - {engine: phase, color: blue, param: PHASE, direction: medium, audible_tendency: "higher = brighter/buzzier", reason: "phase distortion = chillwave retro"}
+    fx_overlays:
+      - {fx: mother, color: orange, param: MIX, direction: medium, audible_tendency: "higher = wetter", reason: "medium wash = chillwave"}
+      - {fx: cwo, color: blue, param: FREQ, direction: low, audible_tendency: "higher = weirder/detuned", reason: "low freq shift = chillwave chorusing"}
+      - {fx: delay, color: grey, param: FEEDBACK, direction: medium, audible_tendency: "higher = more repeats", reason: "moderate echo = chillwave"}
+    envelope_hint: "slow attack, long release"
+    lfo_hint: "slow Value LFO on filter or detune for chillwave movement"
+
+  drone:
+    acoustic_meaning: "sustained, minimal, evolving — a single continuous sound that changes slowly"
+    params:
+      - {engine: cluster, color: blue, param: WAVES, direction: high, audible_tendency: "higher = thicker, wider", reason: "thick = drone wall"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: high, audible_tendency: "higher = wider/more detuned", reason: "wide = drone immensity"}
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: low, audible_tendency: "higher Hz = brighter", reason: "dark = drone depth"}
+    fx_overlays:
+      - {fx: mother, color: blue, param: DISTANCE, direction: high, audible_tendency: "higher = bigger/farther", reason: "vast space = drone"}
+      - {fx: cwo, color: blue, param: FREQ, direction: medium, audible_tendency: "higher = weirder/detuned", reason: "freq shift = drone evolution"}
+      - {fx: delay, color: grey, param: FEEDBACK, direction: high, audible_tendency: "higher = more repeats", reason: "high feedback = drone sustain"}
+    envelope_hint: "very slow attack, infinite release"
+    lfo_hint: "very slow Value LFO on filter or waveform for drone evolution"
+
+  # ============================================================
+  # v3.1.1 — 5 additional descriptors from second Grok pass
+  # ============================================================
+
+  eerie:
+    acoustic_meaning: "unsettling, dissonant, otherworldly — distinct from haunting (which is dark/spacious); eerie implies dissonance and unease"
+    params:
+      - {engine: fm, color: blue, param: "FREQ (FM AMOUNT)", direction: medium, audible_tendency: "higher = brighter/clangier/more bite", reason: "inharmonic FM partials = eerie dissonance"}
+      - {engine: fm, color: ochre, param: "FREQUENCY RATIO", direction: specific_value, audible_tendency: "harmonic vs discordant jumps", reason: "discordant ratio = eerie unease"}
+      - {engine: digital, color: grey, param: "DETUNE / RING MOD", direction: high, audible_tendency: "upper half = clangorous/metallic", reason: "ring mod = eerie inharmonic clang"}
+    fx_overlays:
+      - {fx: cwo, color: blue, param: FREQ, direction: high, audible_tendency: "higher = weirder/detuned", reason: "freq shift = eerie alien tail"}
+      - {fx: mother, color: blue, param: DISTANCE, direction: high, audible_tendency: "higher = bigger/farther", reason: "vast empty space = eerie"}
+    envelope_hint: "slow attack, very long release — let dissonance hang"
+    lfo_hint: "slow Random LFO on pitch for eerie instability"
+
+  nostalgic:
+    acoustic_meaning: "warm, wistful, memory-evoking — distinct from retro/vintage (which are technical); nostalgic is emotional"
+    params:
+      - {engine: voltage, color: blue, param: AMPERE, direction: high, audible_tendency: "higher = warmer saturation", reason: "warm saturation = nostalgic comfort"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: medium, audible_tendency: "higher = wider/more detuned", reason: "moderate detune = nostalgic imperfection"}
+      - {engine: cluster, color: orange, param: UNISON, direction: medium, audible_tendency: "higher = more movement/shimmer", reason: "moderate drift = nostalgic warble"}
+    fx_overlays:
+      - {fx: spring, color: blue, param: TONE, direction: low, audible_tendency: "higher = brighter", reason: "dark spring = nostalgic warmth"}
+      - {fx: terminal, color: blue, param: KHZ, direction: low, audible_tendency: "lower = crunchier", reason: "SRR = nostalgic tape degradation"}
+    envelope_hint: "medium-slow attack, long release"
+    lfo_hint: "slow Random LFO on pitch for nostalgic wow/flutter"
+
+  harsh:
+    acoustic_meaning: "unpleasantly sharp, grating, piercing — distinct from aggressive (which is forceful); harsh implies discomfort"
+    params:
+      - {engine: phase, color: orange, param: TILT, direction: high, audible_tendency: "higher = noisier/harsher", reason: "asymmetric wave folding = harsh"}
+      - {engine: digital, color: orange, param: DIGITALNESS, direction: high, audible_tendency: "higher = grittier/lo-fi", reason: "digital grit = harsh edges"}
+      - {engine: cluster, color: ochre, param: WAVE ENV, direction: high, audible_tendency: "higher = brighter/more aggressive", reason: "bright filter = harsh highs"}
+    fx_overlays:
+      - {fx: nitro, color: grey, param: Q, direction: high, audible_tendency: "higher = squelchier", reason: "extreme resonance = harsh peak"}
+      - {fx: terminal, color: ochre, param: BITS, direction: low, audible_tendency: "lower = more crushed", reason: "bit crush = harsh digital"}
+    envelope_hint: "fast attack, short-medium release"
+    lfo_hint: "fast, irregular modulation for harsh instability"
+
+  smooth:
+    acoustic_meaning: "rounded, flowing, no sharp edges — distinct from clean (no dirt) and soft (gentle); smooth is about lack of transitions"
+    params:
+      - {engine: voltage, color: blue, param: AMPERE, direction: medium, audible_tendency: "higher = warmer saturation", reason: "moderate saturation = smooth rounding"}
+      - {engine: dimension, color: orange, param: RES, direction: low, audible_tendency: "higher = squelchier/acid", reason: "low resonance = smooth filter"}
+      - {engine: dimension, color: grey, param: FILTER FREQ, direction: medium, audible_tendency: "higher Hz = brighter", reason: "mid cutoff = smooth body"}
+      - {engine: cluster, color: grey, param: SPREAD, direction: medium, audible_tendency: "higher = wider/more detuned", reason: "moderate spread = smooth thickness"}
+    fx_overlays:
+      - {fx: mother, color: orange, param: MIX, direction: medium, audible_tendency: "higher = wetter", reason: "medium reverb = smooth space"}
+      - {fx: delay, color: grey, param: FEEDBACK, direction: medium, audible_tendency: "higher = more repeats", reason: "moderate echoes = smooth flow"}
+    envelope_hint: "slow attack, long release — no sharp transitions"
+    lfo_hint: "slow, subtle sine LFO on filter for smooth movement"
+
+  wooden:
+    acoustic_meaning: "alternative form of 'woody' — mid filter, physical model, warm resonance, like a wooden body"
+    aliases: ["woody"]
+    params:
+      - {engine: string, color: orange, param: IMP TYPE, direction: high, audible_tendency: "high = soft (finger/bow)", reason: "soft excitation = wooden body"}
+      - {engine: string, color: blue, param: TENSION, direction: medium, audible_tendency: "high = tight/plucky/short, low = loose/sustained/warm", reason: "medium tension = wooden resonance"}
+      - {engine: dr_wave, color: blue, param: "TYPE & LENGTH", direction: low, audible_tendency: "higher = more lo-fi/crushed", reason: "clean morph = wooden tone"}
+    fx_overlays:
+      - {fx: spring, color: blue, param: TONE, direction: low, audible_tendency: "higher = brighter", reason: "warm spring = wooden body"}
+    envelope_hint: "medium attack, natural decay"
+    lfo_hint: "none (static)"

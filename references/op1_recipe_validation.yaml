@@ -1,0 +1,191 @@
+# OP-1 Field Recipe Validation Rules
+# ============================================================
+# Deterministic validation rules. scripts/op1_compile.py implements every rule here
+# with a matching rule id. A recipe object must pass ALL error-level rules before the
+# renderer emits final text. Warn-level rules surface advisories but don't block.
+#
+# Each rule: id, level (error|warn), check (human description), message template.
+# ============================================================
+
+schema_version: "1.0"
+
+rules:
+
+  # ---- Module existence ----
+  - id: engine_exists
+    level: error
+    check: "recipe.engine.id exists in compiler_reference.modules.synths"
+    message: "Engine '{id}' is not a known OP-1 Field engine."
+
+  - id: engine_recipe_eligible
+    level: error
+    check: "recipe.engine.id is not flagged recipe_eligible: false in the compiler reference (e.g. amp: external-input processor, no envelope)"
+    message: "Engine '{id}' is excluded from recipes (reference-only)."
+
+  - id: fx_exists_or_none
+    level: error
+    check: "recipe.fx.id == 'none' OR exists in modules.effects"
+    message: "Effect '{id}' is not a known OP-1 Field effect (and not 'none')."
+
+  - id: lfo_exists_or_none
+    level: error
+    check: "recipe.lfo.id == 'none' OR exists in modules.lfos"
+    message: "LFO '{id}' is not a known OP-1 Field LFO type (and not 'none')."
+
+  # ---- Parameter colors ----
+  - id: engine_param_colors_complete
+    level: error
+    check: "recipe.engine.params has exactly blue, ochre, grey, orange (unless engine.params is null, e.g. sampler)"
+    message: "Engine params must define all four colors (blue/ochre/grey/orange)."
+
+  - id: fx_param_colors_complete
+    level: error
+    check: "if fx.id != none: fx.params has blue, ochre, grey, orange"
+    message: "FX params must define all four colors when an effect is selected."
+
+  - id: lfo_param_colors_complete
+    level: error
+    check: "if lfo.id != none: lfo.params has blue, ochre, grey, orange"
+    message: "LFO params must define all four colors when an LFO is selected."
+
+  - id: labels_match_reference
+    level: error
+    check: "each param.label matches the label in compiler_reference for that module+color (case-insensitive, alias-normalized)"
+    message: "Param label '{label}' does not match the reference label '{expected}' for {module}.{color}."
+
+  # ---- Shift layer ----
+  - id: shift_params_only_if_supported
+    level: error
+    check: "recipe.engine.shift_params present ONLY if compiler_reference module defines shift_params (e.g. dsynth)"
+    message: "Engine '{id}' has no shift layer; shift_params must be null."
+
+  - id: dsynth_requires_shift
+    level: error
+    check: "if engine.id == dsynth: shift_params present with all 4 colors"
+    message: "DSynth recipes MUST include the shift layer (OSC 2 / OSC 2 wav / ENV osc2 / FILTER)."
+
+  # ---- Numeric ranges ----
+  - id: numeric_in_range
+    level: error
+    check: "for numeric value_types, value is within the param's range in compiler_reference"
+    message: "Value {value} for {module}.{color} ({label}) is outside range {range}."
+
+  - id: graphic_only_no_fake_number
+    level: error
+    check: "for value_type in [graphic_only, visual_curve], value MUST be null and visual_target MUST be non-null"
+    message: "{module}.{color} ({label}) is graphic-only — it must use a visual_target, not a number."
+
+  - id: numeric_has_value
+    level: error
+    check: "for numeric value_types (numeric_0_99, numeric_small_discrete, numeric_decimal, bipolar_signed), value is non-null"
+    message: "{module}.{color} ({label}) is numeric but has no value."
+
+  # ---- Envelope ----
+  - id: envelope_visual_only
+    level: error
+    check: "envelope.visual_shape uses curve/dot language strings; no numeric ADSR times anywhere in envelope"
+    message: "Envelope must use visual curve language, not numbers (the OP-1 envelope screen shows no numbers)."
+
+  - id: envelope_archetype_known
+    level: warn
+    check: "envelope.archetype exists in compiler_reference.modules.envelope.archetypes"
+    message: "Envelope archetype '{archetype}' is not a known archetype."
+
+  # ---- LFO destination / parameter completeness ----
+  - id: lfo_destination_required
+    level: error
+    check: "if lfo.id in [value, element, random, velocity]: destination AND target_parameter are non-null"
+    message: "LFO '{id}' requires both a destination and a target parameter."
+
+  - id: value_lfo_complete
+    level: error
+    check: "if lfo.id == value: params include SPEED, AMOUNT, DEST, PARAMETER and destination+target_parameter set"
+    message: "Value LFO must specify shape/speed, amount, destination, and target parameter."
+
+  - id: random_lfo_amount_non_negative
+    level: error
+    check: "if lfo.id == random: ochre (AMOUNT) value >= 0"
+    message: "Random LFO amount must be non-negative."
+
+  - id: tremolo_pitch_volume_split
+    level: error
+    check: "if lfo.id == tremolo: ochre = PITCH AMOUNT and grey = VOLUME AMOUNT (distinct), no generic destination"
+    message: "Tremolo LFO must distinguish pitch amount (Ochre) and volume amount (Grey); it has no destination selector."
+
+  - id: tremolo_no_destination
+    level: error
+    check: "if lfo.id == tremolo: destination and target_parameter are null (hardwired to pitch+volume)"
+    message: "Tremolo LFO destination is hardwired (pitch+volume) — do not set destination/target_parameter."
+
+  - id: velocity_lfo_fields
+    level: error
+    check: "if lfo.id == velocity: blue=AMOUNT, ochre=(unused), grey=DEST, orange=PARAMETER; destination+target_parameter set"
+    message: "Velocity LFO needs amount, destination, and target parameter; Ochre (T2) is unused."
+
+  - id: midi_lfo_cc_channels
+    level: error
+    check: "if lfo.id == midi: params are CC 1-4 channels; do NOT label them speed/amount/dest/param"
+    message: "MIDI LFO uses four CC channels (CC1-CC4); it is not a normal Value LFO."
+
+  # ---- Split-range warnings (must be present in provenance.warnings) ----
+  - id: dr_wave_filter_warning
+    level: error
+    check: "if engine.id == dr_wave AND ochre used: a warning notes 1-49 HP / 50 silence / 51-99 LP"
+    message: "Dr. Wave FILTER (Ochre) is split-range: include the HP/silence/LP warning."
+
+  - id: digital_ringmod_warning
+    level: error
+    check: "if engine.id == digital AND grey value crosses semantics: warning notes lower=detune / upper=ring mod"
+    message: "Digital Grey is split-range: include the detune (0-49) / ring-mod (50+) warning."
+
+  - id: pulse_mod_warning
+    level: error
+    check: "if engine.id == pulse: warning notes Orange MOD 50 = no modulation (center)"
+    message: "Pulse MOD (Orange) center 50 = no modulation: include the warning."
+
+  - id: terminal_model_warning
+    level: error
+    check: "if fx.id == terminal: warning notes MODEL <3 HP / >3 LP"
+    message: "Terminal MODEL (Grey) is split-range: include the HP/LP warning."
+
+  # ---- Structural completeness ----
+  - id: play_mode_when_relevant
+    level: error
+    check: "if category in [pad, chord, bass, lead]: play_mode.mode is set"
+    message: "Recipes for pad/chord/bass/lead must specify a play mode."
+
+  - id: fx_or_explicit_dry
+    level: error
+    check: "fx.id != none OR (fx.id == none AND fx.enabled == false) — i.e. dry must be explicit, never silently omitted"
+    message: "Recipe must include an FX or explicitly state dry/no FX."
+
+  - id: lfo_or_explicit_static
+    level: error
+    check: "lfo.id != none OR (lfo.id == none AND lfo.enabled == false) — static must be explicit"
+    message: "Recipe must include an LFO or explicitly state no LFO/static patch."
+
+  - id: vocoder_input_note
+    level: error
+    check: "if engine.id == vocoder: a warning tells the user to set an audio input source (not Out-In)"
+    message: "Vocoder requires an audio input source — include that note."
+
+  - id: correction_macro_present
+    level: error
+    check: "recipe.correction_macros has at least 1 entry"
+    message: "Recipe must include at least one correction macro (symptom -> screen action)."
+
+  - id: selection_instructions_present
+    level: error
+    check: "engine.selection_instruction set; if fx enabled, fx.selection_instruction includes [T3]; if lfo enabled, lfo.selection_instruction includes [T4]"
+    message: "Include screen selection instructions: engine select, FX [T3] enable/select, LFO [T4] enable/select."
+
+  # ---- Output format (checked post-render) ----
+  - id: output_line_count
+    level: warn
+    check: "rendered output line count <= 34 (<= 39 for shift-layer recipes like DSynth; target 22-32 for action-oriented recipes; warn if over)"
+    message: "Rendered recipe is long ({lines} lines). Aim for compact mobile readability (<= 32)."
+
+  - id: no_percentages
+    level: error
+    check: "rendered output contains no '%' on parameter values"
+    message: "Parameter values must be integers, never percentages."

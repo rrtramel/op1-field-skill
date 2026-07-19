@@ -1,0 +1,10 @@
+# Generic local junk — nothing skill-specific
+__pycache__/
+*.py[cod]
+.DS_Store
+*.swp
+.idea/
+.vscode/
+output/
+.env
+.env.*

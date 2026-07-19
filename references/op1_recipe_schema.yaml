@@ -1,0 +1,161 @@
+# OP-1 Field Recipe Schema
+# ============================================================
+# The INTERMEDIATE RECIPE OBJECT. The LLM fills this object; it does NOT freehand
+# the final recipe text. scripts/op1_compile.py validates this object against
+# op1_recipe_validation.yaml and then renders the final Telegram text deterministically.
+#
+# This file documents the shape + an annotated worked example. The compiler accepts
+# the object as YAML or JSON.
+#
+# Field conventions:
+#   - Every engine/fx/lfo `id` must exist in op1_recipe_compiler_reference.yaml.
+#   - Each param block has 4 color keys: blue, ochre, grey, orange (canonical order).
+#   - `value` is an integer/decimal/string for [N]/[B] controls, or null for graphic-only.
+#   - `visual_target` is REQUIRED (non-null) for graphic-only / visual_curve controls,
+#     and is the *only* thing rendered for them (never a fake number).
+#   - `value_type` must match the control's value_type in the compiler reference.
+# ============================================================
+
+schema_version: "1.0"
+
+recipe:
+  title: string                  # e.g. "LUSH 80s PAD"
+  user_request: string           # the raw vibe the user asked for
+  intent_id: string | null       # matched intent from op1_intent_mapping.yaml (or null)
+  confidence: "verified | anchored | provisional"   # honesty about the numbers
+  category: "pad | bass | lead | keys | pluck | stab | percussion | texture | vocal"
+
+  sound_target:                  # the abstract target the plan aims at
+    brightness: string
+    width: string
+    density: string
+    motion: string
+    space: string
+    articulation: string
+
+  engine:
+    id: string                   # must exist in modules.synths
+    page: engine                 # constant
+    selection_instruction: string  # e.g. "Press [Synth] → [T1]. Hold [Shift]+[T1], choose CLUSTER."
+    params:
+      blue:   &param_block
+        label: string            # on-screen label from compiler ref
+        value: "integer | decimal | string | null"
+        visual_target: "string | null"   # required if graphic-only/visual_curve
+        value_type: string       # must match compiler ref
+        action_phrase: string    # the physical instruction shown to the user
+        reason: string           # why this setting (optional but encouraged)
+      ochre:  *param_block
+      grey:   *param_block
+      orange: *param_block
+    shift_params:                # null unless engine has a shift layer (e.g. DSynth)
+      blue:   "*param_block | omit"
+      ochre:  "*param_block | omit"
+      grey:   "*param_block | omit"
+      orange: "*param_block | omit"
+
+  envelope:
+    archetype: string            # from compiler ref envelope.archetypes
+    page: envelope               # constant
+    visual_shape:                # NO numbers — visual curve language only
+      blue_attack: string
+      ochre_decay: string
+      grey_sustain: string
+      orange_release: string
+
+  play_mode:
+    mode: "poly | mono | legato | unison"
+    portamento: "string | integer | null"
+    reason: string
+
+  fx:
+    id: "string | none"          # 'none' means dry; must exist in modules.effects
+    page: fx                     # constant
+    enabled: boolean
+    selection_instruction: "string | null"   # null only when id == none
+    params: "param_block x4 | null"  # null when id == none
+
+  lfo:
+    id: "string | none"          # 'none' means static; must exist in modules.lfos
+    page: lfo                    # constant
+    enabled: boolean
+    selection_instruction: "string | null"
+    params: "param_block x4 | null"  # null when id == none
+    destination: "string | null"      # required unless lfo type doesn't use it (tremolo/midi)
+    target_parameter: "string | null" # required unless lfo type doesn't use it
+
+  correction_macros:             # 1-2 entries; each = symptom -> screen action
+    - symptom: string
+      screen_action: string
+
+  provenance:
+    source_files: [list of strings]
+    warnings: [list of strings]  # split-range warnings, input-required notes, conflicts
+
+# ============================================================
+# ANNOTATED WORKED EXAMPLE (valid object)
+# ============================================================
+example:
+  recipe:
+    title: "LUSH 80s PAD"
+    user_request: "lush 80s pad"
+    intent_id: "lush_80s_pad"
+    confidence: provisional
+    category: pad
+    sound_target:
+      brightness: medium_dark
+      width: very_wide
+      density: very_thick
+      motion: slow_subtle
+      space: large
+      articulation: sustained
+    engine:
+      id: cluster
+      page: engine
+      selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose CLUSTER."
+      params:
+        blue:   {label: "WAVES",    value: 6,    visual_target: null, value_type: numeric_small_discrete, action_phrase: "Turn Blue until WAVES shows 5-6.", reason: "max thickness"}
+        ochre:  {label: "WAVE ENV", value: 60,   visual_target: "upper zone", value_type: split_range, action_phrase: "Turn Ochre into the upper zone (~60).", reason: "bright supersaw"}
+        grey:   {label: "SPREAD",   value: 80,   visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Grey to ~80 until the white line spreads wide.", reason: "wide detune"}
+        orange: {label: "UNISON",   value: 55,   visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Orange to ~55 for slow drift.", reason: "shimmer"}
+      shift_params: null
+    envelope:
+      archetype: pad
+      page: envelope
+      visual_shape:
+        blue_attack: "gradual rise (dot ~halfway)"
+        ochre_decay: "slow gentle drop"
+        grey_sustain: "high plateau (dot near top)"
+        orange_release: "long right tail"
+    play_mode:
+      mode: poly
+      portamento: "off or low"
+      reason: "chordal pad"
+    fx:
+      id: mother
+      page: fx
+      enabled: true
+      selection_instruction: "Press [T3]. Hold [Shift]+[T3], choose MOTHER. Press [T3] so FX is ON."
+      params:
+        blue:   {label: "DISTANCE", value: 70,  visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Blue until DISTANCE reads ~70 (large room).", reason: "big space"}
+        ochre:  {label: "GATE",     value: null, visual_target: "moderate; don't fully choke the tail", value_type: graphic_only, action_phrase: "Turn Ochre; door animates — moderate gate.", reason: "keep pad tail"}
+        grey:   {label: "COLOR",    value: null, visual_target: "slightly dark", value_type: graphic_only, action_phrase: "Turn Grey; corridor hue slightly dark.", reason: "warm tone"}
+        orange: {label: "MIX",      value: null, visual_target: "medium, not washed out", value_type: graphic_only, action_phrase: "Turn Orange; MIX bar medium.", reason: "balanced wet"}
+    lfo:
+      id: value
+      page: lfo
+      enabled: true
+      selection_instruction: "Press [T4]. Hold [Shift]+[T4], choose VALUE. Press [T4] so LFO is ON."
+      params:
+        blue:   {label: "SPEED",     value: null, visual_target: "slow",   value_type: relative_speed, action_phrase: "Turn Blue for a slow rate; tap Blue to set sine shape.", reason: "slow motion"}
+        ochre:  {label: "AMOUNT",    value: 18,   visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre to a small AMOUNT (~18).", reason: "subtle"}
+        grey:   {label: "DEST",      value: null, visual_target: "Synth/engine icon", value_type: discrete_selector, action_phrase: "Turn Grey to the Synth destination.", reason: "modulate engine"}
+        orange: {label: "PARAMETER", value: null, visual_target: "SPREAD", value_type: discrete_selector, action_phrase: "Turn Orange to target SPREAD.", reason: "moving detune"}
+      destination: "Synth (engine)"
+      target_parameter: "SPREAD"
+    correction_macros:
+      - {symptom: "too bright", screen_action: "lower Mother COLOR (Grey) or reduce Cluster WAVE ENV (Ochre)"}
+      - {symptom: "too static", screen_action: "raise LFO AMOUNT (Ochre) slightly"}
+    provenance:
+      source_files: ["op1_recipe_compiler_reference.yaml", "op1_intent_mapping.yaml"]
+      warnings: ["Cluster WAVE ENV is split-range; numbers are provisional."]

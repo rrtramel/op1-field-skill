@@ -1,0 +1,1088 @@
+# OP-1 Field Recipe Examples / Test Suite
+# ============================================================
+# 20 intermediate recipe objects, one per required test prompt. Each is compiled
+# and validated by scripts/op1_compile.py via scripts/run_tests.py.
+#
+# These double as worked examples for the SKILL (how a filled recipe object looks)
+# AND as the regression test corpus. Every object here must pass all error-level rules.
+# ============================================================
+
+recipes:
+
+  # 1) lush 80s pad
+  - recipe:
+      title: "LUSH 80s PAD"
+      user_request: "lush 80s pad"
+      intent_id: lush_80s_pad
+      confidence: provisional
+      category: pad
+      sound_target: {brightness: medium_dark, width: very_wide, density: very_thick, motion: slow_subtle, space: large, articulation: sustained}
+      engine:
+        id: cluster
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose CLUSTER."
+        params:
+          blue:   {label: "WAVES", value: 6, visual_target: null, value_type: numeric_small_discrete, action_phrase: "Turn Blue until WAVES shows 6.", reason: "max thickness"}
+          ochre:  {label: "WAVE ENV", value: 60, visual_target: "upper zone", value_type: split_range, action_phrase: "Turn Ochre into the upper zone (~60).", reason: "bright supersaw"}
+          grey:   {label: "SPREAD", value: 80, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Grey to ~80.", reason: "wide detune"}
+          orange: {label: "UNISON", value: 55, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Orange to ~55.", reason: "slow drift"}
+        shift_params: null
+      envelope:
+        archetype: pad
+        page: envelope
+        visual_shape: {blue_attack: "gradual rise (dot ~halfway)", ochre_decay: "slow gentle drop", grey_sustain: "high plateau (dot near top)", orange_release: "long right tail"}
+      play_mode: {mode: poly, portamento: "off or low", reason: "chordal pad"}
+      fx:
+        id: mother
+        page: fx
+        enabled: true
+        selection_instruction: "Press [T3]. Hold [Shift]+[T3], choose MOTHER. Press [T3] so FX is ON."
+        params:
+          blue:   {label: "DISTANCE", value: 70, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Blue to ~70.", reason: "big room"}
+          ochre:  {label: "GATE", value: null, visual_target: "moderate; don't fully choke the tail", value_type: graphic_only, action_phrase: "Turn Ochre; door animates.", reason: "keep tail"}
+          grey:   {label: "COLOR", value: null, visual_target: "slightly dark", value_type: graphic_only, action_phrase: "Turn Grey; hue warm/dark.", reason: "warm tone"}
+          orange: {label: "MIX", value: null, visual_target: "medium, not washed out", value_type: graphic_only, action_phrase: "Turn Orange; MIX bar medium.", reason: "balanced"}
+      lfo:
+        id: value
+        page: lfo
+        enabled: true
+        selection_instruction: "Press [T4]. Hold [Shift]+[T4], choose VALUE. Press [T4] so LFO is ON."
+        params:
+          blue:   {label: "SPEED", value: null, visual_target: "slow", value_type: relative_speed, action_phrase: "Turn Blue for a slow rate. tap for sine.", reason: "slow"}
+          ochre:  {label: "AMOUNT", value: 18, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre small (~18).", reason: "subtle"}
+          grey:   {label: "DEST", value: null, visual_target: "Synth (engine)", value_type: discrete_selector, action_phrase: "Turn Grey to Synth.", reason: "modulate engine"}
+          orange: {label: "PARAMETER", value: null, visual_target: "SPREAD", value_type: discrete_selector, action_phrase: "Turn Orange to SPREAD.", reason: "moving detune"}
+        destination: "Synth (engine)"
+        target_parameter: "SPREAD"
+      correction_macros:
+        - {symptom: "too bright", screen_action: "lower Mother COLOR (Grey) or reduce WAVE ENV (Ochre)"}
+        - {symptom: "too static", screen_action: "raise LFO AMOUNT (Ochre)"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["Cluster WAVE ENV is split-range; numbers provisional."]}
+
+  # 2) warm plucky bass
+  - recipe:
+      title: "WARM PLUCKY BASS"
+      user_request: "warm plucky bass"
+      intent_id: warm_plucky_bass
+      confidence: provisional
+      category: bass
+      sound_target: {brightness: medium_dark, width: narrow, density: medium, motion: static, space: dry, articulation: pluck}
+      engine:
+        id: string
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose STRING."
+        params:
+          blue:   {label: "TENSION", value: null, visual_target: "low-mid (warm, not too tight)", value_type: graphic_only, action_phrase: "Turn Blue down for warmth.", reason: "warm"}
+          ochre:  {label: "IMP", value: null, visual_target: "short-ish (plucky decay)", value_type: graphic_only, action_phrase: "Turn Ochre low for a pluck.", reason: "pluck"}
+          grey:   {label: "DETUNE", value: null, visual_target: "slight spread", value_type: graphic_only, action_phrase: "Turn Grey a touch for body.", reason: "body"}
+          orange: {label: "IMP TYPE", value: null, visual_target: "harder strike", value_type: graphic_only, action_phrase: "Turn Orange toward hard strike.", reason: "attack"}
+        shift_params: null
+      envelope:
+        archetype: bass
+        page: envelope
+        visual_shape: {blue_attack: "instant", ochre_decay: "controlled drop", grey_sustain: "high plateau", orange_release: "short fade"}
+      play_mode: {mode: mono, portamento: "off", reason: "single-note bass"}
+      fx: {id: none, page: fx, enabled: false, selection_instruction: null, params: null}
+      lfo: {id: none, page: lfo, enabled: false, selection_instruction: null, params: null, destination: null, target_parameter: null}
+      correction_macros:
+        - {symptom: "too thin", screen_action: "lower String TENSION (Blue)"}
+        - {symptom: "too dull", screen_action: "raise IMP TYPE (Orange) toward hard strike"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["String is a fully-graphic engine — no numbers."]}
+
+  # 3) glassy bell
+  - recipe:
+      title: "GLASSY BELL"
+      user_request: "glassy bell"
+      intent_id: glassy_bell
+      confidence: provisional
+      category: lead
+      sound_target: {brightness: bright, width: medium, density: medium, motion: slow_subtle, space: medium, articulation: pluck}
+      engine:
+        id: fm
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose FM."
+        params:
+          blue:   {label: "FREQ", value: 45, visual_target: "raise from sine until it bites", value_type: numeric_plus_graphic, action_phrase: "Start Blue near 0, raise to ~45.", reason: "bell bite"}
+          ochre:  {label: "FREQUENCY RATIO", value: null, visual_target: "step to a harmonic ratio (e.g. 2 or 4)", value_type: discrete_selector, action_phrase: "Step Ochre to a harmonic ratio.", reason: "bell harmonics"}
+          grey:   {label: "TOPOLOGY", value: null, visual_target: "step until glassy", value_type: discrete_selector, action_phrase: "Step Grey through algorithms.", reason: "glass tone"}
+          orange: {label: "DETUNE", value: 20, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Orange to ~20 for shimmer.", reason: "shimmer"}
+        shift_params: null
+      envelope:
+        archetype: bell
+        page: envelope
+        visual_shape: {blue_attack: "instant", ochre_decay: "long natural drop", grey_sustain: "low/none plateau", orange_release: "medium-long fade"}
+      play_mode: {mode: poly, portamento: "off", reason: "bell chords"}
+      fx:
+        id: delay
+        page: fx
+        enabled: true
+        selection_instruction: "Press [T3]. Hold [Shift]+[T3], choose DELAY. Press [T3] so FX is ON."
+        params:
+          blue:   {label: "RANGE", value: 50, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Blue to ~50.", reason: "echo time"}
+          ochre:  {label: "SPEED", value: 30, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre to ~30.", reason: "multiplier"}
+          grey:   {label: "FEEDBACK", value: 35, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Grey to ~35.", reason: "a few repeats"}
+          orange: {label: "INPUT", value: null, visual_target: "moderate send", value_type: graphic_only, action_phrase: "Turn Orange to a moderate send.", reason: "subtle echo"}
+      lfo:
+        id: value
+        page: lfo
+        enabled: true
+        selection_instruction: "Press [T4]. Hold [Shift]+[T4], choose VALUE. Press [T4] so LFO is ON."
+        params:
+          blue:   {label: "SPEED", value: null, visual_target: "slow", value_type: relative_speed, action_phrase: "Turn Blue for a slow rate.", reason: "slow vibrato"}
+          ochre:  {label: "AMOUNT", value: 12, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre small (~12).", reason: "subtle"}
+          grey:   {label: "DEST", value: null, visual_target: "Synth (engine)", value_type: discrete_selector, action_phrase: "Turn Grey to Synth.", reason: "engine mod"}
+          orange: {label: "PARAMETER", value: null, visual_target: "DETUNE", value_type: discrete_selector, action_phrase: "Turn Orange to DETUNE.", reason: "shimmer"}
+        destination: "Synth (engine)"
+        target_parameter: "DETUNE"
+      correction_macros:
+        - {symptom: "too harsh", screen_action: "lower FM FREQ (Blue) toward sine"}
+        - {symptom: "no shimmer", screen_action: "raise FM DETUNE (Orange)"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["FM Ochre/Grey are discrete steps — describe, don't quote exact numbers."]}
+
+  # 4) Boards of Canada-ish detuned keys
+  - recipe:
+      title: "BOC DETUNED KEYS"
+      user_request: "Boards of Canada-ish detuned keys"
+      intent_id: detuned_boc_keys
+      confidence: provisional
+      category: keys
+      sound_target: {brightness: medium_dark, width: wide, density: thick, motion: moderate, space: medium, articulation: sustained}
+      engine:
+        id: cluster
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose CLUSTER."
+        params:
+          blue:   {label: "WAVES", value: 4, visual_target: null, value_type: numeric_small_discrete, action_phrase: "Turn Blue to 4 waves.", reason: "thick not huge"}
+          ochre:  {label: "WAVE ENV", value: 35, visual_target: "lower-mid zone", value_type: split_range, action_phrase: "Turn Ochre to a mellow ~35.", reason: "soft"}
+          grey:   {label: "SPREAD", value: 60, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Grey to ~60.", reason: "detuned"}
+          orange: {label: "UNISON", value: 45, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Orange to ~45.", reason: "wobble"}
+        shift_params: null
+      envelope:
+        archetype: keys
+        page: envelope
+        visual_shape: {blue_attack: "fast", ochre_decay: "moderate drop", grey_sustain: "medium plateau", orange_release: "medium fade"}
+      play_mode: {mode: poly, portamento: "off", reason: "keys chords"}
+      fx:
+        id: spring
+        page: fx
+        enabled: true
+        selection_instruction: "Press [T3]. Hold [Shift]+[T3], choose SPRING. Press [T3] so FX is ON."
+        params:
+          blue:   {label: "TONE", value: null, visual_target: "darker side", value_type: graphic_only, action_phrase: "Turn Blue darker.", reason: "vintage"}
+          ochre:  {label: "TURNS", value: null, visual_target: "medium", value_type: graphic_only, action_phrase: "Turn Ochre to medium.", reason: "room"}
+          grey:   {label: "DAMPING", value: null, visual_target: "medium tail", value_type: graphic_only, action_phrase: "Turn Grey to medium.", reason: "tail"}
+          orange: {label: "MIX", value: null, visual_target: "low-medium", value_type: graphic_only, action_phrase: "Turn Orange low-medium.", reason: "subtle"}
+      lfo:
+        id: random
+        page: lfo
+        enabled: true
+        selection_instruction: "Press [T4]. Hold [Shift]+[T4], choose RANDOM. Press [T4] so LFO is ON."
+        params:
+          blue:   {label: "SPEED", value: null, visual_target: "slow", value_type: relative_speed, action_phrase: "Turn Blue for a slow rate.", reason: "tape wobble"}
+          ochre:  {label: "AMOUNT", value: 10, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre small (~10).", reason: "subtle drift"}
+          grey:   {label: "DESTINATION", value: null, visual_target: "Synth (engine)", value_type: discrete_selector, action_phrase: "Turn Grey to Synth.", reason: "pitch drift"}
+          orange: {label: "PARAMETER", value: null, visual_target: "SPREAD", value_type: discrete_selector, action_phrase: "Turn Orange to SPREAD.", reason: "woozy"}
+        destination: "Synth (engine)"
+        target_parameter: "SPREAD"
+      correction_macros:
+        - {symptom: "too clean", screen_action: "raise Random LFO AMOUNT (Ochre) for more wobble"}
+        - {symptom: "too wide", screen_action: "lower Cluster SPREAD (Grey)"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["Cluster WAVE ENV split-range; provisional."]}
+
+  # 5) dark evolving drone
+  - recipe:
+      title: "DARK EVOLVING DRONE"
+      user_request: "dark evolving drone"
+      intent_id: dark_drone
+      confidence: provisional
+      category: pad
+      sound_target: {brightness: dark, width: wide, density: thick, motion: slow_subtle, space: huge, articulation: evolving}
+      engine:
+        id: voltage
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose VOLTAGE."
+        params:
+          blue:   {label: "AMPERE", value: null, visual_target: "high (warm saturation)", value_type: graphic_only, action_phrase: "Turn Blue up for warmth.", reason: "warm"}
+          ochre:  {label: "GROUND NOISE", value: null, visual_target: "low-mid grit", value_type: graphic_only, action_phrase: "Turn Ochre a touch.", reason: "texture"}
+          grey:   {label: "VOLT", value: null, visual_target: "needle low (dark filter)", value_type: graphic_only, action_phrase: "Turn Grey down; needle drops.", reason: "dark"}
+          orange: {label: "DETUNE", value: null, visual_target: "moderate", value_type: graphic_only, action_phrase: "Turn Orange for thickness.", reason: "thick"}
+        shift_params: null
+      envelope:
+        archetype: drone
+        page: envelope
+        visual_shape: {blue_attack: "very slow rise", ochre_decay: "no drop", grey_sustain: "max plateau", orange_release: "very long fade"}
+      play_mode: {mode: poly, portamento: "off", reason: "sustained drone"}
+      fx:
+        id: spring
+        page: fx
+        enabled: true
+        selection_instruction: "Press [T3]. Hold [Shift]+[T3], choose SPRING. Press [T3] so FX is ON."
+        params:
+          blue:   {label: "TONE", value: null, visual_target: "dark", value_type: graphic_only, action_phrase: "Turn Blue dark.", reason: "dark space"}
+          ochre:  {label: "TURNS", value: null, visual_target: "high (huge)", value_type: graphic_only, action_phrase: "Turn Ochre high.", reason: "huge"}
+          grey:   {label: "DAMPING", value: null, visual_target: "low (long tail)", value_type: graphic_only, action_phrase: "Turn Grey low.", reason: "long tail"}
+          orange: {label: "MIX", value: null, visual_target: "high", value_type: graphic_only, action_phrase: "Turn Orange high.", reason: "wash"}
+      lfo:
+        id: value
+        page: lfo
+        enabled: true
+        selection_instruction: "Press [T4]. Hold [Shift]+[T4], choose VALUE. Press [T4] so LFO is ON."
+        params:
+          blue:   {label: "SPEED", value: null, visual_target: "very slow", value_type: relative_speed, action_phrase: "Turn Blue for a very slow rate.", reason: "evolution"}
+          ochre:  {label: "AMOUNT", value: 25, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre to ~25.", reason: "filter sweep"}
+          grey:   {label: "DEST", value: null, visual_target: "Synth (engine)", value_type: discrete_selector, action_phrase: "Turn Grey to Synth.", reason: "engine"}
+          orange: {label: "PARAMETER", value: null, visual_target: "VOLT (filter)", value_type: discrete_selector, action_phrase: "Turn Orange to VOLT.", reason: "sweep"}
+        destination: "Synth (engine)"
+        target_parameter: "VOLT (filter)"
+      correction_macros:
+        - {symptom: "too bright", screen_action: "lower Voltage VOLT (Grey) or Spring TONE (Blue)"}
+        - {symptom: "too static", screen_action: "deepen Value LFO AMOUNT (Ochre)"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["Voltage is a fully-graphic engine — no numbers."]}
+
+  # 6) weird DNA glitch
+  - recipe:
+      title: "DNA GLITCH"
+      user_request: "weird DNA glitch"
+      intent_id: weird_glitch
+      confidence: provisional
+      category: texture
+      sound_target: {brightness: medium, width: medium, density: thick, motion: chaotic, space: small, articulation: percussive}
+      engine:
+        id: dna
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose DNA."
+        params:
+          blue:   {label: "FILTER", value: null, visual_target: "red line mid (bright-ish)", value_type: graphic_only, action_phrase: "Turn Blue; red line to mid.", reason: "presence"}
+          ochre:  {label: "CPU ID", value: null, visual_target: "scan slowly for an interesting tile pattern", value_type: graphic_only, action_phrase: "Turn Ochre slowly; tiles rearrange.", reason: "find a voice"}
+          grey:   {label: "WAVE MODIFIER", value: null, visual_target: "mutate until it glitches", value_type: graphic_only, action_phrase: "Turn Grey to mutate tone.", reason: "glitch"}
+          orange: {label: "NOISE", value: null, visual_target: "moderate noise particles", value_type: graphic_only, action_phrase: "Turn Orange for noise grit.", reason: "texture"}
+        shift_params: null
+      envelope:
+        archetype: percussive
+        page: envelope
+        visual_shape: {blue_attack: "instant", ochre_decay: "very fast drop", grey_sustain: "no plateau (dot at bottom)", orange_release: "minimal fade"}
+      play_mode: {mode: poly, portamento: "off", reason: "stabby glitch hits"}
+      fx:
+        id: phone
+        page: fx
+        enabled: true
+        selection_instruction: "Press [T3]. Hold [Shift]+[T3], choose PHONE. Press [T3] so FX is ON."
+        params:
+          blue:   {label: "TONE", value: null, visual_target: "mid", value_type: graphic_only, action_phrase: "Turn Blue to taste.", reason: "pitch"}
+          ochre:  {label: "GSM", value: 55, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre to ~55.", reason: "grain size"}
+          grey:   {label: "BAUD", value: 60, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Grey to ~60.", reason: "glitch pattern"}
+          orange: {label: "TELEMETRY", value: 45, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Orange to ~45.", reason: "dry/wet"}
+      lfo:
+        id: random
+        page: lfo
+        enabled: true
+        selection_instruction: "Press [T4]. Hold [Shift]+[T4], choose RANDOM. Press [T4] so LFO is ON."
+        params:
+          blue:   {label: "SPEED", value: null, visual_target: "fast", value_type: relative_speed, action_phrase: "Turn Blue for a fast rate.", reason: "chaos rate"}
+          ochre:  {label: "AMOUNT", value: 30, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre to ~30.", reason: "intensity"}
+          grey:   {label: "DESTINATION", value: null, visual_target: "Synth (engine)", value_type: discrete_selector, action_phrase: "Turn Grey to Synth.", reason: "engine"}
+          orange: {label: "PARAMETER", value: null, visual_target: "WAVE MODIFIER", value_type: discrete_selector, action_phrase: "Turn Orange to WAVE MODIFIER.", reason: "mutate"}
+        destination: "Synth (engine)"
+        target_parameter: "WAVE MODIFIER"
+      correction_macros:
+        - {symptom: "too noisy", screen_action: "lower DNA NOISE (Orange) or Phone BAUD (Grey)"}
+        - {symptom: "too random", screen_action: "lower Random LFO AMOUNT (Ochre)"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["DNA is a fully-graphic engine — never quote exact numbers for its params."]}
+
+  # 7) acid lead
+  - recipe:
+      title: "ACID LEAD"
+      user_request: "acid lead"
+      intent_id: acid_lead
+      confidence: provisional
+      category: lead
+      sound_target: {brightness: bright, width: narrow, density: medium, motion: moderate, space: small, articulation: pluck}
+      engine:
+        id: dimension
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose DIMENSION."
+        params:
+          blue:   {label: "WAVEFORM", value: null, visual_target: "SAW", value_type: discrete_selector, action_phrase: "Turn Blue until the box shows SAW.", reason: "acid saw"}
+          ochre:  {label: "STEREO", value: null, visual_target: "narrow (mono-ish)", value_type: graphic_only, action_phrase: "Keep Ochre low.", reason: "tight"}
+          grey:   {label: "FILTER FREQ", value: 45, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Grey to ~45 (mid cutoff).", reason: "squelch room"}
+          orange: {label: "RES", value: null, visual_target: "red triangle tall (high resonance)", value_type: graphic_only, action_phrase: "Turn Orange up; triangle grows.", reason: "acid res"}
+        shift_params: null
+      envelope:
+        archetype: pluck
+        page: envelope
+        visual_shape: {blue_attack: "instant", ochre_decay: "short drop from peak", grey_sustain: "low plateau", orange_release: "short fade"}
+      play_mode: {mode: mono, portamento: "low", reason: "acid line"}
+      fx:
+        id: nitro
+        page: fx
+        enabled: true
+        selection_instruction: "Press [T3]. Hold [Shift]+[T3], choose NITRO. Press [T3] so FX is ON."
+        params:
+          blue:   {label: "LOWS", value: null, visual_target: "needle low (keep lows)", value_type: graphic_only, action_phrase: "Turn Blue; left needle low.", reason: "body"}
+          ochre:  {label: "FREQ FOLLOW", value: null, visual_target: "high (auto-wah motion)", value_type: graphic_only, action_phrase: "Turn Ochre up; skyline moves.", reason: "wah"}
+          grey:   {label: "Q", value: null, visual_target: "high (squelch)", value_type: graphic_only, action_phrase: "Turn Grey up; joystick moves.", reason: "resonance"}
+          orange: {label: "HIGHS", value: null, visual_target: "needle mid", value_type: graphic_only, action_phrase: "Turn Orange; right needle mid.", reason: "tone"}
+      lfo:
+        id: value
+        page: lfo
+        enabled: true
+        selection_instruction: "Press [T4]. Hold [Shift]+[T4], choose VALUE. Press [T4] so LFO is ON."
+        params:
+          blue:   {label: "SPEED", value: null, visual_target: "moderate", value_type: relative_speed, action_phrase: "Turn Blue for a moderate rate.", reason: "filter motion"}
+          ochre:  {label: "AMOUNT", value: 40, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre to ~40.", reason: "sweep depth"}
+          grey:   {label: "DEST", value: null, visual_target: "Synth (engine)", value_type: discrete_selector, action_phrase: "Turn Grey to Synth.", reason: "engine"}
+          orange: {label: "PARAMETER", value: null, visual_target: "FILTER FREQ", value_type: discrete_selector, action_phrase: "Turn Orange to FILTER FREQ.", reason: "acid sweep"}
+        destination: "Synth (engine)"
+        target_parameter: "FILTER FREQ"
+      correction_macros:
+        - {symptom: "not squelchy", screen_action: "raise Dimension RES (Orange) + Nitro Q (Grey)"}
+        - {symptom: "too thin", screen_action: "lower Dimension FILTER FREQ (Grey) a touch"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["Dimension FILTER FREQ near 0 = silence."]}
+
+  # 8) surf spring lead
+  - recipe:
+      title: "SURF SPRING LEAD"
+      user_request: "surf spring lead"
+      intent_id: surf_spring_lead
+      confidence: provisional
+      category: lead
+      sound_target: {brightness: medium_bright, width: medium, density: medium, motion: slow_subtle, space: medium, articulation: pluck}
+      engine:
+        id: string
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose STRING."
+        params:
+          blue:   {label: "TENSION", value: null, visual_target: "mid-high (twangy)", value_type: graphic_only, action_phrase: "Turn Blue mid-high.", reason: "twang"}
+          ochre:  {label: "IMP", value: null, visual_target: "short pluck", value_type: graphic_only, action_phrase: "Turn Ochre low.", reason: "pluck"}
+          grey:   {label: "DETUNE", value: null, visual_target: "slight", value_type: graphic_only, action_phrase: "Turn Grey a touch.", reason: "body"}
+          orange: {label: "IMP TYPE", value: null, visual_target: "hard strike (plectrum)", value_type: graphic_only, action_phrase: "Turn Orange to hard strike.", reason: "pick attack"}
+        shift_params: null
+      envelope:
+        archetype: pluck
+        page: envelope
+        visual_shape: {blue_attack: "instant", ochre_decay: "short drop", grey_sustain: "low plateau", orange_release: "medium fade"}
+      play_mode: {mode: mono, portamento: "off", reason: "single-note lead"}
+      fx:
+        id: spring
+        page: fx
+        enabled: true
+        selection_instruction: "Press [T3]. Hold [Shift]+[T3], choose SPRING. Press [T3] so FX is ON."
+        params:
+          blue:   {label: "TONE", value: null, visual_target: "bright (surf)", value_type: graphic_only, action_phrase: "Turn Blue bright.", reason: "surf tone"}
+          ochre:  {label: "TURNS", value: null, visual_target: "low (small spring)", value_type: graphic_only, action_phrase: "Turn Ochre low.", reason: "surf"}
+          grey:   {label: "DAMPING", value: null, visual_target: "medium", value_type: graphic_only, action_phrase: "Turn Grey medium.", reason: "tail"}
+          orange: {label: "MIX", value: null, visual_target: "medium", value_type: graphic_only, action_phrase: "Turn Orange medium.", reason: "wet"}
+      lfo:
+        id: tremolo
+        page: lfo
+        enabled: true
+        selection_instruction: "Press [T4]. Hold [Shift]+[T4], choose TREMOLO. Press [T4] so LFO is ON."
+        params:
+          blue:   {label: "SPEED", value: null, visual_target: "slow-moderate", value_type: graphic_only, action_phrase: "Turn Blue for shared speed.", reason: "surf wobble"}
+          ochre:  {label: "PITCH AMOUNT", value: 0, visual_target: null, value_type: bipolar_signed, action_phrase: "Leave Ochre at 0 (no pitch mod).", reason: "volume only"}
+          grey:   {label: "VOLUME AMOUNT", value: 35, visual_target: null, value_type: bipolar_signed, action_phrase: "Turn Grey to ~35 for tremolo.", reason: "surf tremolo"}
+          orange: {label: "ENVELOPE", value: null, visual_target: "sine shape (Shift+Orange)", value_type: graphic_only, action_phrase: "Hold [Shift], turn Orange to sine.", reason: "smooth"}
+        destination: null
+        target_parameter: null
+      correction_macros:
+        - {symptom: "too dark", screen_action: "raise Spring TONE (Blue)"}
+        - {symptom: "no surf", screen_action: "lower Spring TURNS (Ochre), deepen Tremolo VOLUME AMOUNT (Grey)"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["String is fully-graphic. Tremolo is hardwired to pitch+volume (no destination)."]}
+
+  # 9) lo-fi chip lead
+  - recipe:
+      title: "LO-FI CHIP LEAD"
+      user_request: "lo-fi chip lead"
+      intent_id: lo_fi_chip_lead
+      confidence: provisional
+      category: lead
+      sound_target: {brightness: bright, width: narrow, density: thin, motion: static, space: dry, articulation: pluck}
+      engine:
+        id: digital
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose DIGITAL."
+        params:
+          blue:   {label: "WAVE SHAPER", value: 30, visual_target: "graph morphs toward saw", value_type: numeric_plus_graphic, action_phrase: "Turn Blue to ~30.", reason: "chip tone"}
+          ochre:  {label: "OCTAVE", value: 3, visual_target: null, value_type: split_range, action_phrase: "Turn Ochre to 3 (unison octave).", reason: "no sub shift"}
+          grey:   {label: "DETUNE / RING MOD", value: 20, visual_target: null, value_type: split_range, action_phrase: "Keep Grey low (~20, detune only).", reason: "slight detune"}
+          orange: {label: "DIGITALNESS", value: 35, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Orange to ~35 for grit.", reason: "lo-fi"}
+        shift_params: null
+      envelope:
+        archetype: pluck
+        page: envelope
+        visual_shape: {blue_attack: "instant", ochre_decay: "short drop", grey_sustain: "low plateau", orange_release: "short fade"}
+      play_mode: {mode: mono, portamento: "off", reason: "chip lead"}
+      fx:
+        id: terminal
+        page: fx
+        enabled: true
+        selection_instruction: "Press [T3]. Hold [Shift]+[T3], choose TERMINAL. Press [T3] so FX is ON."
+        params:
+          blue:   {label: "KHZ", value: 3.8, visual_target: null, value_type: numeric_decimal, action_phrase: "Turn Blue down to ~3.8 (lo-fi rate).", reason: "crunch"}
+          ochre:  {label: "BITS", value: 4.0, visual_target: null, value_type: numeric_decimal, action_phrase: "Turn Ochre down to ~4.0 (crushed).", reason: "8-bit"}
+          grey:   {label: "MODEL", value: 5, visual_target: null, value_type: split_range, action_phrase: "Turn Grey above 3 for a gentle low-pass.", reason: "tame highs"}
+          orange: {label: "MIX", value: null, visual_target: "high", value_type: graphic_only, action_phrase: "Turn Orange high.", reason: "full crush"}
+      lfo: {id: none, page: lfo, enabled: false, selection_instruction: null, params: null, destination: null, target_parameter: null}
+      correction_macros:
+        - {symptom: "too clean", screen_action: "lower Terminal KHZ (Blue) + BITS (Ochre)"}
+        - {symptom: "too harsh", screen_action: "raise Terminal MODEL (Grey) toward low-pass"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["Digital Grey is split-range: 0-49 detune, 50+ ring mod. Terminal MODEL <3 HP / >3 LP."]}
+
+  # 10) metallic percussion
+  - recipe:
+      title: "METALLIC PERCUSSION"
+      user_request: "metallic percussion"
+      intent_id: metallic_percussion
+      confidence: provisional
+      category: percussion
+      sound_target: {brightness: bright, width: medium, density: medium, motion: static, space: small, articulation: percussive}
+      engine:
+        id: fm
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose FM."
+        params:
+          blue:   {label: "FREQ", value: 70, visual_target: "high FM amount (clangy)", value_type: numeric_plus_graphic, action_phrase: "Turn Blue high (~70) for clang.", reason: "metallic bite"}
+          ochre:  {label: "FREQUENCY RATIO", value: null, visual_target: "step to an INHARMONIC ratio", value_type: discrete_selector, action_phrase: "Step Ochre off a harmonic ratio.", reason: "metallic inharmonicity"}
+          grey:   {label: "TOPOLOGY", value: null, visual_target: "step for clangy algorithm", value_type: discrete_selector, action_phrase: "Step Grey through algorithms.", reason: "metal"}
+          orange: {label: "DETUNE", value: 50, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Orange to ~50.", reason: "movement"}
+        shift_params: null
+      envelope:
+        archetype: percussive
+        page: envelope
+        visual_shape: {blue_attack: "instant", ochre_decay: "very fast drop", grey_sustain: "no plateau (dot at bottom)", orange_release: "minimal fade"}
+      play_mode: {mode: poly, portamento: "off", reason: "percussion hits"}
+      fx: {id: none, page: fx, enabled: false, selection_instruction: null, params: null}
+      lfo: {id: none, page: lfo, enabled: false, selection_instruction: null, params: null, destination: null, target_parameter: null}
+      correction_macros:
+        - {symptom: "too tonal", screen_action: "step FM FREQUENCY RATIO (Ochre) off harmonic"}
+        - {symptom: "rings too long", screen_action: "shorten envelope decay/release"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["FM Ochre/Grey are discrete steps — describe, don't quote exact numbers."]}
+
+  # 11) soft string pluck
+  - recipe:
+      title: "SOFT STRING PLUCK"
+      user_request: "soft string pluck"
+      intent_id: soft_string_pluck
+      confidence: provisional
+      category: pluck
+      sound_target: {brightness: medium_dark, width: medium, density: medium, motion: static, space: small, articulation: pluck}
+      engine:
+        id: string
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose STRING."
+        params:
+          blue:   {label: "TENSION", value: null, visual_target: "low-mid (soft)", value_type: graphic_only, action_phrase: "Turn Blue low-mid.", reason: "soft"}
+          ochre:  {label: "IMP", value: null, visual_target: "medium decay", value_type: graphic_only, action_phrase: "Turn Ochre to medium.", reason: "gentle ring"}
+          grey:   {label: "DETUNE", value: null, visual_target: "slight", value_type: graphic_only, action_phrase: "Turn Grey a touch.", reason: "warmth"}
+          orange: {label: "IMP TYPE", value: null, visual_target: "soft (finger/bow)", value_type: graphic_only, action_phrase: "Turn Orange to soft excitation.", reason: "gentle"}
+        shift_params: null
+      envelope:
+        archetype: pluck
+        page: envelope
+        visual_shape: {blue_attack: "instant", ochre_decay: "gentle drop", grey_sustain: "low plateau", orange_release: "medium fade"}
+      play_mode: {mode: poly, portamento: "off", reason: "pluck chords"}
+      fx:
+        id: spring
+        page: fx
+        enabled: true
+        selection_instruction: "Press [T3]. Hold [Shift]+[T3], choose SPRING. Press [T3] so FX is ON."
+        params:
+          blue:   {label: "TONE", value: null, visual_target: "medium", value_type: graphic_only, action_phrase: "Turn Blue medium.", reason: "natural"}
+          ochre:  {label: "TURNS", value: null, visual_target: "low-medium", value_type: graphic_only, action_phrase: "Turn Ochre low-medium.", reason: "small room"}
+          grey:   {label: "DAMPING", value: null, visual_target: "medium-high (short tail)", value_type: graphic_only, action_phrase: "Turn Grey up a bit.", reason: "tidy tail"}
+          orange: {label: "MIX", value: null, visual_target: "low", value_type: graphic_only, action_phrase: "Turn Orange low.", reason: "intimate"}
+      lfo: {id: none, page: lfo, enabled: false, selection_instruction: null, params: null, destination: null, target_parameter: null}
+      correction_macros:
+        - {symptom: "too hard", screen_action: "raise String IMP TYPE (Orange) toward soft"}
+        - {symptom: "too short", screen_action: "raise String IMP/decay (Ochre)"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["String is a fully-graphic engine — no numbers."]}
+
+  # 12) dreamy pad with spring reverb
+  - recipe:
+      title: "DREAMY SPRING PAD"
+      user_request: "dreamy pad with spring reverb"
+      intent_id: dreamy_spring_pad
+      confidence: provisional
+      category: pad
+      sound_target: {brightness: medium, width: wide, density: thick, motion: slow_subtle, space: large, articulation: sustained}
+      engine:
+        id: cluster
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose CLUSTER."
+        params:
+          blue:   {label: "WAVES", value: 5, visual_target: null, value_type: numeric_small_discrete, action_phrase: "Turn Blue to 5 waves.", reason: "lush"}
+          ochre:  {label: "WAVE ENV", value: 45, visual_target: "mid zone", value_type: split_range, action_phrase: "Turn Ochre to ~45.", reason: "soft-bright"}
+          grey:   {label: "SPREAD", value: 70, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Grey to ~70.", reason: "wide"}
+          orange: {label: "UNISON", value: 50, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Orange to ~50.", reason: "drift"}
+        shift_params: null
+      envelope:
+        archetype: pad
+        page: envelope
+        visual_shape: {blue_attack: "gradual rise", ochre_decay: "slow drop", grey_sustain: "high plateau", orange_release: "long tail"}
+      play_mode: {mode: poly, portamento: "off", reason: "pad chords"}
+      fx:
+        id: spring
+        page: fx
+        enabled: true
+        selection_instruction: "Press [T3]. Hold [Shift]+[T3], choose SPRING. Press [T3] so FX is ON."
+        params:
+          blue:   {label: "TONE", value: null, visual_target: "medium-bright (dreamy)", value_type: graphic_only, action_phrase: "Turn Blue medium-bright.", reason: "dreamy"}
+          ochre:  {label: "TURNS", value: null, visual_target: "medium-high", value_type: graphic_only, action_phrase: "Turn Ochre medium-high.", reason: "big spring"}
+          grey:   {label: "DAMPING", value: null, visual_target: "low-medium (long tail)", value_type: graphic_only, action_phrase: "Turn Grey low-medium.", reason: "wash"}
+          orange: {label: "MIX", value: null, visual_target: "medium-high", value_type: graphic_only, action_phrase: "Turn Orange medium-high.", reason: "lush wet pad"}
+      lfo:
+        id: value
+        page: lfo
+        enabled: true
+        selection_instruction: "Press [T4]. Hold [Shift]+[T4], choose VALUE. Press [T4] so LFO is ON."
+        params:
+          blue:   {label: "SPEED", value: null, visual_target: "slow", value_type: relative_speed, action_phrase: "Turn Blue for a slow rate.", reason: "slow motion"}
+          ochre:  {label: "AMOUNT", value: 15, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre small (~15).", reason: "subtle"}
+          grey:   {label: "DEST", value: null, visual_target: "Synth (engine)", value_type: discrete_selector, action_phrase: "Turn Grey to Synth.", reason: "engine"}
+          orange: {label: "PARAMETER", value: null, visual_target: "SPREAD", value_type: discrete_selector, action_phrase: "Turn Orange to SPREAD.", reason: "moving detune"}
+        destination: "Synth (engine)"
+        target_parameter: "SPREAD"
+      correction_macros:
+        - {symptom: "too metallic", screen_action: "lower Spring TURNS (Ochre)"}
+        - {symptom: "too washed", screen_action: "lower Spring MIX (Orange)"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["Cluster WAVE ENV split-range; provisional."]}
+
+  # 13) warm bass, no reverb
+  - recipe:
+      title: "WARM BASS (DRY)"
+      user_request: "warm bass, no reverb"
+      intent_id: warm_bass_no_reverb
+      confidence: provisional
+      category: bass
+      sound_target: {brightness: medium_dark, width: narrow, density: medium, motion: static, space: dry, articulation: pluck}
+      engine:
+        id: string
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose STRING."
+        params:
+          blue:   {label: "TENSION", value: null, visual_target: "low (warm, loose)", value_type: graphic_only, action_phrase: "Turn Blue low.", reason: "warm"}
+          ochre:  {label: "IMP", value: null, visual_target: "short-medium", value_type: graphic_only, action_phrase: "Turn Ochre short-medium.", reason: "tight"}
+          grey:   {label: "DETUNE", value: null, visual_target: "minimal", value_type: graphic_only, action_phrase: "Keep Grey low.", reason: "focused"}
+          orange: {label: "IMP TYPE", value: null, visual_target: "medium strike", value_type: graphic_only, action_phrase: "Turn Orange to medium.", reason: "round attack"}
+        shift_params: null
+      envelope:
+        archetype: bass
+        page: envelope
+        visual_shape: {blue_attack: "instant", ochre_decay: "controlled drop", grey_sustain: "high plateau", orange_release: "short fade"}
+      play_mode: {mode: mono, portamento: "off", reason: "single-note bass"}
+      fx: {id: none, page: fx, enabled: false, selection_instruction: null, params: null}
+      lfo: {id: none, page: lfo, enabled: false, selection_instruction: null, params: null, destination: null, target_parameter: null}
+      correction_macros:
+        - {symptom: "too dull", screen_action: "raise String TENSION (Blue) slightly"}
+        - {symptom: "muddy", screen_action: "shorten envelope release"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["String is a fully-graphic engine. Dry by request — no FX."]}
+
+  # 14) mono lead with glide
+  - recipe:
+      title: "MONO GLIDE LEAD"
+      user_request: "mono lead with glide"
+      intent_id: mono_glide_lead
+      confidence: provisional
+      category: lead
+      sound_target: {brightness: medium_bright, width: narrow, density: medium, motion: slow_subtle, space: small, articulation: sustained}
+      engine:
+        id: digital
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose DIGITAL."
+        params:
+          blue:   {label: "WAVE SHAPER", value: 40, visual_target: "graph morphs toward saw", value_type: numeric_plus_graphic, action_phrase: "Turn Blue to ~40.", reason: "lead tone"}
+          ochre:  {label: "OCTAVE", value: 3, visual_target: null, value_type: split_range, action_phrase: "Turn Ochre to 3 (unison).", reason: "no shift"}
+          grey:   {label: "DETUNE / RING MOD", value: 15, visual_target: null, value_type: split_range, action_phrase: "Keep Grey low (~15, detune).", reason: "subtle width"}
+          orange: {label: "DIGITALNESS", value: 20, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Orange low (~20).", reason: "clean-ish"}
+        shift_params: null
+      envelope:
+        archetype: lead
+        page: envelope
+        visual_shape: {blue_attack: "instant", ochre_decay: "moderate drop", grey_sustain: "solid plateau", orange_release: "medium fade"}
+      play_mode: {mode: legato, portamento: "medium (glide on)", reason: "smooth glide lead"}
+      fx:
+        id: delay
+        page: fx
+        enabled: true
+        selection_instruction: "Press [T3]. Hold [Shift]+[T3], choose DELAY. Press [T3] so FX is ON."
+        params:
+          blue:   {label: "RANGE", value: 45, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Blue to ~45.", reason: "echo time"}
+          ochre:  {label: "SPEED", value: 35, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre to ~35.", reason: "multiplier"}
+          grey:   {label: "FEEDBACK", value: 30, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Grey to ~30.", reason: "few repeats"}
+          orange: {label: "INPUT", value: null, visual_target: "moderate send", value_type: graphic_only, action_phrase: "Turn Orange moderate.", reason: "subtle echo"}
+      lfo: {id: none, page: lfo, enabled: false, selection_instruction: null, params: null, destination: null, target_parameter: null}
+      correction_macros:
+        - {symptom: "no glide", screen_action: "raise PORTAMENTO in play mode (Shift+T2, Ochre)"}
+        - {symptom: "too stiff", screen_action: "stay in Legato and add a slow Value LFO vibrato"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["Digital Grey is split-range: 0-49 detune, 50+ ring mod."]}
+
+  # 15) wide synthwave lead
+  - recipe:
+      title: "WIDE SYNTHWAVE LEAD"
+      user_request: "wide synthwave lead"
+      intent_id: wide_synthwave_lead
+      confidence: provisional
+      category: lead
+      sound_target: {brightness: bright, width: very_wide, density: very_thick, motion: slow_subtle, space: large, articulation: sustained}
+      engine:
+        id: cluster
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose CLUSTER."
+        params:
+          blue:   {label: "WAVES", value: 6, visual_target: null, value_type: numeric_small_discrete, action_phrase: "Turn Blue to 6 waves.", reason: "supersaw"}
+          ochre:  {label: "WAVE ENV", value: 65, visual_target: "upper zone", value_type: split_range, action_phrase: "Turn Ochre upper (~65).", reason: "bright saw"}
+          grey:   {label: "SPREAD", value: 85, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Grey to ~85.", reason: "very wide"}
+          orange: {label: "UNISON", value: 50, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Orange to ~50.", reason: "drift"}
+        shift_params: null
+      envelope:
+        archetype: lead
+        page: envelope
+        visual_shape: {blue_attack: "instant", ochre_decay: "moderate drop", grey_sustain: "solid plateau", orange_release: "medium fade"}
+      play_mode: {mode: unison, portamento: "off", reason: "fat unison lead"}
+      fx:
+        id: mother
+        page: fx
+        enabled: true
+        selection_instruction: "Press [T3]. Hold [Shift]+[T3], choose MOTHER. Press [T3] so FX is ON."
+        params:
+          blue:   {label: "DISTANCE", value: 60, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Blue to ~60.", reason: "big space"}
+          ochre:  {label: "GATE", value: null, visual_target: "light gate", value_type: graphic_only, action_phrase: "Turn Ochre light.", reason: "keep tail"}
+          grey:   {label: "COLOR", value: null, visual_target: "bright", value_type: graphic_only, action_phrase: "Turn Grey bright.", reason: "shiny 80s"}
+          orange: {label: "MIX", value: null, visual_target: "medium", value_type: graphic_only, action_phrase: "Turn Orange medium.", reason: "balanced"}
+      lfo:
+        id: value
+        page: lfo
+        enabled: true
+        selection_instruction: "Press [T4]. Hold [Shift]+[T4], choose VALUE. Press [T4] so LFO is ON."
+        params:
+          blue:   {label: "SPEED", value: null, visual_target: "slow", value_type: relative_speed, action_phrase: "Turn Blue for a slow rate.", reason: "vibrato"}
+          ochre:  {label: "AMOUNT", value: 16, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre small (~16).", reason: "subtle"}
+          grey:   {label: "DEST", value: null, visual_target: "Synth (engine)", value_type: discrete_selector, action_phrase: "Turn Grey to Synth.", reason: "engine"}
+          orange: {label: "PARAMETER", value: null, visual_target: "SPREAD", value_type: discrete_selector, action_phrase: "Turn Orange to SPREAD.", reason: "motion"}
+        destination: "Synth (engine)"
+        target_parameter: "SPREAD"
+      correction_macros:
+        - {symptom: "too thin", screen_action: "raise Cluster WAVES (Blue) + stay in Unison"}
+        - {symptom: "not wide", screen_action: "raise Cluster SPREAD (Grey)"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["Cluster WAVE ENV split-range; provisional."]}
+
+  # 16) robotic vocoder voice
+  - recipe:
+      title: "ROBOT VOCODER VOICE"
+      user_request: "robotic vocoder voice"
+      intent_id: vocal_robot
+      confidence: provisional
+      category: vocal
+      sound_target: {brightness: medium, width: medium, density: medium, motion: moderate, space: small, articulation: sustained}
+      engine:
+        id: vocoder
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose VOCODER. Set an INPUT source first (Mic / Headset / FM Radio / USB)."
+        params:
+          blue:   {label: "WAVEFORM", value: null, visual_target: "toward saw (tonal carrier)", value_type: discrete_selector, action_phrase: "Turn Blue toward the saw side.", reason: "tonal robot"}
+          ochre:  {label: "FORMANT", value: 0, visual_target: null, value_type: bipolar_signed, action_phrase: "Set Ochre near 0 (neutral), - for deeper robot.", reason: "voice tone"}
+          grey:   {label: "BANDS", value: 6, visual_target: null, value_type: numeric_small_discrete, action_phrase: "Turn Grey to ~6 bands (intelligible).", reason: "clarity"}
+          orange: {label: "MIX", value: null, visual_target: "mostly vocoded (low mix)", value_type: graphic_only, action_phrase: "Keep Orange low (vocoded).", reason: "robot, not dry"}
+        shift_params: null
+      envelope:
+        archetype: keys
+        page: envelope
+        visual_shape: {blue_attack: "fast", ochre_decay: "moderate drop", grey_sustain: "high plateau", orange_release: "medium fade"}
+      play_mode: {mode: poly, portamento: "off", reason: "vocoded chords"}
+      fx:
+        id: delay
+        page: fx
+        enabled: true
+        selection_instruction: "Press [T3]. Hold [Shift]+[T3], choose DELAY. Press [T3] so FX is ON."
+        params:
+          blue:   {label: "RANGE", value: 40, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Blue to ~40.", reason: "echo"}
+          ochre:  {label: "SPEED", value: 35, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre to ~35.", reason: "multiplier"}
+          grey:   {label: "FEEDBACK", value: 30, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Grey to ~30.", reason: "repeats"}
+          orange: {label: "INPUT", value: null, visual_target: "low-moderate", value_type: graphic_only, action_phrase: "Turn Orange low-moderate.", reason: "subtle"}
+      lfo: {id: none, page: lfo, enabled: false, selection_instruction: null, params: null, destination: null, target_parameter: null}
+      correction_macros:
+        - {symptom: "not intelligible", screen_action: "raise Vocoder BANDS (Grey) toward 7"}
+        - {symptom: "no sound", screen_action: "set an input source (Mic/Headset/FM Radio/USB); do NOT use Out-In"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["Vocoder REQUIRES an audio input source (Mic/Headset/FM Radio/USB). Do not use Out-In (feedback loop)."]}
+
+  # 17) aggressive industrial stab
+  - recipe:
+      title: "INDUSTRIAL STAB"
+      user_request: "aggressive industrial stab"
+      intent_id: industrial_stab
+      confidence: provisional
+      category: stab
+      sound_target: {brightness: bright, width: medium, density: thick, motion: static, space: small, articulation: stab}
+      engine:
+        id: digital
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose DIGITAL."
+        params:
+          blue:   {label: "WAVE SHAPER", value: 60, visual_target: "graph aggressive", value_type: numeric_plus_graphic, action_phrase: "Turn Blue high (~60).", reason: "harsh"}
+          ochre:  {label: "OCTAVE", value: 2, visual_target: null, value_type: split_range, action_phrase: "Turn Ochre to 2 (sub down an octave).", reason: "weight"}
+          grey:   {label: "DETUNE / RING MOD", value: 70, visual_target: null, value_type: split_range, action_phrase: "Push Grey past 50 (~70) for ring mod.", reason: "metallic clang"}
+          orange: {label: "DIGITALNESS", value: 70, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Orange high (~70).", reason: "grit"}
+        shift_params: null
+      envelope:
+        archetype: stab
+        page: envelope
+        visual_shape: {blue_attack: "instant", ochre_decay: "quick drop", grey_sustain: "low plateau", orange_release: "short fade"}
+      play_mode: {mode: poly, portamento: "off", reason: "stab chords"}
+      fx:
+        id: phone
+        page: fx
+        enabled: true
+        selection_instruction: "Press [T3]. Hold [Shift]+[T3], choose PHONE. Press [T3] so FX is ON."
+        params:
+          blue:   {label: "TONE", value: null, visual_target: "mid-high", value_type: graphic_only, action_phrase: "Turn Blue mid-high.", reason: "pitch"}
+          ochre:  {label: "GSM", value: 60, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre to ~60.", reason: "grain"}
+          grey:   {label: "BAUD", value: 70, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Grey high (~70).", reason: "destruction"}
+          orange: {label: "TELEMETRY", value: 55, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Orange to ~55.", reason: "dry/wet"}
+      lfo: {id: none, page: lfo, enabled: false, selection_instruction: null, params: null, destination: null, target_parameter: null}
+      correction_macros:
+        - {symptom: "not harsh enough", screen_action: "raise Digital DIGITALNESS (Orange) + push Grey further into ring-mod"}
+        - {symptom: "too thin", screen_action: "lower Digital OCTAVE (Ochre) for more weight"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["Digital Grey is split-range: 0-49 detune, 50+ ring mod (this patch uses ring mod)."]}
+
+  # 18) subtle ambient texture
+  - recipe:
+      title: "AMBIENT TEXTURE"
+      user_request: "subtle ambient texture"
+      intent_id: ambient_texture
+      confidence: provisional
+      category: pad
+      sound_target: {brightness: medium_dark, width: wide, density: medium, motion: slow_subtle, space: huge, articulation: evolving}
+      engine:
+        id: dimension
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose DIMENSION."
+        params:
+          blue:   {label: "WAVEFORM", value: null, visual_target: "between SQUARE and SAW (soft)", value_type: discrete_selector, action_phrase: "Turn Blue to a soft wave.", reason: "soft texture"}
+          ochre:  {label: "STEREO", value: null, visual_target: "wide", value_type: graphic_only, action_phrase: "Turn Ochre up; scope thickens.", reason: "wide"}
+          grey:   {label: "FILTER FREQ", value: 35, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Grey to ~35 (dark-ish).", reason: "soft"}
+          orange: {label: "RES", value: null, visual_target: "low", value_type: graphic_only, action_phrase: "Keep Orange low.", reason: "smooth"}
+        shift_params: null
+      envelope:
+        archetype: pad
+        page: envelope
+        visual_shape: {blue_attack: "slow rise", ochre_decay: "no drop", grey_sustain: "high plateau", orange_release: "very long fade"}
+      play_mode: {mode: poly, portamento: "off", reason: "sustained texture"}
+      fx:
+        id: spring
+        page: fx
+        enabled: true
+        selection_instruction: "Press [T3]. Hold [Shift]+[T3], choose SPRING. Press [T3] so FX is ON."
+        params:
+          blue:   {label: "TONE", value: null, visual_target: "dark-medium", value_type: graphic_only, action_phrase: "Turn Blue dark-medium.", reason: "soft"}
+          ochre:  {label: "TURNS", value: null, visual_target: "high (huge)", value_type: graphic_only, action_phrase: "Turn Ochre high.", reason: "huge space"}
+          grey:   {label: "DAMPING", value: null, visual_target: "low (long tail)", value_type: graphic_only, action_phrase: "Turn Grey low.", reason: "wash"}
+          orange: {label: "MIX", value: null, visual_target: "high", value_type: graphic_only, action_phrase: "Turn Orange high.", reason: "ambient wash"}
+      lfo:
+        id: value
+        page: lfo
+        enabled: true
+        selection_instruction: "Press [T4]. Hold [Shift]+[T4], choose VALUE. Press [T4] so LFO is ON."
+        params:
+          blue:   {label: "SPEED", value: null, visual_target: "very slow", value_type: relative_speed, action_phrase: "Turn Blue for a very slow rate.", reason: "evolution"}
+          ochre:  {label: "AMOUNT", value: 14, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre small (~14).", reason: "subtle"}
+          grey:   {label: "DEST", value: null, visual_target: "Synth (engine)", value_type: discrete_selector, action_phrase: "Turn Grey to Synth.", reason: "engine"}
+          orange: {label: "PARAMETER", value: null, visual_target: "WAVEFORM", value_type: discrete_selector, action_phrase: "Turn Orange to WAVEFORM.", reason: "evolving timbre"}
+        destination: "Synth (engine)"
+        target_parameter: "WAVEFORM"
+      correction_macros:
+        - {symptom: "too present", screen_action: "lower Spring MIX (Orange) and engine volume"}
+        - {symptom: "too static", screen_action: "raise Value LFO AMOUNT (Ochre) on WAVEFORM"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["Dimension FILTER FREQ near 0 = silence."]}
+
+  # 19) FM bell with delay
+  - recipe:
+      title: "FM BELL + DELAY"
+      user_request: "FM bell with delay"
+      intent_id: fm_bell_delay
+      confidence: provisional
+      category: lead
+      sound_target: {brightness: bright, width: medium, density: medium, motion: slow_subtle, space: large, articulation: pluck}
+      engine:
+        id: fm
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose FM."
+        params:
+          blue:   {label: "FREQ", value: 40, visual_target: "raise from sine until bell-bright", value_type: numeric_plus_graphic, action_phrase: "Turn Blue to ~40.", reason: "bell bite"}
+          ochre:  {label: "FREQUENCY RATIO", value: null, visual_target: "step to a harmonic ratio", value_type: discrete_selector, action_phrase: "Step Ochre to a harmonic ratio.", reason: "bell"}
+          grey:   {label: "TOPOLOGY", value: null, visual_target: "step until glassy", value_type: discrete_selector, action_phrase: "Step Grey through algorithms.", reason: "glass"}
+          orange: {label: "DETUNE", value: 18, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Orange to ~18.", reason: "shimmer"}
+        shift_params: null
+      envelope:
+        archetype: bell
+        page: envelope
+        visual_shape: {blue_attack: "instant", ochre_decay: "long natural drop", grey_sustain: "low/none plateau", orange_release: "medium-long fade"}
+      play_mode: {mode: poly, portamento: "off", reason: "bell notes"}
+      fx:
+        id: delay
+        page: fx
+        enabled: true
+        selection_instruction: "Press [T3]. Hold [Shift]+[T3], choose DELAY. Press [T3] so FX is ON."
+        params:
+          blue:   {label: "RANGE", value: 55, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Blue to ~55.", reason: "long echo"}
+          ochre:  {label: "SPEED", value: 28, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre to ~28.", reason: "multiplier"}
+          grey:   {label: "FEEDBACK", value: 40, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Grey to ~40.", reason: "tail"}
+          orange: {label: "INPUT", value: null, visual_target: "moderate-high send", value_type: graphic_only, action_phrase: "Turn Orange moderate-high.", reason: "wet bell"}
+      lfo:
+        id: value
+        page: lfo
+        enabled: true
+        selection_instruction: "Press [T4]. Hold [Shift]+[T4], choose VALUE. Press [T4] so LFO is ON."
+        params:
+          blue:   {label: "SPEED", value: null, visual_target: "slow", value_type: relative_speed, action_phrase: "Turn Blue for a slow rate.", reason: "shimmer"}
+          ochre:  {label: "AMOUNT", value: 10, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre small (~10).", reason: "subtle"}
+          grey:   {label: "DEST", value: null, visual_target: "Synth (engine)", value_type: discrete_selector, action_phrase: "Turn Grey to Synth.", reason: "engine"}
+          orange: {label: "PARAMETER", value: null, visual_target: "DETUNE", value_type: discrete_selector, action_phrase: "Turn Orange to DETUNE.", reason: "movement"}
+        destination: "Synth (engine)"
+        target_parameter: "DETUNE"
+      correction_macros:
+        - {symptom: "too harsh", screen_action: "lower FM FREQ (Blue) toward sine"}
+        - {symptom: "echo muddy", screen_action: "lower Delay FEEDBACK (Grey)"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["FM Ochre/Grey are discrete steps — describe, don't quote exact numbers."]}
+
+  # 20) Pulse PWM pad
+  - recipe:
+      title: "PULSE PWM PAD"
+      user_request: "Pulse PWM pad"
+      intent_id: pulse_pwm_pad
+      confidence: provisional
+      category: pad
+      sound_target: {brightness: medium, width: wide, density: thick, motion: moderate, space: medium, articulation: sustained}
+      engine:
+        id: pulse
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose PULSE."
+        params:
+          blue:   {label: "FILTERO", value: null, visual_target: "mid (warm-bright)", value_type: graphic_only, action_phrase: "Turn Blue to mid.", reason: "tone"}
+          ochre:  {label: "AMPL", value: null, visual_target: "full-ish bars", value_type: graphic_only, action_phrase: "Turn Ochre up for fullness.", reason: "body"}
+          grey:   {label: "TIME", value: null, visual_target: "off-center (hollow pulse width)", value_type: graphic_only, action_phrase: "Turn Grey off-center; 2nd pulse width shifts.", reason: "PWM character"}
+          orange: {label: "MOD", value: 45, visual_target: null, value_type: split_range, action_phrase: "Turn Orange to ~45 (just off 50 for PWM motion).", reason: "PWM"}
+        shift_params: null
+      envelope:
+        archetype: pad
+        page: envelope
+        visual_shape: {blue_attack: "gradual rise", ochre_decay: "slow drop", grey_sustain: "high plateau", orange_release: "long tail"}
+      play_mode: {mode: poly, portamento: "off", reason: "pad chords"}
+      fx:
+        id: mother
+        page: fx
+        enabled: true
+        selection_instruction: "Press [T3]. Hold [Shift]+[T3], choose MOTHER. Press [T3] so FX is ON."
+        params:
+          blue:   {label: "DISTANCE", value: 55, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Blue to ~55.", reason: "space"}
+          ochre:  {label: "GATE", value: null, visual_target: "light gate", value_type: graphic_only, action_phrase: "Turn Ochre light.", reason: "keep tail"}
+          grey:   {label: "COLOR", value: null, visual_target: "medium", value_type: graphic_only, action_phrase: "Turn Grey medium.", reason: "tone"}
+          orange: {label: "MIX", value: null, visual_target: "medium", value_type: graphic_only, action_phrase: "Turn Orange medium.", reason: "balanced"}
+      lfo:
+        id: value
+        page: lfo
+        enabled: true
+        selection_instruction: "Press [T4]. Hold [Shift]+[T4], choose VALUE. Press [T4] so LFO is ON."
+        params:
+          blue:   {label: "SPEED", value: null, visual_target: "moderate", value_type: relative_speed, action_phrase: "Turn Blue for a moderate rate.", reason: "PWM motion"}
+          ochre:  {label: "AMOUNT", value: 30, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre to ~30.", reason: "depth"}
+          grey:   {label: "DEST", value: null, visual_target: "Synth (engine)", value_type: discrete_selector, action_phrase: "Turn Grey to Synth.", reason: "engine"}
+          orange: {label: "PARAMETER", value: null, visual_target: "TIME (2nd pulse)", value_type: discrete_selector, action_phrase: "Turn Orange to TIME.", reason: "classic PWM"}
+        destination: "Synth (engine)"
+        target_parameter: "TIME (2nd pulse)"
+      correction_macros:
+        - {symptom: "too static", screen_action: "move Pulse MOD (Orange) further off 50, or deepen the LFO on TIME"}
+        - {symptom: "too thin", screen_action: "raise Pulse AMPL (Ochre)"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["Pulse is fully-graphic except MOD. Pulse MOD (Orange) center 50 = NO modulation; off-center = PWM motion."]}
+
+  # 21. DSynth thick cross-mod lead (covers dsynth + shift layer path)
+  - recipe:
+      title: "THICK CROSS-MOD LEAD"
+      user_request: "thick dsynth lead"
+      intent_id: null
+      confidence: provisional
+      category: lead
+      sound_target:
+        brightness: medium_bright
+        width: medium
+        density: very_thick
+        motion: slow_subtle
+        space: medium
+        articulation: sustained
+      engine:
+        id: dsynth
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose DSYNTH."
+        params:
+          blue:   {label: "XFADE", value: null, visual_target: "middle (both oscs heard)", value_type: graphic_only, action_phrase: "Turn Blue to the middle.", reason: "blend both oscs"}
+          ochre:  {label: "OSC 1", value: null, visual_target: "toward saw (bright)", value_type: discrete_selector, action_phrase: "Turn Ochre toward saw.", reason: "bright core"}
+          grey:   {label: "ENV", value: null, visual_target: "medium level", value_type: graphic_only, action_phrase: "Turn Grey to medium.", reason: "osc1 level"}
+          orange: {label: "MODE", value: 4, visual_target: null, value_type: numeric_small_discrete, action_phrase: "Turn Orange to mode 4.", reason: "thick cross-mod"}
+        shift_params:
+          blue:   {label: "OSC 2", value: null, visual_target: "slight detune from unison", value_type: graphic_only, action_phrase: "Hold [Shift], turn Blue slightly off unison.", reason: "thickness via detune"}
+          ochre:  {label: "OSC 2 wav", value: null, visual_target: "square (hollow blend)", value_type: discrete_selector, action_phrase: "Hold [Shift], turn Ochre to square.", reason: "hollow contrast"}
+          grey:   {label: "ENV osc2", value: null, visual_target: "medium level", value_type: graphic_only, action_phrase: "Hold [Shift], turn Grey to medium.", reason: "osc2 level"}
+          orange: {label: "FILTER", value: 5, visual_target: null, value_type: numeric_small_discrete, action_phrase: "Hold [Shift], turn Orange to ~5.", reason: "tame fizz"}
+      envelope:
+        archetype: lead
+        page: envelope
+        visual_shape:
+          blue_attack: "instant"
+          ochre_decay: "moderate drop"
+          grey_sustain: "solid plateau"
+          orange_release: "medium fade"
+      play_mode:
+        mode: mono
+        portamento: "low"
+        reason: "monophonic lead with slight glide"
+      fx:
+        id: delay
+        page: fx
+        enabled: true
+        selection_instruction: "Press [T3]. Hold [Shift]+[T3], choose DELAY. Press [T3] so FX is ON."
+        params:
+          blue:   {label: "RANGE", value: 280, visual_target: null, value_type: numeric_ms, action_phrase: "Turn Blue to ~280 ms.", reason: "rhythmic echo"}
+          ochre:  {label: "SPEED", value: 50, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre to ~50.", reason: "rate"}
+          grey:   {label: "FEEDBACK", value: 25, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Grey to ~25.", reason: "few repeats"}
+          orange: {label: "INPUT", value: null, visual_target: "medium dashes", value_type: graphic_only, action_phrase: "Turn Orange to medium.", reason: "blend"}
+      lfo:
+        id: value
+        page: lfo
+        enabled: true
+        selection_instruction: "Press [T4]. Hold [Shift]+[T4], choose VALUE. Press [T4] so LFO is ON."
+        params:
+          blue:   {label: "SPEED", value: null, visual_target: "slow", value_type: relative_speed, action_phrase: "Turn Blue for a slow rate; tap Blue to set sine shape.", reason: "gentle movement"}
+          ochre:  {label: "AMOUNT", value: 15, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre to ~15.", reason: "subtle"}
+          grey:   {label: "DEST", value: null, visual_target: "Synth (engine)", value_type: discrete_selector, action_phrase: "Turn Grey to Synth.", reason: "engine"}
+          orange: {label: "PARAMETER", value: null, visual_target: "FILTER", value_type: discrete_selector, action_phrase: "Turn Orange to FILTER (shift layer).", reason: "slow filter drift"}
+        destination: "Synth (engine)"
+        target_parameter: "FILTER"
+      correction_macros:
+        - {symptom: "too harsh", screen_action: "lower DSynth FILTER (Shift+Orange) or pick a lower MODE (Orange)"}
+        - {symptom: "too thin", screen_action: "detune OSC 2 (Shift+Blue) further from unison"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["DSynth has TWO full parameter pages — hold [Shift] for OSC 2 / FILTER. MODE (Orange) is 1-7."]}
+
+  # 22. Dr. Wave lo-fi organ (covers dr_wave + both split-range warnings)
+  - recipe:
+      title: "LO-FI ORGAN"
+      user_request: "lo-fi organ chords"
+      intent_id: null
+      confidence: provisional
+      category: keys
+      sound_target:
+        brightness: medium_dark
+        width: medium
+        density: thick
+        motion: moderate
+        space: small
+        articulation: sustained
+      engine:
+        id: dr_wave
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose DR WAVE."
+        params:
+          blue:   {label: "TYPE & LENGTH", value: 35, visual_target: "square-ish zone", value_type: numeric_plus_graphic, action_phrase: "Turn Blue to ~35 (square zone).", reason: "hollow organ wave"}
+          ochre:  {label: "FILTER", value: 70, visual_target: "LP zone (51-99)", value_type: split_range, action_phrase: "Turn Ochre into the 51-99 LP zone (~70). NEVER park at 50.", reason: "mellow LP; 50 = silence"}
+          grey:   {label: "PHASE", value: 40, visual_target: "pulse-width zone (0-49)", value_type: split_range, action_phrase: "Turn Grey in the 0-49 zone (~40).", reason: "width without extra harmonics"}
+          orange: {label: "CHORUS", value: 45, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Orange to ~45.", reason: "gentle chorus wobble"}
+        shift_params: null
+      envelope:
+        archetype: keys
+        page: envelope
+        visual_shape:
+          blue_attack: "instant"
+          ochre_decay: "moderate drop"
+          grey_sustain: "medium plateau"
+          orange_release: "medium fade"
+      play_mode:
+        mode: poly
+        portamento: "off"
+        reason: "chordal organ"
+      fx:
+        id: spring
+        page: fx
+        enabled: true
+        selection_instruction: "Press [T3]. Hold [Shift]+[T3], choose SPRING. Press [T3] so FX is ON."
+        params:
+          blue:   {label: "TONE", value: null, visual_target: "medium-dark coils", value_type: graphic_only, action_phrase: "Turn Blue medium-dark.", reason: "vintage color"}
+          ochre:  {label: "TURNS", value: null, visual_target: "medium bounce", value_type: graphic_only, action_phrase: "Turn Ochre to medium.", reason: "reverb amount"}
+          grey:   {label: "DAMPING", value: null, visual_target: "medium", value_type: graphic_only, action_phrase: "Turn Grey to medium.", reason: "tail control"}
+          orange: {label: "MIX", value: null, visual_target: "low-medium bars", value_type: graphic_only, action_phrase: "Turn Orange low-medium.", reason: "subtle space"}
+      lfo:
+        id: tremolo
+        page: lfo
+        enabled: true
+        selection_instruction: "Press [T4]. Hold [Shift]+[T4], choose TREMOLO. Press [T4] so LFO is ON."
+        params:
+          blue:   {label: "SPEED", value: null, visual_target: "slow", value_type: relative_speed, action_phrase: "Turn Blue for a slow rate.", reason: "slow tremolo"}
+          ochre:  {label: "PITCH AMOUNT", value: 0, visual_target: null, value_type: bipolar_signed, action_phrase: "Turn Ochre to 0 (no pitch wobble).", reason: "volume only"}
+          grey:   {label: "VOLUME AMOUNT", value: 30, visual_target: null, value_type: bipolar_signed, action_phrase: "Turn Grey to ~30.", reason: "gentle volume swell"}
+          orange: {label: "ENVELOPE", value: null, visual_target: "flat (no fade)", value_type: graphic_only, action_phrase: "Turn Orange to a flat line.", reason: "constant tremolo"}
+        destination: null
+        target_parameter: null
+      correction_macros:
+        - {symptom: "no sound", screen_action: "move Dr. Wave FILTER (Ochre) OFF 50 — 50 is full silence"}
+        - {symptom: "too bright", screen_action: "push FILTER (Ochre) higher into the LP zone, or lower PHASE (Grey)"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["Dr. Wave FILTER (Ochre) split: 0 = off, 1-49 HP, 50 SILENCE, 51-99 LP.", "PHASE (Grey) split: 0-49 pulse width, 50+ adds wave cycles/harmonics."]}
+
+  # 23. Phase retro 80s lead (covers phase engine)
+  - recipe:
+      title: "RETRO 80s PHASE LEAD"
+      user_request: "retro 80s phase lead"
+      intent_id: null
+      confidence: provisional
+      category: lead
+      sound_target:
+        brightness: medium_bright
+        width: narrow
+        density: medium
+        motion: slow_subtle
+        space: medium
+        articulation: sustained
+      engine:
+        id: phase
+        page: engine
+        selection_instruction: "Press [Synth] → [T1]. Hold [Shift]+[T1], choose PHASE."
+        params:
+          blue:   {label: "PHASE", value: null, visual_target: "sines just apart (mild buzz)", value_type: graphic_only, action_phrase: "Turn Blue until the sines just separate.", reason: "mild phase bite"}
+          ochre:  {label: "DIST", value: null, visual_target: "light fold", value_type: graphic_only, action_phrase: "Turn Ochre for a light fold.", reason: "edge"}
+          grey:   {label: "FILTER", value: null, visual_target: "medium amplitude", value_type: graphic_only, action_phrase: "Turn Grey to medium.", reason: "shape"}
+          orange: {label: "TILT", value: null, visual_target: "slight tilt", value_type: graphic_only, action_phrase: "Turn Orange slightly.", reason: "extra harmonics"}
+        shift_params: null
+      envelope:
+        archetype: lead
+        page: envelope
+        visual_shape:
+          blue_attack: "instant"
+          ochre_decay: "moderate drop"
+          grey_sustain: "solid plateau"
+          orange_release: "medium fade"
+      play_mode:
+        mode: mono
+        portamento: "low"
+        reason: "80s mono lead with glide"
+      fx:
+        id: delay
+        page: fx
+        enabled: true
+        selection_instruction: "Press [T3]. Hold [Shift]+[T3], choose DELAY. Press [T3] so FX is ON."
+        params:
+          blue:   {label: "RANGE", value: 220, visual_target: null, value_type: numeric_ms, action_phrase: "Turn Blue to ~220 ms.", reason: "80s echo"}
+          ochre:  {label: "SPEED", value: 45, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre to ~45.", reason: "rate"}
+          grey:   {label: "FEEDBACK", value: 30, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Grey to ~30.", reason: "a few repeats"}
+          orange: {label: "INPUT", value: null, visual_target: "medium dashes", value_type: graphic_only, action_phrase: "Turn Orange to medium.", reason: "blend"}
+      lfo:
+        id: value
+        page: lfo
+        enabled: true
+        selection_instruction: "Press [T4]. Hold [Shift]+[T4], choose VALUE. Press [T4] so LFO is ON."
+        params:
+          blue:   {label: "SPEED", value: null, visual_target: "slow", value_type: relative_speed, action_phrase: "Turn Blue for a slow rate; tap Blue to set sine shape.", reason: "vibrato rate"}
+          ochre:  {label: "AMOUNT", value: 12, visual_target: null, value_type: numeric_0_99, action_phrase: "Turn Ochre to ~12.", reason: "light vibrato"}
+          grey:   {label: "DEST", value: null, visual_target: "Synth (engine)", value_type: discrete_selector, action_phrase: "Turn Grey to Synth.", reason: "engine"}
+          orange: {label: "PARAMETER", value: null, visual_target: "PHASE", value_type: discrete_selector, action_phrase: "Turn Orange to PHASE.", reason: "slow phase drift"}
+        destination: "Synth (engine)"
+        target_parameter: "PHASE"
+      correction_macros:
+        - {symptom: "too buzzy", screen_action: "back PHASE (Blue) toward the sine side"}
+        - {symptom: "too plain", screen_action: "add a little DIST (Ochre) or TILT (Orange)"}
+      provenance: {source_files: ["op1_recipe_compiler_reference.yaml"], warnings: ["Phase is fully graphic-only — no numbers on screen; dial by ear."]}

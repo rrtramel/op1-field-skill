@@ -1,0 +1,279 @@
+# OP-1 Field Screen Animation Behavior
+# ============================================================
+# What ACTUALLY HAPPENS on screen when you turn each encoder — the motion,
+# not just the static state. This complements screen_behavior.yaml (which
+# describes the static screen) with dynamic visual cues the user can watch
+# for while dialing in a sound.
+#
+# Sources (v3.3.0): SON WU OP-1 Field tutorial playlist (1080p YouTube footage,
+# frame-extracted and vision-analyzed against real device screens). Earlier
+# sources: TE OP-1 Field User Guide v1.7 (official PDF, rendered + vision-analyzed),
+# Grok 16-agent visual research (community + YouTube tutorials by SON WU,
+# Liam Killen), cross-referenced against screen_behavior.yaml.
+#
+# v3.2 NOTE: This file was originally INFERRED from static sources, not device-
+# verified. v3.3.0 upgrades entries to verified status where YouTube footage
+# confirmed them. Entries not yet verified against footage retain their
+# inferred status.
+#
+# Use this file to write better `visual_target` and `action` phrases in recipes.
+# The key question each entry answers: "What should I watch move on screen?"
+# ============================================================
+
+engines:
+
+  cluster:
+    static: "4 colored speech bubbles with numbers + 4 stacked wave lines"
+    animations:
+      blue_waves: "More oscillators appear in the blue wave line — it gets busier/denser. At 0: one thin line. At 99: thick tangle of 6 detuned waves."
+      ochre_wave_env: "Yellow wave line amplitude changes — higher = taller waves (brighter), lower = flatter (darker). The speech bubble number updates live."
+      grey_spread: "White wave line spreads wider apart — oscillators drift away from center. At 0: tight overlap. At 99: wide detuned spread."
+      orange_unison: "Red wave line drifts/oscillates — faster drift = more shimmer. At 0: static. At high values: visible wavering motion."
+
+  digital:
+    static: "One active param at a time + polyhedron graph on left"
+    animations:
+      blue_wave_shaper: "Polyhedron graph morphs shape — vertices move, edges reshape. Number '55' (or current value) updates in blue box on right. At extremes: smooth shape → blocky/pixelated."
+      ochre_octave: "Red dot shifts along top edge to new position. No number shown until knob turned — then pop-up appears briefly."
+      grey_detune_ringmod: "Crossing 50: polyhedron red node behavior flips — below 50 = subtle detune wobble, above 50 = ring mod clang (visually distinct shift in graph)."
+      orange_digitalness: "Static/noise particles appear on the polyhedron graph — more particles = grittier. At 0: clean. At 99: heavy digital noise overlay."
+
+  dimension:
+    static: "Lissajous curve (XY plot) + waveform selector + filter Hz + resonance triangle"
+    animations:
+      blue_waveform: "Lissajous curve smoothly transitions through wave shapes: noise → pulse → square → saw → saw+sub → noise. Pattern complexity changes visibly."
+      ochre_stereo: "Lissajous pattern widens/stretches horizontally — wider = more stereo width. At 0: collapses to a vertical line. At 99: fills screen width."
+      grey_filter_freq: "Hz number updates (e.g. 500, 1800, 12000). Curve thins/brightens as cutoff rises. At low Hz: dark/muffled. At high Hz: bright/open."
+      orange_res: "Ringing loops appear in the curve — higher resonance = more pronounced loops near self-oscillation. Triangle graphic grows."
+
+  dna:
+    static: "Branching/stranding organic waveform — unique abstract graphic"
+    animations:
+      blue_wave_number: "Strand morphology changes — branches grow/die, pattern shifts. Navigating between wave numbers produces visible 'mutation' of the graphic."
+      ochre_wave_modifier: "Strand density/thickness changes. Modifier alters how the strands interweave."
+      grey_filter: "Filter mask overlay sweeps across the strands — cuts highs or lows depending on direction."
+      orange_noise: "Noise particles mix into the strand graphic — more noise = more chaotic/noisy texture. At 0: clean strands. At 99: noise-dominant."
+
+  dr_wave:
+    static: "Oscilloscope waveform + right-side panel with CHORUS number"
+    animations:
+      blue_type_length: "Waveform morphs: sawtooth → square → triangle → pixelated SRR. At high values: blocky sample-rate-reduction pixels overlay the wave."
+      ochre_filter: "Filter mask line sweeps across waveform. Crossing 50: visual flip — below 50 = HP (cuts lows, wave thins from bottom), above 50 = LP (cuts highs, wave dulls from top). At 50: SILENCE (wave disappears)."
+      grey_phase: "Waveform copies/offsets appear — pulse width narrows or widens. Scope trace shows visible width change."
+      orange_chorus: "Number '56' (or current) updates. Modulation lines appear over waveform — wavy/chorused overlay. Higher = more wobble."
+
+  dsynth:
+    static: "Dual-osc UI with XFADE, OSC 1/2, ENV, MODE knob (0-7), FILTER"
+    animations:
+      blue_xfade: "Crossfade slider moves between OSC 1 and OSC 2 envelopes. Visual balance shifts left/right."
+      ochre_osc1: "OSC 1 frequency/waveform changes. Number updates. Waveform graphic morphs."
+      grey_env: "Envelope bar visual changes — LONG DECAY/SHORT/ATTACK labels shift. Bar grows or shrinks."
+      orange_mode: "Large red circular knob rotates — 7 positions around the dial, each with a small waveform icon. Visually distinct click between modes."
+      shift_filter: "Vertical white bar on FILTER position grows/shrinks — filter cutoff intensity. Only visible on shift layer."
+
+  fm:
+    static: "Isometric wireframe cubes (operators) + FM AMT panel on right"
+    animations:
+      blue_fm_amount: "Number '48' (or current) updates in blue FM AMT box. Cubes brighten/resize — more FM = more visible interaction between operators. At 0: clean sine. At 99: chaotic interference."
+      ochre_frequency_ratio: "Cube connections/lines change — stepping between ratios produces visible jumps in the wireframe arrangement. Harmonic vs discordant."
+      grey_topology: "Cube arrangement restructures — different algorithm = different operator routing visible as new connection lines."
+      orange_detune: "Cubes wobble/drift slightly — detune adds visible shimmer to the wireframe. Higher = more visible movement."
+
+  phase:
+    static: "Two adjacent graphs: PHASE waveform + FILTER waveform"
+    animations:
+      blue_phase: "Waveform warps/folds — peaks shift asymmetrically. At 0: clean sine. At 99: heavily folded/aggressive shape."
+      ochre_dist: "Wave distortion increases — curve clips/folds more aggressively. Visible harshness in the wave shape."
+      grey_phase_filter: "Filter line sweeps across the waveform graph — cuts highs or lows."
+      orange_tilt: "Waveform asymmetry increases — one side gets more extreme than the other. Visible tilt in the wave shape."
+
+  pulse:
+    static: "Pulse bars on TIME/AMPL graph + FILTERO/MOD labels"
+    animations:
+      blue_filter: "Filter cutoff line moves across pulse bars — higher = brighter, lower = darker. Stepped square-wave graphic updates."
+      ochre_amplitude: "Amplitude envelope dots/lines change shape — attack/decay curve visible on the graph."
+      grey_time_2nd_pulse: "Pulse bars narrow/widen — duty cycle changes visibly. At 50%: symmetrical. At extremes: thin spikes or solid block."
+      orange_mod: "Modulation curve (red dashed) appears — moves away from 50 center. PWM animation visible as bars breathe/widen."
+
+  string:
+    static: "3D perspective grid with colored line bundles + IMP/IMP TYPE/TENSION labels"
+    animations:
+      blue_tension: "String vibration speed changes — tighter = faster vibration (short/plucky), looser = slower (sustained/warm). Visible in the line bundles."
+      ochre_imp_decay: "Wave damping visible — waves die quicker at low values (short pluck), sustain longer at high values (bow/strum)."
+      grey_2nd_pulse: "Second vibration mode appears — adds complexity to the string graphic."
+      orange_imp_type: "Excitation icon changes — plectrum (hard strike) vs finger/bow (soft). Visual indicator shifts."
+
+  voltage:
+    static: "Circuit schematic: + circle, GROUND NOISE waveform, AMPERE knob, voltmeter, VOLT knob"
+    animations:
+      blue_ampere: "Blue AMPERE knob rotates. GROUND NOISE waveform amplitude changes — higher = more visible noise/saturation on the waveform."
+      ochre_ground_noise: "Ground noise waveform intensifies — more visible distortion on the white squiggly line between + and − circles."
+      grey_phase_filter: "Filter overlay on the waveform — cuts highs or lows. Visible change in waveform complexity."
+      orange_detune: "Voltmeter needle drifts slightly — detune adds wobble. Sub-oscillator visible as secondary waveform trace."
+
+  vocoder:
+    static: "Two head profiles + formant band fan + microphone icon"
+    animations:
+      blue_formant: "Formant bands shift height/shape — vowel-like filter movement. The purple band fan reshapes."
+      ochre_bands: "Number of visible filter bands changes (stepped). Band fan widens/narrows."
+      grey_bw: "Bandwidth of formant filters changes — wider = more open vowel, narrower = more pinched."
+      orange_mix: "Dry/wet mix bar changes — more wet = more vocoder effect visible in the head profile graphics."
+
+  sampler:
+    static: "Stereo waveform display with colored markers (start/loop in/loop out/end)"
+    animations:
+      blue_start: "Blue marker (start) moves along waveform. Zoom level may change. Playhead position shifts."
+      ochre_loop_in: "Brown marker (loop in) moves. Loop region highlights between loop in and loop out markers."
+      grey_loop_out: "Gray marker (loop out) moves. Loop region adjusts. Fade visible as triangular ramp."
+      orange_end: "Red marker (end) moves. Gain value (e.g. +5) updates. Total sample length changes."
+
+  amp:
+    static: "Amplifier/distortion curve + tuner page on T2"
+    animations:
+      blue_volume: "Volume percentage number updates (0-100%). No graphic change — just the number."
+      ochre_compression: "Compression percentage updates. Waveform clipping visualization may show more/less squashing."
+      grey_tone: "Tone percentage updates. EQ curve overlay shifts — 0% = dark, 50% = neutral, 100% = bright."
+      orange_drive: "Drive percentage updates. Distortion curve visibly distorts more at high values — waveform clips/saturates. Tap to toggle input on/off."
+
+effects:
+
+  cwo:
+    static: "Overlapping wave copies with phase shift + FREQ gauge needle"
+    animations:
+      blue_freq: "FREQ gauge needle moves — frequency shift amount. Wave copies visibly shift in phase relationship. Higher = weirder detuning."
+      ochre_delay: "Number updates — delay time. Echo spacing visible in the wave copies."
+      grey_feedback: "Number updates — feedback amount. More echo copies appear in the graphic, cascading."
+      orange_sideband: "Vertical red dash column rises/falls — sideband audio level. Higher = more extreme metallic content."
+
+  delay:
+    static: "Expanding concentric ripple circles from center + 3 numbers + input bar"
+    animations:
+      blue_range: "Value updates (e.g. '126 MS'). Ripple circle spacing changes — wider = longer delay time. Visible expansion rate changes."
+      ochre_speed: "Number updates — speed multiplier. Lower = longer times, ripple pulses slower."
+      grey_feedback: "Number updates — more visible echo ripples. Higher = more repeats visible as concentric circles."
+      orange_input: "Vertical red dash column height changes — input level to delay line. Higher = more signal feeding echoes."
+
+  grid:
+    static: "3D wireframe box on grid plane + X/Y/Z axes + FEEDBACK number + MIX bar"
+    animations:
+      blue_x: "Box dimension changes along X-axis — spreads wider/narrower."
+      ochre_y: "Box dimension changes along Y-axis — taller/shorter."
+      grey_feedback: "Number '44' (or current) updates — Z-axis feedback. Box may multiply/densify at high values."
+      orange_mix: "Vertical red bar column height — dry/wet mix. Higher = more grid effect visible."
+
+  mother:
+    static: "3D perspective corridor with two wireframe figures + DISTANCE number + GATE door + COLOR + MIX bar"
+    animations:
+      blue_distance: "Number '52' (or current) updates. Corridor stretches deeper (high) or shrinks (low). Figures scale with perspective — farther = smaller."
+      ochre_gate: "Door frame on left wall animates open/closed — open = reverb tail rings, closed = tail cut. Visible door swing."
+      grey_color: "Corridor hue shifts — warm (orange/red) to cool (blue/cyan). Visible color temperature change."
+      orange_mix: "Vertical red bar column height — dry/wet mix. Higher = more reverb wetness."
+
+  nitro:
+    static: "Dual semicircular gauges (LOWS/HIGHS) + city skyline + Q joystick"
+    animations:
+      blue_lows: "Left gauge needle moves — high-pass filter cutoff. City skyline base shifts."
+      ochre_freq_follow: "City skyline shifts/scales — envelope follower amount. More movement = more skyline reactivity."
+      grey_q: "Joystick graphic moves — resonance. Skyline gets sharper/more pointed at high Q."
+      orange_highs: "Right gauge needle moves — low-pass filter cutoff. Skyline top shifts."
+
+  phone:
+    static: "Cordless phone illustration + TONE fader + 3 numbers (GSM/BAUD/TELEMETRY)"
+    animations:
+      blue_tone: "Fader needle moves vertically — pitch variation of granular audio. Higher = more pitch shift."
+      ochre_gsm: "Number '34' (or current) updates — grain size. Phone graphic may show more/less granular detail."
+      grey_baud: "Number '42' (or current) updates — pattern/timing of glitched grain playback."
+      orange_telemetry: "Number '48' (or current) updates — dry/wet mix. More wet = more phone effect."
+
+  punch:
+    static: "Boxer illustration + FREQ gauge arc + 3 numbers (PUNCH/ROUNDS/POWER)"
+    animations:
+      blue_freq: "Semi-circular gauge needle moves — filter frequency. No number shown for FREQ itself, just the needle position."
+      ochre_punch: "Number '48' (or current) updates — punch/compression amount. Boxer graphic may animate more impact."
+      grey_rounds: "Number '20' (or current) updates — filter slope steepness (rounds). Higher = steeper."
+      orange_power: "Number '30' (or current) updates — drive/power. Vertical red bar may grow."
+
+  spring:
+    static: "Two white coil/spring graphics + TURNS (top) + DAMPING (bottom) + TONE (left) + MIX (right)"
+    animations:
+      blue_tone: "Spring coils brighten/darken — tone shift. No number, just visual color change."
+      ochre_turns: "Spring coils visibly vibrate/bounce more — more turns = longer reverb decay. Animation of physical spring."
+      grey_damping: "Spring vibration dies quicker at high damping — visible shorter bounce. Coils settle faster."
+      orange_mix: "L/R indicators change — dry/wet mix. More wet = more spring audibility."
+
+  terminal:
+    static: "Matrix/rain-style distortion graphic + KHZ/BITS/MODEL numbers"
+    animations:
+      blue_khz: "Decimal number (e.g. 3.8) updates — sample rate. Graphic gets crunchier/blockier at low KHZ."
+      ochre_bits: "Decimal number (e.g. 4.0) updates — bit depth. Graphic gets more crushed/stepped at low BITS."
+      grey_model: "Number updates — below 3 = HP filter (graphic thins from bottom), ~3 = no filter, above 3 = LP filter (graphic thins from top)."
+      orange_mix: "Mix bar changes — dry/wet. More wet = more terminal effect."
+
+  fazer:
+    static: "UFO/alien sci-fi graphic + FREQ number + FEEDBACK ray-gun + SPEED wavy line + DEPTH UFO animation"
+    animations:
+      blue_freq: "Number updates — filter frequency of phased audio. Sweep center shifts."
+      ochre_feedback: "Ray-gun graphic animates more intensely — feedback/resonance. Higher = more chaotic animation."
+      grey_speed: "Orange wavy line speeds up/slows down — modulation rate of the sweep."
+      orange_depth: "UFO/figure animates — phase shift depth. Higher = deeper sweep, more visible UFO movement."
+
+lfo_types:
+
+  value:
+    static: "Signal-flow: source → amount → dest → param. Flat/constant waveform."
+    animations:
+      blue_speed: "Waveform scrolls faster/slower. Tap to cycle shape (sine/square/etc). At low speed: barely moving. At high speed: fast flicker."
+      ochre_amount: "Wave amplitude grows/shrinks — taller = more modulation depth."
+      grey_dest: "Destination block changes — synth/envelope/FX/main icon swaps."
+      orange_param: "Parameter name updates — shows which specific param is being modulated."
+
+  tremolo:
+    static: "Dual-path: pitch (note icon) + volume (speaker icon). SPEED gauge + 2 AMOUNT boxes + 2 envelope graphics"
+    animations:
+      blue_speed: "Analog-style SPEED gauge needle moves. At 0: stopped. Higher = faster oscillation. Two modes: synced (number) or free-run (clock face)."
+      ochre_pitch_amount: "Number updates — pitch modulation depth (vibrato). Higher = more pitch wobble."
+      grey_volume_level: "Number updates — volume modulation depth (tremolo). Higher = more amplitude pulsing."
+      orange_shape: "Shift+Orange: cycles through shapes (sine/saw/exp/square/blip). Waveform graphic redraws."
+
+  element:
+    static: "Signal-flow with SOURCE (G/key/waveform/SUM) → AMOUNT → DEST → PARAM"
+    animations:
+      blue_source: "Source icon changes — G (g-force), key (external input), waveform (envelope), SUM (main output). Each has a distinct icon."
+      ochre_amount: "Number updates — modulation depth. Higher = more source influence on destination."
+      grey_dest: "Destination block changes — synth/envelope/FX/main."
+      orange_param: "Parameter name updates — which specific param the source modulates."
+
+  random:
+    static: "Stepped random waveform graph + SPEED/AMOUNT/DEST/PARAM blocks"
+    animations:
+      blue_speed: "Stepped random line jumps faster/slower. At low speed: occasional jumps. At high speed: rapid chaotic stepping."
+      ochre_amount: "Stepped line amplitude grows/shrinks — taller = more random modulation range."
+      grey_dest: "Destination category changes — modulates ALL params in the category (not one specific param)."
+      orange_param: "Parameter name updates — which param is being randomized."
+
+  velocity:
+    static: "Velocity-responsive graph + AMOUNT + DEST + PARAM (Ochre/T2 UNUSED)"
+    animations:
+      blue_amount: "Number updates — velocity sensitivity. Higher = more response to key velocity."
+      grey_dest: "Destination block changes — synth/envelope/FX/main."
+      orange_param: "Parameter name updates — which param velocity controls."
+
+  midi:
+    static: "4 CC columns (1-4) with waveform boxes + rotary knobs + DEST block + MIDI keyboard icon"
+    animations:
+      blue_cc1: "CC 1 value updates — incoming MIDI CC data. Waveform box reacts to incoming data."
+      orange_cc2: "CC 2 value updates. Waveform box reacts."
+      grey_cc3: "CC 3 value updates. Waveform box reacts."
+      red_cc4: "CC 4 value updates. Waveform box reacts. Shift allows assigning to 60+ params."
+
+envelope:
+  static: "ADSR curve plotted as bright line against grid. Four colored dots (Blue=Attack, Ochre=Decay, Grey=Sustain, Orange=Release). NO numbers on steady-state screen."
+  animations:
+    blue_attack: "Blue dot at curve start moves left/right. Right = slower attack (gentle rise). Left = instant (vertical). Curve redraws smoothly."
+    ochre_decay: "Ochre dot at the peak moves. Right = longer decay (slower drop from peak). Curve slope changes."
+    grey_sustain: "Grey dot height on the plateau moves up/down. Higher = more sustain. Visible plateau level changes."
+    orange_release: "Red dot at curve end moves. Right = longer release tail. Visible tail length changes."
+  archetypes:
+    pad: "Slow rise from bottom-left → high plateau → long right tail. Dots: Attack ~halfway, Decay gentle, Sustain near top, Release far right."
+    pluck: "Near-vertical rise → sharp drop → low plateau → short tail. Dots: Attack far left, Decay sharp, Sustain low, Release short."
+    lead: "Quick rise → moderate drop → solid plateau → medium tail. Balanced, arched shape."

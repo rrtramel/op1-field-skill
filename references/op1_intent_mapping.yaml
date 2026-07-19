@@ -1,0 +1,408 @@
+# OP-1 Field Intent Mapping
+# ============================================================
+# Maps user vibes -> patch-planning decisions. Does NOT hardcode a single engine —
+# it RANKS candidates so the compiler can pick (or the user can override).
+#
+# Used by Step C of the SKILL workflow (candidate ranking). The intent parser matches
+# the user request against aliases, builds a sound_target, then ranks engine/FX/LFO
+# candidates by score_bias. Higher score_bias = stronger default pick.
+#
+# All engine/fx/lfo ids must exist in op1_recipe_compiler_reference.yaml.
+# ============================================================
+
+schema_version: "1.0"
+
+# Sound-target vocabulary (kept loose on purpose — these are descriptors, not numbers):
+#   brightness: dark | medium_dark | medium | medium_bright | bright
+#   width:      narrow | medium | wide | very_wide
+#   density:    thin | medium | thick | very_thick
+#   motion:     static | slow_subtle | moderate | fast | chaotic
+#   space:      dry | small | medium | large | huge
+#   attack:     instant | fast | medium | slow
+#   sustain:    none | low | medium | high
+#   release:    short | medium | long | very_long
+#   articulation: pluck | stab | sustained | percussive | evolving
+
+intents:
+
+  lush_80s_pad:
+    aliases: ["lush pad", "80s pad", "dreamy analog pad", "wide synth pad", "lush 80s pad", "lush", "shimmer", "warm pad", "thick pad", "analog pad", "dreamy", "lush keys"]
+    category: pad
+    sound_target: {brightness: medium_dark, width: very_wide, density: very_thick, motion: slow_subtle, space: large, attack: slow, sustain: high, release: long, articulation: sustained}
+    engine_candidates:
+      - {engine: cluster,   reason: "dense multi-wave detuned pad", score_bias: 0.90}
+      - {engine: dimension, reason: "wavetable+filter pad with stereo width", score_bias: 0.75}
+      - {engine: voltage,   reason: "warm analog-modeled pad", score_bias: 0.62}
+    envelope_archetype: pad
+    play_mode: poly
+    fx_candidates:
+      - {fx: mother, reason: "large gated 80s reverb"}
+      - {fx: spring, reason: "retro colored reverb"}
+      - {fx: delay,  reason: "echo space without wash"}
+    lfo_candidates:
+      - {lfo: value,  reason: "slow cyclic motion on spread/filter"}
+      - {lfo: random, reason: "organic drift"}
+    correction_macros:
+      - {symptom: "too bright", screen_action: "lower Mother COLOR or reduce Cluster WAVE ENV"}
+      - {symptom: "too static", screen_action: "raise LFO AMOUNT slightly or add Cluster detune"}
+      - {symptom: "too wet",    screen_action: "lower FX MIX before shortening release"}
+
+  warm_plucky_bass:
+    aliases: ["warm bass", "plucky bass", "warm plucky bass", "round bass", "fat bass", "warm", "fat", "punchy bass", "woody bass", "organic bass", "sub-heavy bass", "sub heavy", "deep bass"]
+    category: bass
+    sound_target: {brightness: medium_dark, width: narrow, density: medium, motion: static, space: dry, attack: instant, sustain: high, release: short, articulation: pluck}
+    engine_candidates:
+      - {engine: string,  reason: "waveguide pluck, warm + organic", score_bias: 0.85}
+      - {engine: voltage, reason: "gritty analog bass", score_bias: 0.72}
+      - {engine: digital, reason: "clean/grungy digital bass", score_bias: 0.60}
+    envelope_archetype: bass
+    play_mode: mono
+    fx_candidates:
+      - {fx: none,  reason: "tight dry bass"}
+      - {fx: punch, reason: "loud punchy low-pass glue"}
+    lfo_candidates:
+      - {lfo: none, reason: "static bass, no movement needed"}
+    correction_macros:
+      - {symptom: "too thin", screen_action: "lower String TENSION or drop sub octave"}
+      - {symptom: "too dull", screen_action: "raise WAVE SHAPER / open filter slightly"}
+
+  glassy_bell:
+    aliases: ["glassy bell", "bell", "crystal bell", "glass bell", "glassy", "bell-like", "cold bell", "cold"]
+    category: lead
+    sound_target: {brightness: bright, width: medium, density: medium, motion: slow_subtle, space: medium, attack: instant, sustain: low, release: long, articulation: pluck}
+    engine_candidates:
+      - {engine: fm,      reason: "4-op FM is the classic bell engine", score_bias: 0.92}
+      - {engine: digital, reason: "ring mod for metallic bells", score_bias: 0.65}
+    envelope_archetype: bell
+    play_mode: poly
+    fx_candidates:
+      - {fx: delay,  reason: "sparkly echo tail"}
+      - {fx: mother, reason: "shimmer space"}
+    lfo_candidates:
+      - {lfo: value, reason: "slow vibrato/detune for life"}
+      - {lfo: none,  reason: "clean static bell"}
+    correction_macros:
+      - {symptom: "too harsh", screen_action: "lower FM FREQ (FM amount) toward sine"}
+      - {symptom: "no shimmer", screen_action: "raise FM DETUNE or add slow Value LFO"}
+
+  detuned_boc_keys:
+    aliases: ["boards of canada", "boc keys", "detuned keys", "woozy keys", "nostalgic keys", "vintage", "tape-like", "wobble", "detuned", "retro keys", "lo-fi keys", "lofi keys"]
+    category: keys
+    sound_target: {brightness: medium_dark, width: wide, density: thick, motion: moderate, space: medium, attack: fast, sustain: medium, release: medium, articulation: sustained}
+    engine_candidates:
+      - {engine: cluster, reason: "detuned multi-wave woozy character", score_bias: 0.82}
+      - {engine: dr_wave, reason: "lo-fi organ/keys with chorus", score_bias: 0.70}
+      - {engine: voltage, reason: "warm unstable analog keys", score_bias: 0.62}
+    envelope_archetype: keys
+    play_mode: poly
+    fx_candidates:
+      - {fx: spring,   reason: "vintage colored reverb"}
+      - {fx: terminal, reason: "tape-ish lo-fi crush"}
+    lfo_candidates:
+      - {lfo: random, reason: "pitch drift = woozy tape wobble"}
+      - {lfo: value,  reason: "slow detune wobble"}
+    correction_macros:
+      - {symptom: "too clean", screen_action: "add Terminal BITS reduction or Random LFO to pitch"}
+      - {symptom: "too wide", screen_action: "lower Cluster SPREAD"}
+
+  dark_drone:
+    aliases: ["dark drone", "dark evolving drone", "evolving drone", "ominous drone", "dark", "dark pad", "deep", "cinematic drone", "haunting", "ghostly drone", "haunting drone", "evolving"]
+    category: pad
+    sound_target: {brightness: dark, width: wide, density: thick, motion: slow_subtle, space: huge, attack: slow, sustain: high, release: very_long, articulation: evolving}
+    engine_candidates:
+      - {engine: voltage, reason: "deep dark analog drone", score_bias: 0.80}
+      - {engine: string,  reason: "high decay = infinite sustain drone", score_bias: 0.72}
+      - {engine: dna,     reason: "alien evolving texture", score_bias: 0.60}
+    envelope_archetype: drone
+    play_mode: poly
+    fx_candidates:
+      - {fx: spring, reason: "huge washy space"}
+      - {fx: cwo,    reason: "freq-shifted evolving tail"}
+    lfo_candidates:
+      - {lfo: value,  reason: "slow filter sweep evolution"}
+      - {lfo: random, reason: "organic drift"}
+    correction_macros:
+      - {symptom: "too bright", screen_action: "lower Voltage VOLT (filter) or Spring TONE"}
+      - {symptom: "too static", screen_action: "deepen slow Value LFO on the filter"}
+
+  weird_glitch:
+    aliases: ["weird glitch", "dna glitch", "glitchy", "broken", "experimental glitch", "glitched", "noisy", "futuristic", "digital noise", "broken synth"]
+    category: texture
+    sound_target: {brightness: medium, width: medium, density: thick, motion: chaotic, space: small, attack: instant, sustain: medium, release: short, articulation: percussive}
+    engine_candidates:
+      - {engine: dna,     reason: "CPU-noise glitch engine", score_bias: 0.90}
+      - {engine: digital, reason: "ring mod + digitalness grit", score_bias: 0.62}
+    envelope_archetype: percussive
+    play_mode: poly
+    fx_candidates:
+      - {fx: phone, reason: "granular bit/grain destruction"}
+      - {fx: grid,  reason: "comb/glitch delay grid"}
+    lfo_candidates:
+      - {lfo: random, reason: "chaotic random modulation"}
+      - {lfo: value,  reason: "rhythmic glitch on FX knob"}
+    correction_macros:
+      - {symptom: "too noisy", screen_action: "lower DNA NOISE or Phone BAUD"}
+      - {symptom: "too random", screen_action: "lower Random LFO AMOUNT"}
+
+  acid_lead:
+    aliases: ["acid lead", "acid", "303 lead", "squelchy lead", "acid line", "squelchy", "modern lead", "aggressive lead", "bright acid"]
+    category: lead
+    sound_target: {brightness: bright, width: narrow, density: medium, motion: moderate, space: small, attack: instant, sustain: medium, release: short, articulation: pluck}
+    engine_candidates:
+      - {engine: dimension, reason: "wavetable through resonant filter = acid", score_bias: 0.90}
+      - {engine: digital,   reason: "grungy digital acid", score_bias: 0.60}
+    envelope_archetype: pluck
+    play_mode: mono
+    fx_candidates:
+      - {fx: nitro, reason: "dual resonant turbo filter = squelch"}
+      - {fx: delay, reason: "rhythmic acid echoes"}
+    lfo_candidates:
+      - {lfo: value, reason: "sweep filter cutoff for classic acid motion"}
+    correction_macros:
+      - {symptom: "not squelchy", screen_action: "raise Dimension RES + Nitro Q"}
+      - {symptom: "too thin", screen_action: "lower Dimension FILTER FREQ a touch"}
+
+  surf_spring_lead:
+    aliases: ["surf lead", "surf spring lead", "surf guitar", "twangy lead", "retro lead", "vintage lead"]
+    category: lead
+    sound_target: {brightness: medium_bright, width: medium, density: medium, motion: slow_subtle, space: medium, attack: instant, sustain: medium, release: medium, articulation: pluck}
+    engine_candidates:
+      - {engine: string,  reason: "plucked string surf character", score_bias: 0.85}
+      - {engine: digital, reason: "clean twangy digital", score_bias: 0.58}
+    envelope_archetype: pluck
+    play_mode: mono
+    fx_candidates:
+      - {fx: spring, reason: "classic surf spring reverb (low TURNS, bright TONE)"}
+    lfo_candidates:
+      - {lfo: tremolo, reason: "surf tremolo on volume"}
+      - {lfo: none,    reason: "dry twang"}
+    correction_macros:
+      - {symptom: "too dark", screen_action: "raise Spring TONE"}
+      - {symptom: "no surf", screen_action: "lower Spring TURNS, add slow Tremolo"}
+
+  lo_fi_chip_lead:
+    aliases: ["lo-fi chip lead", "chiptune lead", "8-bit lead", "chip lead", "lofi chip", "digital", "thin lead", "bright chip", "clean digital"]
+    category: lead
+    sound_target: {brightness: bright, width: narrow, density: thin, motion: static, space: dry, attack: instant, sustain: medium, release: short, articulation: pluck}
+    engine_candidates:
+      - {engine: digital, reason: "lo-fi chiptune square/saw", score_bias: 0.82}
+      - {engine: pulse,   reason: "hollow pulse chip tone", score_bias: 0.70}
+      - {engine: dr_wave, reason: "sample-rate-reduced buzzy lead", score_bias: 0.60}
+    envelope_archetype: pluck
+    play_mode: mono
+    fx_candidates:
+      - {fx: terminal, reason: "bit/sample-rate crush for 8-bit"}
+      - {fx: phone,    reason: "digital destruction"}
+    lfo_candidates:
+      - {lfo: value, reason: "arpeggio-ish pitch wobble"}
+      - {lfo: none,  reason: "clean chip"}
+    correction_macros:
+      - {symptom: "too clean", screen_action: "lower Terminal KHZ + BITS"}
+      - {symptom: "too harsh", screen_action: "raise Terminal MODEL toward LP"}
+
+  metallic_percussion:
+    aliases: ["metallic percussion", "metal perc", "metallic hit", "clang perc", "metallic", "hard hit", "percussive", "metal hit", "bright perc"]
+    category: percussion
+    sound_target: {brightness: bright, width: medium, density: medium, motion: static, space: small, attack: instant, sustain: none, release: short, articulation: percussive}
+    engine_candidates:
+      - {engine: fm,      reason: "inharmonic FM = metallic percussion", score_bias: 0.85}
+      - {engine: digital, reason: "ring mod metallic clang", score_bias: 0.72}
+      - {engine: voltage, reason: "metallic percussion character", score_bias: 0.58}
+    envelope_archetype: percussive
+    play_mode: poly
+    fx_candidates:
+      - {fx: mother, reason: "short gated metallic space"}
+      - {fx: none,   reason: "dry metallic hit"}
+    lfo_candidates:
+      - {lfo: none, reason: "static percussive hit"}
+    correction_macros:
+      - {symptom: "too tonal", screen_action: "use inharmonic FM ratio (step Ochre off harmonic)"}
+      - {symptom: "rings too long", screen_action: "shorten envelope decay/release"}
+
+  soft_string_pluck:
+    aliases: ["soft string pluck", "gentle pluck", "soft pluck", "nylon pluck", "soft", "plucky", "woody", "organic pluck", "clean pluck", "warm pluck"]
+    category: pluck
+    sound_target: {brightness: medium_dark, width: medium, density: medium, motion: static, space: small, attack: instant, sustain: low, release: medium, articulation: pluck}
+    engine_candidates:
+      - {engine: string, reason: "soft-excitation waveguide pluck", score_bias: 0.90}
+    envelope_archetype: pluck
+    play_mode: poly
+    fx_candidates:
+      - {fx: spring, reason: "gentle room"}
+      - {fx: none,   reason: "intimate dry pluck"}
+    lfo_candidates:
+      - {lfo: none, reason: "natural static pluck"}
+    correction_macros:
+      - {symptom: "too hard", screen_action: "raise String IMP TYPE toward soft (finger/bow)"}
+      - {symptom: "too short", screen_action: "raise String IMP (decay)"}
+
+  dreamy_spring_pad:
+    aliases: ["dreamy pad with spring reverb", "dreamy spring pad", "spring pad", "dreamy pad", "airy", "airy pad", "dreamy spring"]
+    category: pad
+    sound_target: {brightness: medium, width: wide, density: thick, motion: slow_subtle, space: large, attack: slow, sustain: high, release: long, articulation: sustained}
+    engine_candidates:
+      - {engine: cluster,   reason: "lush detuned pad", score_bias: 0.85}
+      - {engine: dimension, reason: "evolving wavetable pad", score_bias: 0.70}
+    envelope_archetype: pad
+    play_mode: poly
+    fx_candidates:
+      - {fx: spring, reason: "dreamy colored spring reverb"}
+    lfo_candidates:
+      - {lfo: value, reason: "slow movement"}
+    correction_macros:
+      - {symptom: "too metallic", screen_action: "lower Spring TURNS"}
+      - {symptom: "too washed", screen_action: "lower Spring MIX"}
+
+  warm_bass_no_reverb:
+    aliases: ["warm bass no reverb", "dry warm bass", "warm bass dry", "static bass", "clean bass", "dry bass"]
+    category: bass
+    sound_target: {brightness: medium_dark, width: narrow, density: medium, motion: static, space: dry, attack: instant, sustain: high, release: short, articulation: pluck}
+    engine_candidates:
+      - {engine: string,  reason: "warm waveguide bass", score_bias: 0.82}
+      - {engine: voltage, reason: "warm analog bass", score_bias: 0.74}
+    envelope_archetype: bass
+    play_mode: mono
+    fx_candidates:
+      - {fx: none, reason: "explicitly dry, no reverb"}
+    lfo_candidates:
+      - {lfo: none, reason: "static dry bass"}
+    correction_macros:
+      - {symptom: "too dull", screen_action: "open filter / raise WAVE SHAPER slightly"}
+      - {symptom: "muddy", screen_action: "raise String TENSION a touch"}
+
+  mono_glide_lead:
+    aliases: ["mono lead with glide", "glide lead", "portamento lead", "mono glide lead", "clean lead", "modern lead glide"]
+    category: lead
+    sound_target: {brightness: medium_bright, width: narrow, density: medium, motion: slow_subtle, space: small, attack: instant, sustain: high, release: medium, articulation: sustained}
+    engine_candidates:
+      - {engine: digital,   reason: "clean expressive mono lead", score_bias: 0.78}
+      - {engine: dimension, reason: "filtered lead with glide", score_bias: 0.70}
+      - {engine: voltage,   reason: "warm analog lead", score_bias: 0.60}
+    envelope_archetype: lead
+    play_mode: legato
+    portamento: "medium (glide on)"
+    fx_candidates:
+      - {fx: delay, reason: "lead echo space"}
+      - {fx: none,  reason: "dry mono lead"}
+    lfo_candidates:
+      - {lfo: value, reason: "slow vibrato"}
+      - {lfo: none,  reason: "static lead"}
+    correction_macros:
+      - {symptom: "no glide", screen_action: "raise PORTAMENTO in play mode"}
+      - {symptom: "too stiff", screen_action: "use Legato mode + slow Value LFO vibrato"}
+
+  wide_synthwave_lead:
+    aliases: ["wide synthwave lead", "synthwave lead", "retrowave lead", "wide retro lead", "bright lead", "brassy", "thick lead", "wide lead"]
+    category: lead
+    sound_target: {brightness: bright, width: very_wide, density: very_thick, motion: slow_subtle, space: large, attack: instant, sustain: high, release: medium, articulation: sustained}
+    engine_candidates:
+      - {engine: cluster, reason: "supersaw unison synthwave lead", score_bias: 0.90}
+      - {engine: dr_wave, reason: "buzzy retro lead", score_bias: 0.62}
+    envelope_archetype: lead
+    play_mode: unison
+    fx_candidates:
+      - {fx: mother, reason: "big 80s reverb"}
+      - {fx: delay,  reason: "synthwave echo"}
+    lfo_candidates:
+      - {lfo: value, reason: "slow detune/vibrato motion"}
+    correction_macros:
+      - {symptom: "too thin", screen_action: "raise Cluster WAVES + use Unison mode"}
+      - {symptom: "not wide", screen_action: "raise Cluster SPREAD"}
+
+  vocal_robot:
+    aliases: ["robotic vocoder voice", "vocoder", "robot voice", "vocal robot", "talking synth"]
+    category: vocal
+    sound_target: {brightness: medium, width: medium, density: medium, motion: moderate, space: small, attack: fast, sustain: high, release: medium, articulation: sustained}
+    engine_candidates:
+      - {engine: vocoder, reason: "voice-controlled vocoder (requires audio input)", score_bias: 0.92}
+    envelope_archetype: keys
+    play_mode: poly
+    fx_candidates:
+      - {fx: delay,    reason: "robotic echo"}
+      - {fx: terminal, reason: "lo-fi digital voice"}
+    lfo_candidates:
+      - {lfo: none, reason: "static vocoder"}
+    correction_macros:
+      - {symptom: "not intelligible", screen_action: "raise Vocoder BANDS toward 7"}
+      - {symptom: "no input", screen_action: "set an input source (Mic/Headset/FM Radio/USB); do NOT use Out-In"}
+
+  industrial_stab:
+    aliases: ["aggressive industrial stab", "industrial stab", "harsh stab", "distorted stab", "aggressive", "dirty", "gritty", "fuzzy", "distorted", "hard stab", "harsh"]
+    category: stab
+    sound_target: {brightness: bright, width: medium, density: thick, motion: static, space: small, attack: instant, sustain: low, release: short, articulation: stab}
+    engine_candidates:
+      - {engine: digital, reason: "grungy ring-mod digital stab", score_bias: 0.82}
+      - {engine: dna,     reason: "harsh industrial noise stab", score_bias: 0.68}
+      - {engine: voltage, reason: "gritty distorted stab", score_bias: 0.58}
+    envelope_archetype: stab
+    play_mode: poly
+    fx_candidates:
+      - {fx: phone,    reason: "digital destruction"}
+      - {fx: terminal, reason: "bit-crush grit"}
+      - {fx: punch,    reason: "loud aggressive glue"}
+    lfo_candidates:
+      - {lfo: none, reason: "static aggressive stab"}
+    correction_macros:
+      - {symptom: "not harsh enough", screen_action: "raise Digital DIGITALNESS + push Grey past 50 (ring mod)"}
+      - {symptom: "too thin", screen_action: "add Punch or lower Terminal MODEL toward LP"}
+
+  ambient_texture:
+    aliases: ["subtle ambient texture", "ambient texture", "ambient pad", "background texture", "cinematic", "ghostly", "evolving texture", "airy texture", "haunting texture"]
+    category: pad
+    sound_target: {brightness: medium_dark, width: wide, density: medium, motion: slow_subtle, space: huge, attack: slow, sustain: high, release: very_long, articulation: evolving}
+    engine_candidates:
+      - {engine: dimension, reason: "slow-evolving wavetable texture", score_bias: 0.82}
+      - {engine: string,    reason: "high-decay ambient drone-pluck", score_bias: 0.68}
+      - {engine: cluster,   reason: "soft detuned wash", score_bias: 0.62}
+    envelope_archetype: pad
+    play_mode: poly
+    fx_candidates:
+      - {fx: spring, reason: "huge washy space"}
+      - {fx: cwo,    reason: "freq-shifted evolving tail"}
+    lfo_candidates:
+      - {lfo: value,  reason: "slow waveform/filter evolution"}
+      - {lfo: random, reason: "organic drift"}
+    correction_macros:
+      - {symptom: "too present", screen_action: "lower FX MIX and engine volume"}
+      - {symptom: "too static", screen_action: "slow Value LFO on Dimension WAVEFORM"}
+
+  fm_bell_delay:
+    aliases: ["fm bell with delay", "fm bell delay", "bell with delay", "echoing bell", "bright bell", "shimmer bell"]
+    category: lead
+    sound_target: {brightness: bright, width: medium, density: medium, motion: slow_subtle, space: large, attack: instant, sustain: low, release: long, articulation: pluck}
+    engine_candidates:
+      - {engine: fm, reason: "FM bell tone", score_bias: 0.92}
+    envelope_archetype: bell
+    play_mode: poly
+    fx_candidates:
+      - {fx: delay, reason: "echoing bell tail"}
+    lfo_candidates:
+      - {lfo: value, reason: "slow detune shimmer"}
+      - {lfo: none,  reason: "clean bell"}
+    correction_macros:
+      - {symptom: "too harsh", screen_action: "lower FM FREQ toward sine"}
+      - {symptom: "echo muddy", screen_action: "lower Delay FEEDBACK"}
+
+  pulse_pwm_pad:
+    aliases: ["pulse pwm pad", "pwm pad", "pulse pad", "pwm width pad", "hollow", "hollow pad", "brassy pad", "pwm"]
+    category: pad
+    sound_target: {brightness: medium, width: wide, density: thick, motion: moderate, space: medium, attack: slow, sustain: high, release: long, articulation: sustained}
+    engine_candidates:
+      - {engine: pulse, reason: "dual pulse train + PWM motion", score_bias: 0.90}
+    envelope_archetype: pad
+    play_mode: poly
+    fx_candidates:
+      - {fx: mother, reason: "space for the pad"}
+      - {fx: spring, reason: "retro reverb"}
+    lfo_candidates:
+      - {lfo: value, reason: "modulate TIME (2nd pulse) for PWM motion"}
+    correction_macros:
+      - {symptom: "too static", screen_action: "set Pulse MOD off 50, or LFO the Grey (TIME) param"}
+      - {symptom: "too thin", screen_action: "raise Pulse AMPL"}
+
+# ------------------------------------------------------------
+# Generic fallback when no intent matches
+# ------------------------------------------------------------
+fallback:
+  default_intent: null
+  strategy: "If no alias matches, look up the user's adjectives in op1_adjective_index.yaml (references/op1_adjective_index.yaml) to get concrete params and directions. Use those params to bias engine/FX/LFO selection: pick the engine whose params appear most frequently across the matched adjectives. If adjectives are ambiguous or not in the index, fall back to the sound_target vocabulary (brightness/width/density/motion/space/articulation) and pick the engine whose best_for tags overlap most. Default engine = digital (all-rounder). Default envelope = keys. Default play_mode = poly. Default FX = none (state dry). Default LFO = none (state static)."

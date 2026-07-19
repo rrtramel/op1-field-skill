@@ -1,0 +1,376 @@
+# OP-1 Field Screen Behavior Reference v2
+# What each screen ACTUALLY shows when you dial parameters
+# Native vision analysis of every screen.
+#
+# Legend:
+# [N] = numeric value displayed on screen
+# [G] = graphic only (no number on screen)
+# [B] = both number and graphic
+# Labels in CAPS = exact on-screen text
+
+# ============================================================
+# EMOJI VOCABULARY (recipes add these for visual scanning)
+# ============================================================
+#
+# emoji_vocab:
+#   section_headers:
+#     title:      "🎛️"   # recipe title bar
+#     envelope:   "📈"   # ENVELOPE section
+#     fx:         "✨"   # FX section
+#     lfo:        "🔄"   # LFO section
+#     shift:      "⇧"    # shift layer (DSynth)
+#     tip:        "💡"   # tip line
+#     watch:      "👀"   # graphic-param watch cue (optional)
+#
+#   engines:
+#     cluster:    "🌊"   # waves
+#     digital:    "💎"   # clean digital
+#     dimension:  "📐"   # dimension
+#     dna:        "🧬"   # DNA literal
+#     dr_wave:    "🩺"   # doctor
+#     fm:         "📻"   # FM radio
+#     phase:      "🌀"   # phase distortion
+#     pulse:      "⚡"   # pulse train
+#     string:     "🎸"   # guitar string
+#     voltage:    "🔋"   # voltage
+#     dsynth:     "🎛️"   # dual oscillator
+#     vocoder:    "🤖"   # robotic voice
+#     sampler:    "📼"   # tape
+#     amp:        "🔊"   # amp/speaker
+#
+#   effects:
+#     cwo:        "🐄"   # cow
+#     delay:      "🔁"   # repeat
+#     grid:       "🕸️"   # grid
+#     mother:     "🚪"   # gate door
+#     nitro:      "🏎️"   # nitro/fast
+#     phone:      "☎️"   # phone
+#     punch:      "🥊"   # boxer
+#     spring:     "🪀"   # spring
+#     terminal:   "💻"   # terminal
+#     fazer:      "👽"   # alien
+#
+#   lfo_types:
+#     value:      "〰️"   # wave
+#     element:    "⚡"   # element
+#     random:     "🎲"   # dice
+#     tremolo:    "🌊"   # vibrato
+#     velocity:   "🎹"   # keyboard
+#     midi:       "🎹"   # MIDI
+#
+#   recipe_format_rules:
+#     - "Title line: 🎛️ + name + engine emoji (e.g. '🎛️ LUSH 80s PAD 🌊')"
+#     - "Section headers: 📈 ENVELOPE / ✨ FX / 🔄 LFO"
+#     - "FX name includes its emoji (e.g. '✨ FX Mother 🚪')"
+#     - "LFO type includes its emoji (e.g. '🔄 LFO Value type 〰️')"
+#     - "DSynth recipes: ⇧ SHIFT section header"
+#     - "Tip line: 💡"
+#     - "Don't put emojis in the parameter rows — only in headers"
+#     - "Emojis are scanning aids, not replacements for text"
+
+# ============================================================
+# ENGINES (T1)
+# ============================================================
+
+engines:
+
+  cluster:
+    screen_type: "numbers in colored speech bubbles + 4 stacked wave lines"
+    display: "Top row: 4 colored speech-bubble icons with values (blue/yellow/grey/red). Below: 4 horizontal jagged wave lines (blue/yellow/white/red) stacked vertically"
+    params:
+      blue:   {label: "WAVES",     display: "[B]", value_example: 99, visual: "blue speech bubble = 99. Wave line below gets busier/more cycles"}
+      ochre:  {label: "WAVE ENV",  display: "[B]", value_example: 99, visual: "yellow speech bubble = 99. Wave amplitude on yellow line changes"}
+      grey:   {label: "SPREAD",    display: "[B]", value_example: 99, visual: "grey speech bubble = 99. White wave line spreads/detunes wider"}
+      orange: {label: "UNISON",    display: "[B]", value_example: 61, visual: "red speech bubble = 61. Red wave line drifts/oscillates faster"}
+
+  digital:
+    screen_type: "single active param label + number + knob icon + side graphic"
+    display: "Only one param visible at a time. Top-right: label 'WAVE SHAPER' on blue box + value '98' in large font + knob icon. Left side: purple/lavender network/polyhedron graph (5 connected nodes: blue/blue/red/orange/white). Four red dots along top edge = the 4 params (the active one lights up)"
+    params:
+      blue:   {label: "WAVE SHAPER", display: "[B]", value_example: 98, visual: "label + value '98' + knob icon shown; polyhedron graph morphs shape"}
+      ochre:  {label: "OCTAVE",      display: "[G]", value_example: nil, visual: "red dot shifts along top edge (no value visible until knob turned)"}
+      grey:   {label: "",            display: "[G]", value_example: nil, visual: "red dot shifts; polyhedron red node detunes or ring-mod toggles"}
+      orange: {label: "",            display: "[G]", value_example: nil, visual: "red dot shifts; static/noise particles appear on polyhedron"}
+
+  dimension:
+    screen_type: "label + waveform icons + filter number + resonance triangle"
+    display: "Top-left: WAVEFORM label + blue rectangle showing wave name + stacked wave icons (square/saw/lightning/noise). Center: long blue wavy horizontal line (oscilloscope). Top-right: FILTER FREQ + number '500'. Right side: red RES label + red upward triangle. Bottom axis: '-1 / 0 / 1'"
+    params:
+      blue:   {label: "WAVEFORM",    display: "[B]", value_example: nil, visual: "highlighted box moves between wave name labels (NOISE/PULSE/SQUARE/SAW/etc) + icons shift"}
+      ochre:  {label: "STEREO",      display: "[G]", value_example: nil, visual: "horizontal black line under STEREO label moves; oscilloscope thickens/doubles"}
+      grey:   {label: "FILTER FREQ", display: "[N]", value_example: 500, visual: "number '500' updates — filter cutoff frequency"}
+      orange: {label: "RES",         display: "[G]", value_example: nil, visual: "red triangle below RES grows taller (more resonance) or shrinks"}
+
+  dna:
+    screen_type: "hex-tile grid + vertical red line"
+    display: "FILTER label (blue) at top-left. CPU ID label (grey) at top-center. Cluster of small hex tiles scattered center/right (white outline, colored fills: blue/yellow/red). Each hex contains a single hex character (0-9, A-F). Vertical red line segments on right + small yellow/white dots"
+    params:
+      blue:   {label: "FILTER",   display: "[G]", value_example: nil, visual: "vertical red line moves left/right — filter cutoff position"}
+      ochre:  {label: "CPU ID",   display: "[G]", value_example: nil, visual: "tiles rearrange and color-shift — wave number changes (hex digits change too)"}
+      grey:   {label: "",         display: "[G]", value_example: nil, visual: "tiles modulate/mutate — pitch and timbre change"}
+      orange: {label: "",         display: "[G]", value_example: nil, visual: "noise particles appear between tiles"}
+
+  dr_wave:
+    screen_type: "jagged waveform + popup with active param"
+    display: "Jagged cyan/light-blue waveform line spans most of the screen. Active param appears as teal/cyan popup box top-right: 'PHASE' label + value + knob icon. Four red dots along top edge = the 4 params"
+    params:
+      blue:   {label: "PHASE",     display: "[B]", value_example: 47, visual: "popup shows PHASE + 47. Waveform steps change shape (saw→square→triangle→sample-rate reduction)"}
+      ochre:  {label: "",          display: "[G]", value_example: nil, visual: "red dot shifts; filter curve sweeps HP below 50 / silence at 50 / LP above 50"}
+      grey:   {label: "",          display: "[G]", value_example: nil, visual: "red dot shifts; pulse width 0-49, then cycles multiply above 50"}
+      orange: {label: "",          display: "[G]", value_example: nil, visual: "red dot shifts; chorus modulation appears on waveform"}
+
+  dsynth:
+    screen_type: "5 labels + 4 knobs + central red mode selector"
+    display: "Top row labels: XFADE / OSC 1 / ENV / MODE / FILTER (the FILTER is on the shift layer). Each label sits above its own little knob graphic: XFADE=blue dot in circle, OSC 1=vertical slider, ENV=knob with dot, FILTER=square with number '4'. CENTER: large prominent RED KNOB with numbers 1-7 around perimeter — this is the MODE selector. White pointer indicates current mode (~2 in diagram). Four red dots indicate active encoder position"
+    params:
+      blue:   {label: "XFADE", display: "[G]", value_example: nil, visual: "blue dot in XFADE knob graphic rotates — osc1/osc2 envelope crossfade"}
+      ochre:  {label: "OSC 1", display: "[G]", value_example: nil, visual: "horizontal indicator on OSC 1 slider moves — osc1 waveform mix (sine→square→saw)"}
+      grey:   {label: "ENV",   display: "[G]", value_example: nil, visual: "black dot in ENV knob graphic moves — osc1 envelope amplification"}
+      orange: {label: "MODE",  display: "[N]", value_example: 2,  visual: "central RED knob pointer rotates among 1-7 — cross-modulation mode"}
+    shift_params:
+      blue:   {label: "OSC 2",     display: "[G]", value_example: nil, visual: "Blue knob with Shift held — osc2 pitch division relative to played note"}
+      ochre:  {label: "OSC 2 wav", display: "[G]", value_example: nil, visual: "Beige knob with Shift held — osc2 waveform mix (sine→square→saw)"}
+      grey:   {label: "ENV osc2",  display: "[G]", value_example: nil, visual: "Grey knob with Shift held — osc2 envelope amplification"}
+      orange: {label: "FILTER",    display: "[N]", value_example: 4,  visual: "Orange knob with Shift held — filter cutoff (the FILTER label appears on screen with a number in a square)"}
+    notes: "DSynth has TWO full param layers. Base layer (T1-T4) controls osc1 + crossfade + mode. Shift layer (Shift + T1-T4) controls osc2 + filter. Recipes need both layers to dial the engine correctly."
+
+  fm:
+    screen_type: "3D operator cubes + frequency ratio + FM amount"
+    display: "Four 3D isometric cubes on left, each containing a label or frequency ratio: e.g., red '4', orange '5/16', white '1/4', white 'B'. Top-right: yellow FREQ box + value '46' in large font + knob icon. Algorithm is visualized by which cubes connect to which"
+    params:
+      blue:   {label: "FREQ", display: "[B]", value_example: 46, visual: "yellow FREQ box + value 46 — FM amount (modulation intensity). Cubes pulse/glow"}
+      ochre:  {label: "",     display: "[G]", value_example: nil, visual: "cubes show different frequency ratios (1/16, 2, 5/8, 4, 1.75, 7/16, 3.5, 1)"}
+      grey:   {label: "",     display: "[G]", value_example: nil, visual: "cubes reconnect — different algorithm topology (carrier/modulator routing)"}
+      orange: {label: "",     display: "[G]", value_example: nil, visual: "cubes shift position slightly — operator detuning"}
+
+  phase:
+    screen_type: "pure graphics (no numbers) — two waveform graphs + page indicator"
+    display: "Two side-by-side waveform graphs with axes (Y=amplitude, X=time). LEFT (PHASE/DIST): blue sine + yellow sine phase-shifted, with dashed grey center line + colored dots. RIGHT (FILTER/TILT): jagged red wave + smoother grey wave, dashed grey center line. Top-right corner: four square page buttons labeled 1/2/3/4 (engine pages)"
+    params:
+      blue:   {label: "PHASE",  display: "[G]", value_example: nil, visual: "left blue/yellow sine waves shift phase relative to each other — adds harmonics, sine→square"}
+      ochre:  {label: "DIST",   display: "[G]", value_example: nil, visual: "left waveforms distort further — clipping/folding"}
+      grey:   {label: "FILTER", display: "[G]", value_example: nil, visual: "right red/grey wave amplitude changes — wave shaping, NOT traditional frequency filter"}
+      orange: {label: "TILT",   display: "[G]", value_example: nil, visual: "right waveforms fold asymmetrically — noise and harmonics increase"}
+
+  pulse:
+    screen_type: "pure graphics (no numbers) — pulse train + red PWM squiggle"
+    display: "Top-left: FILTERO label (blue) + two small white circles + thin blue line. Top-right: MOD label (red) + thin red wavy squiggle line. Center: row of grey vertical rectangular bars of varying heights (pulse train) + thin horizontal white line. Y-axis label: AMPL (yellow, vertical). X-axis label: TIME (grey, horizontal)"
+    params:
+      blue:   {label: "FILTERO", display: "[G]", value_example: nil, visual: "two circles/blue line change — pulse train bar heights shift (filter envelope follower)"}
+      ochre:  {label: "AMPL",   display: "[G]", value_example: nil, visual: "overall pulse train bar heights change — volume/amplitude"}
+      grey:   {label: "TIME",   display: "[G]", value_example: nil, visual: "second pulse bar width changes relative to first — pulse width / 2nd pulse relationship"}
+      orange: {label: "MOD",    display: "[G]", value_example: nil, visual: "red squiggle line animates — PWM modulation. 50=center (flat line, off), 49→0 = depth+speed up, 51→99 = faster PWM linked to TIME"}
+
+  string:
+    screen_type: "pure graphics (no numbers) — multi-color string lines + bars"
+    display: "Center: 3D wireframe grid perspective with curved colored string lines fanning out (blue far-left / orange-yellow center cluster / red right cluster). Left: vertical rectangular bar with 'IMP' label above + 'TENSION' label below (blue) + short red horizontal indicator inside. Top-center: 'IMP TYPE' label + small vertical red line indicator. Top-left: small '+' icon. Bottom-right: small musical note (eighth note) + center bottom: small white dot"
+    params:
+      blue:   {label: "TENSION",  display: "[G]", value_example: nil, visual: "red indicator in IMP/TENSION vertical bar moves + blue string line curvature changes — strings tighten (high) or relax (low)"}
+      ochre:  {label: "IMP",      display: "[G]", value_example: nil, visual: "yellow string cluster changes shape — impulse decay (longer sustain high, short pluck low)"}
+      grey:   {label: "",         display: "[G]", value_example: nil, visual: "string lines spread/detune from each other — visual spread changes"}
+      orange: {label: "IMP TYPE", display: "[G]", value_example: nil, visual: "vertical red line next to IMP TYPE moves + red string cluster shape changes — excitation type (hard strike vs soft bow)"}
+
+  voltage:
+    screen_type: "labels + knob graphics + waveform + V gauge with needle"
+    display: "Top: jagged wavy line (oscilloscope-style) spanning width. Left edge: red '+' terminal. Right edge: red '−' terminal. Center-left: AMPERE label (blue) above blue circular knob with curved arrow. Center: GROUND NOISE label (grey) below waveform. Center-right: VOLT label (red) above red circular knob with curved arrow. Right: V gauge — semi-circular meter with 'V' inside top + red needle. Gauge has tick scale 0-120 / 120-230"
+    params:
+      blue:   {label: "AMPERE",       display: "[G]", value_example: nil, visual: "blue knob graphic rotates — amplitude modulation between oscillators"}
+      ochre:  {label: "GROUND NOISE", display: "[G]", value_example: nil, visual: "top waveform distorts and noise particles appear"}
+      grey:   {label: "VOLT",         display: "[G]", value_example: nil, visual: "red needle swings on V gauge — low-pass filter cutoff (voltmeter readout)"}
+      orange: {label: "",             display: "[G]", value_example: nil, visual: "red knob graphic rotates + waveform offset — sub-oscillator detuning"}
+
+  vocoder:
+    screen_type: "two head profiles with numbers + fan + mic icon (labels appear above the screen)"
+    display: "Labels WAVEFORM/FORMANT/BANDS/MIX are positioned ABOVE the black rectangle. INSIDE: left = yellow line-art head profile facing right (with blue '2' near ear + black '0' near chin). Right = red/purple line-art head profile facing left (with red '7' near ear). Bottom-right = semi-circular purple fan of vertical lines (BANDS). Top-right = small microphone icon (MIX)"
+    params:
+      blue:   {label: "WAVEFORM", display: "[B]", value_example: "2/0", visual: "yellow head profile + numbers 2/0 — oscillator selection (S=saw to N=noise, more oscillators added)"}
+      ochre:  {label: "FORMANT",  display: "[B]", value_example: 7,   visual: "red head profile + number 7 — formant shift ±4 (face icon shifts up/down)"}
+      grey:   {label: "BANDS",    display: "[G]", value_example: nil,  visual: "purple fan opens/closes — band count 0-7 (more = human-like, fewer = synthetic)"}
+      orange: {label: "MIX",      display: "[G]", value_example: nil,  visual: "microphone icon changes — dry/wet mix (vocoded vs original input)"}
+
+# ============================================================
+# EFFECTS (T3)
+# ============================================================
+
+effects:
+
+  cwo:
+    screen_type: "cow illustration + gauge + 2 numbers + bar"
+    display: "Center: white line-art cow in profile facing left. Inside cow's body: abstract shapes — circle with '0', green/blue blobs, purple loop, rectangle. Top-left: small FREQ label above semi-circular gauge with needle. Mid-left: DELAY label + number '40'. Top-right: FEEDBACK label + number '46'. Bottom-right: SIDEBAND label above vertical column of red dashes"
+    params:
+      blue:   {label: "FREQ",     display: "[G]", value_example: nil, visual: "needle on FREQ gauge moves — frequency shifting amount"}
+      ochre:  {label: "DELAY",    display: "[N]", value_example: 40, visual: "number '40' updates — delay time"}
+      grey:   {label: "FEEDBACK", display: "[N]", value_example: 46, visual: "number '46' updates — feedback amount (loop includes frequency shifting)"}
+      orange: {label: "SIDEBAND", display: "[G]", value_example: nil, visual: "vertical cyan dash column height — sideband audio level"}
+
+  delay:
+    screen_type: "ripple circles + 3 numbers + input bar"
+    display: "Top-left: RANGE label (blue) + value '126 MS'. Mid-left: SPEED label (orange) + number '24'. Top-right: FEEDBACK label (white) + number '48'. Mid-right: INPUT label (red) + vertical column of short orange dashes. Center: dark teal/cyan background with expanding concentric teal/cyan ripple circles emanating from a central orange dot"
+    params:
+      blue:   {label: "RANGE",    display: "[N]", value_example: "126 MS", visual: "value '126 MS' updates — delay time in milliseconds"}
+      ochre:  {label: "SPEED",    display: "[N]", value_example: 24,        visual: "number '24' updates — speed multiplier (lower = longer times)"}
+      grey:   {label: "FEEDBACK", display: "[N]", value_example: 48,        visual: "number '48' updates — feedback (more echo repeats)"}
+      orange: {label: "INPUT",    display: "[G]", value_example: nil,       visual: "vertical orange dash column height — input level to delay line"}
+
+  grid:
+    screen_type: "3D wireframe box + X/Y/Z axes + 1 number + bar"
+    display: "Center: 3D wireframe — blue grid plane (floor) + yellow/orange wireframe rectangular box sitting on it. Large axis letters: Y (yellow, top-left), X (blue, bottom-left), Z (white, right side with bracket). Top-right: FEEDBACK label + number '44'. Bottom-right: MIX label + vertical column of red bars"
+    params:
+      blue:   {label: "X",        display: "[G]", value_example: nil, visual: "X-axis box dimension changes — boxes spread along X"}
+      ochre:  {label: "Y",        display: "[G]", value_example: nil, visual: "Y-axis box dimension changes — boxes spread along Y"}
+      grey:   {label: "FEEDBACK", display: "[N]", value_example: 44,  visual: "number '44' updates — Z-axis feedback intensity"}
+      orange: {label: "MIX",      display: "[G]", value_example: nil, visual: "vertical red bar column height — dry/wet mix"}
+
+  mother:
+    screen_type: "3D corridor with figures + 1 number + door + bar"
+    display: "Background: 3D perspective corridor — cyan/blue grid pattern on floor and ceiling creating depth tunnel. Two white wireframe human figures: smaller/farther back on left, larger/closer on right. Left wall: rectangular door frame (GATE) in yellow/orange. Top-left: DISTANCE label + number '52'. Bottom-right: COLOR label. Right edge: MIX label + vertical column of red bars"
+    params:
+      blue:   {label: "DISTANCE", display: "[N]", value_example: 52,  visual: "number '52' updates — corridor stretches deeper (high) or shrinks (low); figures scale with perspective"}
+      ochre:  {label: "GATE",     display: "[G]", value_example: nil, visual: "door frame on left wall animates open/closed — cuts reverb tail on note release"}
+      grey:   {label: "COLOR",    display: "[G]", value_example: nil, visual: "corridor hue shifts (warm/cool tone) — filter cutoff"}
+      orange: {label: "MIX",      display: "[G]", value_example: nil, visual: "vertical red bar column height — dry/wet mix"}
+
+  nitro:
+    screen_type: "graphics-only — dual gauges + city skyline + Q joystick"
+    display: "NO numbers. Top-left: LOWS label (blue) above semi-circular gauge with needle. Top-right: HIGHS label (red) above semi-circular gauge with needle. Center: blue city skyline silhouette with buildings + faint reflection below. Bottom-center: joystick/lever graphic with grey cap."
+    params:
+      blue:   {label: "LOWS",        display: "[G]", value_example: nil, visual: "left gauge needle moves — high-pass filter cutoff"}
+      ochre:  {label: "FREQ FOLLOW", display: "[G]", value_example: nil, visual: "city skyline shifts/scales — envelope follower amount"}
+      grey:   {label: "Q",           display: "[G]", value_example: nil, visual: "joystick graphic moves — resonance (sharper skyline)"}
+      orange: {label: "HIGHS",       display: "[G]", value_example: nil, visual: "right gauge needle moves — low-pass filter cutoff"}
+
+  phone:
+    screen_type: "phone illustration + fader + 3 numbers"
+    display: "Top-left: white line-art illustration of cordless telephone handset on base (with keypad grid + small screen + antenna). Mid-left: TONE label above vertical fader/slider with triangular needle indicator. Bottom-left: GSM label + number '34'. Bottom-center: BAUD label + number '42'. Bottom-right: TELEMETRY label + number '48'"
+    params:
+      blue:   {label: "TONE",      display: "[G]", value_example: nil, visual: "gauge/arc with needle moves — pitch variation of granular audio"}
+      ochre:  {label: "GSM",       display: "[N]", value_example: 34, visual: "number '34' updates — grain size of glitched buffer"}
+      grey:   {label: "BAUD",      display: "[N]", value_example: 42, visual: "number '42' updates — pattern/timing of glitched grain playback"}
+      orange: {label: "TELEMETRY", display: "[N]", value_example: 48, visual: "number '48' updates — dry/wet mix (original vs glitched)"}
+
+  punch:
+    screen_type: "boxer illustration + arc gauge + 3 numbers"
+    display: "Center: line-art boxer facing left in punching stance with red gloves. Top-left: FREQ label above semi-circular gauge arc with tick marks. Top-right: ROUNDS label + number '20' + vertical column of short horizontal dashes. Bottom-left: PUNCH label (orange) + number '45' + thin blue underline. Bottom-right: POWER label (orange) + number '84' + thin blue underline"
+    params:
+      blue:   {label: "FREQ",   display: "[G]", value_example: nil, visual: "needle on FREQ arc moves — low-pass filter cutoff"}
+      ochre:  {label: "PUNCH",  display: "[N]", value_example: 45, visual: "number '45' updates — resonance/compression amount"}
+      grey:   {label: "ROUNDS", display: "[N]", value_example: 20, visual: "number '20' updates + vertical dash bar height — filter slope/shape"}
+      orange: {label: "POWER",  display: "[N]", value_example: 84, visual: "number '84' updates — dry/wet mix"}
+
+  spring:
+    screen_type: "graphics-only — dual yellow L / red R waveforms + MIX bar"
+    display: "NO numbers. Center: two horizontal wavy lines — top is yellow with square markers on each end (left + 'L' on right), bottom is red with square markers on each end (left + 'R' on right). Labels in CAPS positioned around: TURNS (yellow, top-center), TONE (blue, mid-left), DAMPING (white, bottom-center), MIX (red, mid-right). Far right: vertical column of red dashes (MIX bar)"
+    params:
+      blue:   {label: "TONE",    display: "[G]", value_example: nil, visual: "waveform brightness shifts — dark to bright tone"}
+      ochre:  {label: "TURNS",   display: "[G]", value_example: nil, visual: "waveform complexity changes — more/less spring character"}
+      grey:   {label: "DAMPING", display: "[G]", value_example: nil, visual: "waveform decay changes — shorter or longer tails"}
+      orange: {label: "MIX",     display: "[G]", value_example: nil, visual: "vertical red dash column height — dry/wet mix"}
+
+  terminal:
+    screen_type: "retro CRT computer + 3 numbers + MIX bar"
+    display: "Center: line-art illustration of retro CRT computer terminal with keyboard. Screen displays 'PTE'. Top-right: small wavy lines graphic above MODEL value. Bottom-right: vertical column of red bars (MIX). Three numeric values: KHZ='3.8' (top-left), BITS='4.0' (bottom-left), MODEL='2.2' (top-right)"
+    params:
+      blue:   {label: "KHZ",   display: "[N]", value_example: "3.8", visual: "number '3.8' updates — sample rate (lower = more lo-fi)"}
+      ochre:  {label: "BITS",  display: "[N]", value_example: "4.0", visual: "number '4.0' updates — bit rate (lower = more crushed)"}
+      grey:   {label: "MODEL", display: "[N]", value_example: "2.2", visual: "number '2.2' updates — filter model (<3 = HP, >3 = LP), wavy lines graphic morphs"}
+      orange: {label: "MIX",   display: "[G]", value_example: nil,   visual: "vertical red bar column height — dry/wet mix"}
+
+  fazer:
+    screen_type: "sci-fi scene illustration + frequency number + small data box"
+    display: "Green line-art sci-fi scene: standing figure with plane/drone above (left), ray gun pointing right (center), reclining figure in chair (bottom-right), UFO (right). Top-left: orange '34 BP' text (frequency readout). Top-center: thin horizontal pink/magenta bar. Right: orange wavy line + small data box with '4:' inside. Purple brackets/markers around scene"
+    params:
+      blue:   {label: "FREQ",     display: "[N]", value_example: "34 BP", visual: "orange '34 BP' number updates — filter frequency"}
+      ochre:  {label: "FEEDBACK", display: "[G]", value_example: nil,    visual: "ray gun graphic animates (recoil/size) — feedback intensity (scene gets more chaotic)"}
+      grey:   {label: "SPEED",    display: "[G]", value_example: nil,    visual: "orange wavy line frequency changes — phase shift sweep speed"}
+      orange: {label: "DEPTH",    display: "[G]", value_example: nil,    visual: "UFO/reclining figure animates — phase shift sweep depth"}
+
+# ============================================================
+# LFO TYPES (T4)
+# ============================================================
+
+lfo_types:
+
+  value:
+    screen_type: "numbers + waveform flow diagram"
+    display: "Horizontal signal flow connected by red lines: sine wave icon → SPEED box (number 8) → AMOUNT hexagon (number 22) → DEST box (sine wave icon) → PARAMETER box (blue knob icon). Top-right corner shows 'AMPERE' (red) as current target engine. Small SHIFT box. Layout shows what's modulating what"
+    params:
+      blue:   {label: "SPEED",     display: "[N]", value_example: 8,  visual: "plain number '8' in box — LFO rate. SHAPE option cycles waveform icon (sine→square→etc)"}
+      ochre:  {label: "AMOUNT",    display: "[N]", value_example: 22, visual: "plain number '22' in hexagon — modulation depth"}
+      grey:   {label: "DEST",      display: "[G]", value_example: nil, visual: "destination icon cycles (sine wave / engine symbol)"}
+      orange: {label: "PARAMETER", display: "[G]", value_example: nil, visual: "target parameter knob icon changes — e.g. CUTOFF, AMPERE"}
+
+  element:
+    screen_type: "number + source icon flow diagram"
+    display: "Horizontal flow: SOURCE box (blue jagged/stepped waveform icon) → AMOUNT box (orange number '30') → DEST box (grey smooth sine icon) → PARAMETER box (grey filter symbol). 'FILTER' label appears in small orange text above the rightmost block"
+    params:
+      blue:   {label: "SOURCE",     display: "[G]", value_example: nil,  visual: "source icon cycles (jagged wave / G-Force / Radio / Mic icons)"}
+      ochre:  {label: "AMOUNT",     display: "[N]", value_example: 30,    visual: "plain number '30' updates — modulation depth"}
+      grey:   {label: "DEST",       display: "[G]", value_example: nil,   visual: "destination icon changes (smooth sine / module icon)"}
+      orange: {label: "PARAMETER",  display: "[G]", value_example: nil,   visual: "target parameter icon cycles — e.g. FILTER"}
+
+  random:
+    screen_type: "numbers + envelope + flow"
+    display: "Top-left: jagged vertical line graph (random waveform). Top-center: square with sine icon (LFO shape). Middle-left: SPEED box with number '8'. Middle-center: AMOUNT hexagon with number '22'. Bottom-right: square with red diagonal line (envelope decay). Top-right: blue speaker/output icon. 'AMPERE' label (orange) + 'PARAM' label (red) at top"
+    params:
+      blue:   {label: "SPEED",    display: "[N]", value_example: 8,  visual: "plain number '8' — random sample/update rate. NOT swapped with Beige"}
+      ochre:  {label: "AMOUNT",   display: "[N]", value_example: 22, visual: "plain number '22' — randomization intensity. NOT swapped with Blue"}
+      grey:   {label: "DESTINATION", display: "[G]", value_example: nil, visual: "destination category cycles (engine/envelope/fx)"}
+      orange: {label: "PARAMETER", display: "[G]", value_example: nil, visual: "specific parameter to modulate — cycles through all params in selected destination"}
+    notes: "Encoder mapping: Blue=Speed, Beige=Amount. Random LFO modulates ALL params in the destination category simultaneously — no per-parameter selector."
+
+  tremolo:
+    screen_type: "dual parallel paths — shared SPEED + 2 separate AMOUNTs + Shift+Orange SHAPE"
+    display: "SPEED icon (shared, top-left, vertical line/pause icon) feeds TWO parallel paths. TOP path: AMOUNT number → ENVELOPE diagonal line → DEST note icon (pitch). BOTTOM path: AMOUNT number → ENVELOPE square wave icon → DEST speaker icon (volume). Both paths have separate amount values (commonly 42 for pitch, 23 for volume in the example; screen default shows 00/00). Small SHAPE element in orange box (Shift+Orange) — waveform select (sine, saw, exp, square, blip)"
+    params:
+      blue:   {label: "SPEED",    display: "[G]", value_example: nil,  visual: "shared LFO rate icon — speed for both paths"}
+      ochre:  {label: "AMOUNT",   display: "[N]", value_example: 42,    visual: "plain number — pitch modulation depth (top path)"}
+      grey:   {label: "AMOUNT",   display: "[N]", value_example: 23,    visual: "plain number — volume modulation depth (bottom path)"}
+      orange: {label: "ENVELOPE", display: "[G]", value_example: nil,   visual: "envelope/shape icon shifts — AD envelope for both paths"}
+      orange_shift: {label: "SHAPE", display: "[G]", visual: "waveform select (sine/saw/exp/square/blip) — visible as current wave icon (e.g., square)"}
+    notes: "Tremolo has NO destination select — paths are hardcoded to Pitch (note icon) + Volume (speaker icon). Shift+Orange cycles the modulation waveform shape."
+
+  velocity:
+    screen_type: "MIDI keyboard icon + amount + destination + parameter (Beige T2 unused)"
+    display: "Top-left: grey MIDI keyboard icon with 'I26' (incoming velocity value) below. Top-right corner: 'AMPERE' label (red) — current target. Top row: AMOUNT number '30' → DEST box (sine wave icon) → PARAMETER box (knob icon). Bottom: AMP number '100' + speaker icon — VISUAL FEEDBACK showing modulation effect on Amp destination (not a separate encoder). Tap T4 = LFO on/off"
+    params:
+      blue:   {label: "AMOUNT",    display: "[N]", value_example: 30,  visual: "plain number '30' — modulation depth / velocity sensitivity"}
+      ochre:  {label: "(unused)",  display: "[G]", value_example: nil, visual: "T2 has no parameter assigned on Velocity LFO"}
+      grey:   {label: "DEST",      display: "[G]", value_example: nil, visual: "destination category icon cycles (wave/module icon)"}
+      orange: {label: "PARAMETER", display: "[G]", value_example: nil, visual: "target parameter knob icon — when DEST=Amp, screen shows AMP value (e.g. 100) as visual readout"}
+    notes: "Beige T2 is UNUSED on Velocity LFO. The AMP number + speaker icon on screen is visual feedback of the modulation reaching the Amp destination, not a separate encoder control. Per display_format.md (SON WU + official MIDI spec)."
+
+  midi:
+    screen_type: "4-channel CC layout — no shared speed/amount"
+    display: "Top-left: dark piano keyboard icon with 'MIDI' label. Top-center: 'CONTINUOUS CONTROLLER' header text. Middle: four horizontal columns numbered 1/2/3/4, each with a wavy-line square (CC waveform) + circular knob icon below. Right side: purple box labeled 'DEST'"
+    params:
+      blue:   {label: "CC 1", display: "[G]", value_example: nil, visual: "channel 1 — DEST box + parameter select. Each encoder directly controls one CC channel"}
+      ochre:  {label: "CC 2", display: "[G]", value_example: nil, visual: "channel 2 — DEST box + parameter select"}
+      grey:   {label: "CC 3", display: "[G]", value_example: nil, visual: "channel 3 — DEST box + parameter select"}
+      orange: {label: "CC 4", display: "[G]", value_example: nil, visual: "channel 4 — DEST box + parameter select"}
+    notes: "No shared Speed/Amount. Each encoder directly controls one CC channel's destination and parameter."
+
+# ============================================================
+# ENVELOPE (T2) — NO NUMBERS ON SCREEN
+# ============================================================
+
+envelope:
+  screen_type: "graph with colored curve + colored dots (no numbers)"
+  display: "Amplitude (Y-axis) vs Time (X-axis) graph. A continuous colored curve traces the ADSR shape — BLUE for Attack (rising), OCHRE/YELLOW for Decay (falling to sustain), GREY for Sustain (flat plateau), RED for Release (falling to zero). Four colored DOTS mark stage transitions: blue dot at end of attack, ochre dot at start of sustain, grey dot at end of sustain, red dot at end of release. Red double-headed arrows below curve indicate stage durations"
+  params:
+    blue:   {label: "A", display: "[G]", visual: "blue dot at curve start — attack time. Dot moves right = slower attack, left = faster"}
+    ochre:  {label: "D", display: "[G]", visual: "ochre dot at curve peak end — decay time. Dot moves right = longer decay"}
+    grey:   {label: "S", display: "[G]", visual: "grey dot on sustain plateau — sustain level. Dot moves up = higher sustain, down = lower"}
+    orange: {label: "R", display: "[G]", visual: "red dot at curve end — release time. Dot moves right = longer release"}
+  notes: "NO numbers on the envelope screen — only the curve shape and dot positions. Popup overlay shows value briefly when you turn a knob, but the steady-state screen is pure visual."
+
+# ============================================================
+# PLAY MODE (Shift+T2 from envelope)
+# ============================================================
+
+play_mode:
+  screen_type: "text options + values"
+  params:
+    blue:   {label: "Play Mode",   display: "[G]", visual: "text cycles: Poly → Mono → Legato → Unison"}
+    ochre:  {label: "PORTAMENTO",  display: "[N]", visual: "Off, 1-127, Max — glide time between notes"}
+    grey:   {label: "Bend Range",  display: "[N]", visual: "1-7 semitones or 1 Octave"}
+    orange: {label: "Volume",      display: "[N]", visual: "synth engine volume level number"}

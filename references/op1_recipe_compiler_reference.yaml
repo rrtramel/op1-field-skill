@@ -1,0 +1,707 @@
+# OP-1 Field Recipe Compiler Reference
+# ============================================================
+# CANONICAL MERGED REFERENCE — the normalized source of truth for the recipe compiler.
+#
+# Merged from (all on-disk, authoritative):
+#   - references/screen_behavior.yaml      (native-vision screen extraction: [N]/[G]/[B], labels, visuals)
+#   - references/display_format.md         (encoder->param mapping per LFO type, MIDI CC, non-linear behavior)
+#   - references/engines_effects_v2.yaml   (param NAMES + ranges, device + TE official guide + community refs)
+#   - references/community_tips.md         (correction-macro material, real-world technique)
+#
+# NOTE on the prompt's "newly generated reference layers"
+# (op1_engine_semantics_v0_1.yaml / op1_sound_design_semantics_v0_2.yaml /
+#  op1_screen_action_layer_v0_3.yaml): those draft files do NOT exist anywhere in this
+# environment. They were the prompt author's intermediate artifacts that never landed on
+# disk. This reference is therefore built directly from the four authoritative files above,
+# which ARE the real source of truth and supersede any phantom draft.
+#
+# Naming convention: encoders are named by COLOR. Canonical = Blue / Ochre / Grey / Orange.
+#   "Beige" is an accepted INPUT alias for Ochre (see naming_aliases). Output always uses Ochre.
+#   "Red" is an accepted input alias for Orange. "Gray" == "Grey" (output uses Grey).
+#
+# Legend for value_type screen-display:
+#   [N] numeric value shown on screen   [G] graphic only, no number   [B] both number + graphic
+# ============================================================
+
+schema_version: "1.0"
+purpose: "OP-1 Field recipe compiler reference"
+source_files:
+  - "references/screen_behavior.yaml"
+  - "references/display_format.md"
+  - "references/engines_effects_v2.yaml"
+  - "references/community_tips.md"
+
+# ------------------------------------------------------------
+# Encoder color naming + aliases
+# ------------------------------------------------------------
+naming_aliases:
+  canonical_order: [blue, ochre, grey, orange]   # T1, T2, T3, T4
+  input_aliases:
+    blue:   ["blue", "t1"]
+    ochre:  ["ochre", "beige", "t2"]
+    grey:   ["grey", "gray", "t3"]
+    orange: ["orange", "red", "t4"]
+  display_names:    # what the renderer prints
+    blue: "Blue"
+    ochre: "Ochre"
+    grey: "Grey"
+    orange: "Orange"
+
+# ------------------------------------------------------------
+# Global page navigation / controls (what to physically press)
+# ------------------------------------------------------------
+global_controls:
+  pages:
+    engine:
+      open: "Press [Synth], then [T1]."
+      select: "Hold [Shift]+[T1], turn a knob to choose the engine."
+    envelope:
+      open: "Press [Synth], then [T2]."
+      note: "Envelope screen shows a colored ADSR curve with dots and NO numbers."
+    play_mode:
+      open: "From the envelope page, hold [Shift]+[T2]."
+      note: "Play Mode / Portamento / Bend Range / Volume live here."
+    fx:
+      open: "Press [Synth], then [T3]."
+      toggle: "Press [T3] to turn FX on/off."
+      select: "Hold [Shift]+[T3], turn a knob to choose the effect."
+    lfo:
+      open: "Press [Synth], then [T4]."
+      toggle: "Press [T4] to turn the LFO on/off."
+      select: "Hold [Shift]+[T4], turn a knob to choose the LFO type."
+  encoder_colors:
+    blue: "leftmost (T1)"
+    ochre: "second (T2)"
+    grey: "third (T3)"
+    orange: "rightmost (T4)"
+  value_facts:
+    - "On-screen values are INTEGERS, never percentages (the screen shows '42', not '42%')."
+    - "Most params are 0-99 on screen; MIDI CC maps them to 0-127."
+    - "Some params are discrete small ranges (e.g. Vocoder Bands 0-7, DSynth MODE 1-7)."
+    - "Some params are bipolar (e.g. Vocoder Formant -4..+4, LFO AMOUNT -100..+100). Digital OCTAVE is NOT bipolar — it is 0-6 unsigned, 3 = unison (book p.83)."
+    - "Several params are split-range / center-detent — see split_ranges section."
+
+# ------------------------------------------------------------
+# Value display types — how the renderer phrases each control
+# ------------------------------------------------------------
+value_types:
+  numeric_0_99:
+    desc: "Plain integer 0-99 shown on screen."
+    render: "Turn {color} until {label} reads about {value}."
+  numeric_small_discrete:
+    desc: "Small discrete count shown on screen (e.g. waves 0-6, bands 0-7)."
+    render: "Turn {color} until {label} shows {value}."
+  numeric_decimal:
+    desc: "Decimal value shown on screen (e.g. Terminal KHZ 3.8, BITS 4.0)."
+    render: "Turn {color} until {label} reads about {value}."
+  numeric_hz:
+    desc: "A FREQUENCY in Hz shown on screen (NOT a 0-99 knob). E.g. Dimension FILTER FREQ displays a Hz value with a default around 500 and a max of ~18000 (fully open). Low Hz values clamp the low-pass filter shut and can be SILENT."
+    render: "Turn {color} until {label} reads about {value} Hz."
+  numeric_ms:
+    desc: "A time in milliseconds shown on screen (NOT a 0-99 knob). E.g. Delay RANGE displays ms. The screen prints the actual ms value (e.g. 126). community_tips.md landmarks: slapback ~80-150 ms, rhythmic ~200-350 ms, dub/ambient ~400-800+ ms."
+    render: "Turn {color} until {label} reads about {value} ms."
+  graphic_only:
+    desc: "No number on screen; watch the engine-specific graphic."
+    render: "Turn {color} until the {label} graphic looks {visual_target}."
+  numeric_plus_graphic:
+    desc: "Number AND graphic both shown ([B])."
+    render: "Turn {color} until {label} reads ~{value} (graphic: {visual_target})."
+  visual_curve:
+    desc: "Envelope curve/dot position; NO number on screen."
+    render: "Turn {color} so the {label} part of the curve is {visual_target}."
+  discrete_selector:
+    desc: "Cycles named options (waveform, mode, source, etc)."
+    render: "Turn/tap {color} until {label} shows {target}."
+  bipolar_signed:
+    desc: "Signed value; negative reverses/inverts."
+    render: "Turn {color} to {value} ({label}); negative reverses the direction."
+  relative_speed:
+    desc: "LFO rate. ONE knob crosses a boundary between two modes (CONFIRMED on the real device by the owner): turning from full-left to full-right runs NUMBERS first (8,7,...,2,1 = TEMPO-SYNCED divisions; 8 = slowest, counts DOWN to 1 = fastest synced), then it flips into a CLOCK-FACE (FREE-RUNNING, ignores tempo) whose needle starts ~1 o'clock and sweeps around toward 6 o'clock at the far right, getting faster as it sweeps. So overall left→right ≈ slow→fast: 8 (slowest synced) → 1 → clock 1 o'clock → clock 6 o'clock (fastest free). The 'half number / half clock' look is the knob parked right at the crossover. There is NO single clean speed number to print — say which zone + feel. (A separate '0000' digital readout in the screen corner is tempo/fine value, NOT the SPEED value.)"
+    render: "Turn {color} to set SPEED ({visual_target}) — left = synced numbers (8 slow → 1 fast), right = free-run clock (1→6 o'clock, faster). Dial by ear while it moves."
+  split_range:
+    desc: "Behavior changes across the knob's travel; center may be special."
+    render: "Turn {color} into the {region} range — {warning_or_target}."
+  shift_layer:
+    desc: "Only reachable while holding [Shift]."
+    render: "Hold [Shift] and turn {color} until {label} is {target}."
+  tap_selector:
+    desc: "Tap/press the encoder to switch its sub-function (e.g. Value LFO speed vs shape)."
+    render: "Tap {color} to switch {label}; turn to set it."
+
+# ------------------------------------------------------------
+# Split-range / center-detent / non-linear warnings (validator-enforced)
+# ------------------------------------------------------------
+split_ranges:
+  dr_wave_filter:          # Dr.Wave Ochre
+    engine: dr_wave
+    color: ochre
+    rule: "0 = no filter. 1-49 = HIGH-PASS. 50 = fully filtered (SILENCE). 51-99 = LOW-PASS."
+    warning: "Avoid landing exactly on 50 — the engine goes silent there."
+  dr_wave_phase:           # Dr.Wave Grey
+    engine: dr_wave
+    color: grey
+    rule: "0-49 = pulse width. 50+ = adds wave cycles (sync) + harmonics."
+  digital_detune_ringmod:  # Digital Grey
+    engine: digital
+    color: grey
+    rule: "Lower half (0-49) = detune the sub oscillator. Upper half (50-99) = ring modulation ON."
+    warning: "Crossing 50 flips from detune into ring-mod — very different timbre."
+  pulse_mod:               # Pulse Orange
+    engine: pulse
+    color: orange
+    rule: "50 = NO modulation (center). 49->0 = PWM depth+speed increasing. 51->99 = faster PWM linked to 2nd Pulse (TIME)."
+    warning: "50 is the off/center detent — leave it there for a static pulse."
+  terminal_model:          # Terminal Grey
+    fx: terminal
+    color: grey
+    rule: "Below 3 = HIGH-PASS. ~3 = no filter. Above 3 = LOW-PASS."
+  digital_octave:          # Digital Ochre
+    engine: digital
+    color: ochre
+    rule: "Sub-osc octave, 0-6. 3 = same octave as the main oscillator."
+
+# ============================================================
+# MODULES
+# ============================================================
+modules:
+
+  # ----------------------------------------------------------
+  # SYNTH ENGINES (page: engine)
+  # ----------------------------------------------------------
+  synths:
+
+    cluster:
+      name: "Cluster"
+      emoji: "🌊"
+      user_verified: true
+      source: "OP-1 Field Notebook p.80-81"
+      musical_role: "Massive multi-oscillator supersaw. Up to 6 detuned waves."
+      best_for: ["wide pads", "supersaw leads", "synth brass", "huge chords"]
+      screen_summary: "4 colored speech-bubble values over 4 stacked jagged wave lines."
+      params:
+        blue:   {label: "WAVES",    value_type: numeric_0_99, mechanism: "number of stacked oscillators (up to 6 audible), but the SCREEN shows a 0-99 value (display reads e.g. 99 when fully clockwise)", audible_tendency: "higher = thicker, wider", action: "Turn Blue up (toward 99) for max thickness; the screen shows a 0-99 number, not a count.", useful_regions: ["high (80-99) for big pads/leads"], range: [0, 99], confidence: high, user_verified: true, source: "OP-1 Field Notebook p.80-81 (screen shows 99)"}
+        ochre:  {label: "WAVE ENV", value_type: split_range,            mechanism: "filter envelope shape: 0-9 inverted saw, 10-49 sine-based, 50+ aggressive supersaw", audible_tendency: "higher = brighter/more aggressive", action: "Turn Ochre into the upper zone (~60) for a bright supersaw, low for mellow.", range: [0, 99], confidence: medium}
+        grey:   {label: "SPREAD",   value_type: numeric_0_99,           mechanism: "detune spread across oscillators", audible_tendency: "higher = wider/more detuned", action: "Turn Grey up (~80) until the white wave line spreads wide.", range: [0, 99], confidence: high}
+        orange: {label: "UNISON",   value_type: numeric_0_99,           mechanism: "drift speed/range of the detuning", audible_tendency: "higher = more movement/shimmer", action: "Turn Orange (~55) for slow drift.", range: [0, 99], confidence: high}
+      shift_params: null
+      warnings: []
+
+    digital:
+      name: "Digital"
+      emoji: "💎"
+      user_verified: true
+      source: "OP-1 Field Notebook p.82-83"
+      musical_role: "Raw digital oscillator + ring mod. Clean to grungy."
+      best_for: ["all-rounder leads", "grungy bass", "lo-fi chiptune", "metallic bells (ring mod)"]
+      screen_summary: "One active param label + big number + knob icon; purple polyhedron graph on the left."
+      params:
+        blue:   {label: "WAVE SHAPER", value_type: numeric_plus_graphic, mechanism: "wave shape from square toward saw, adds noise/distortion", audible_tendency: "higher = brighter/grittier", action: "Turn Blue until WAVE SHAPER reads the brightness you want (graphic morphs).", range: [0, 99], confidence: high}
+        ochre:  {label: "OCTAVE",      value_type: numeric_small_discrete, mechanism: "sub-osc octave 0-6; 3 = same octave as main osc", audible_tendency: "lower = deeper sub", action: "Turn Ochre to set sub octave (3 = unison).", range: [0, 6], confidence: high, user_verified: true, source: "OP-1 Field Notebook p.83: 'tunes a sub oscillator in a range from 0 to 6 octaves with 3 the same as main oscillator.' Unsigned selector, NOT a center-detent split.", see: digital_octave}
+        grey:   {label: "DETUNE / RING MOD", value_type: split_range,    mechanism: "0-49 detune sub, 50+ ring modulation ON", audible_tendency: "upper half = clangorous/metallic", action: "Keep Grey low for fat detune; push past 50 for ring-mod bell tones.", range: [0, 99], confidence: high, see: digital_detune_ringmod}
+        orange: {label: "DIGITALNESS", value_type: numeric_0_99,         mechanism: "adds digital noise/grit", audible_tendency: "higher = grittier/lo-fi", action: "Turn Orange up for digital grit, down for clean.", range: [0, 99], confidence: high}
+      shift_params: null
+      warnings: ["Grey center crossover at 50 flips detune->ring mod."]
+
+    dimension:
+      name: "Dimension"
+      emoji: "📐"
+      musical_role: "Wavetable position through a real subtractive filter. Field-exclusive."
+      best_for: ["acid", "plucks", "leads", "evolving pads"]
+      screen_summary: "WAVEFORM label + wave icons, oscilloscope line, FILTER FREQ number (in Hz), red RES triangle."
+      user_verified: true
+      source: "OP-1 Field Notebook p.84-85"
+      params:
+        blue:   {label: "WAVEFORM",    value_type: discrete_selector, mechanism: "wavetable position: Noise/Pulse/Square/Saw/Sub Saw", audible_tendency: "varies by wave", action: "Turn Blue until the highlighted WAVEFORM box shows the wave you want.", range: [0, 99], confidence: high, user_verified: true, source: "OP-1 Field Notebook p.85"}
+        ochre:  {label: "STEREO",      value_type: graphic_only,      mechanism: "chorus/width modulation", audible_tendency: "higher = wider", action: "Turn Ochre until the oscilloscope line thickens/doubles for width.", range: [0, 99], confidence: high, user_verified: true, source: "OP-1 Field Notebook p.85"}
+        grey:   {label: "FILTER FREQ", value_type: numeric_hz,         mechanism: "low-pass cutoff shown on screen as a frequency in Hz. Default ~500 (which is fairly DARK), range up to ~18000 (fully open). Practical landmarks: ~500-1500 = dark/closed pad, ~2000-4000 = warm mid, ~5000-9000 = bright lead, ~12000+ = wide open. Below ~300 Hz the filter is nearly shut = silent.", audible_tendency: "higher Hz = brighter", action: "Turn Grey until FILTER FREQ reads the cutoff you want IN HZ. NOT a 0-99 knob. Dark pad ~800-1500, bright lead ~6000, wide open ~14000. Note the on-screen default 500 is already quite dark.", range: [0, 18000], unit: "Hz", confidence: high, user_verified: true, source: "OP-1 Field Notebook p.85 (screen shows 500 default) + SON WU Dimension tutorial + TE user guide"}
+        orange: {label: "RES",         value_type: graphic_only,      mechanism: "filter resonance at cutoff", audible_tendency: "higher = squelchier/acid", action: "Turn Orange until the red RES triangle grows for resonance.", range: [0, 99], confidence: high}
+      shift_params: null
+      warnings: ["FILTER FREQ is a Hz value (NOT 0-99): default ~500, max ~18000 = fully open. Low Hz (e.g. 40-500) = filter nearly shut = quiet/silent. Source: OP-1 Field Notebook p.85, user_verified."]
+
+    dna:
+      name: "DNA"
+      emoji: "🧬"
+      user_verified: true
+      source: "OP-1 Field Notebook p.86-87"
+      musical_role: "CPU-noise synthesis. Glitchy, harsh, organic, industrial."
+      best_for: ["experimental textures", "glitch", "percussion", "alien drones"]
+      screen_summary: "Hex-tile grid + vertical red filter line. No numbers."
+      params:
+        blue:   {label: "FILTER",      value_type: graphic_only, mechanism: "filter cutoff (never fully closes)", audible_tendency: "higher = brighter", action: "Turn Blue; the vertical red line moves to set cutoff.", range: [0, 99], confidence: medium}
+        ochre:  {label: "CPU ID / WAVE NUMBER", value_type: graphic_only, mechanism: "navigates noise segments (wave number)", audible_tendency: "varies wildly", action: "Turn Ochre slowly; hex tiles rearrange as the wave number changes.", range: [0, 99], confidence: medium}
+        grey:   {label: "WAVE MODIFIER", value_type: graphic_only, mechanism: "modulates pitch detune + timbre", audible_tendency: "varies", action: "Turn Grey to mutate tone; use iteratively with CPU ID.", range: [0, 99], confidence: medium}
+        orange: {label: "NOISE",       value_type: graphic_only, mechanism: "amount of noise mixed in", audible_tendency: "higher = noisier", action: "Turn Orange until noise particles appear between tiles.", range: [0, 99], confidence: medium}
+      shift_params: null
+      warnings: ["Entirely graphic — never quote exact numbers for DNA params."]
+
+    dr_wave:
+      name: "Dr. Wave"
+      emoji: "🩺"
+      user_verified: true
+      source: "OP-1 Field Notebook p.88-89"
+      musical_role: "Frequency-domain wave shaping. Buzzy leads, lo-fi pads, organ chords."
+      best_for: ["buzzy leads", "lo-fi pads", "organ", "formant/vocal effects"]
+      screen_summary: "Jagged waveform line + popup with active param (e.g. PHASE 47)."
+      params:
+        blue:   {label: "TYPE & LENGTH", value_type: numeric_plus_graphic, mechanism: "0-50 morph saw->square->triangle, 50+ sample-rate reduction", audible_tendency: "higher = more lo-fi/crushed", action: "Turn Blue; popup shows a number and the waveform steps change shape.", range: [0, 99], confidence: medium}
+        ochre:  {label: "FILTER",        value_type: split_range,          mechanism: "0 off, 1-49 HP, 50 silence, 51-99 LP", audible_tendency: "depends on side", action: "Turn Ochre into the HP (1-49) or LP (51-99) range; AVOID 50 (silence).", range: [0, 99], confidence: high, see: dr_wave_filter}
+        grey:   {label: "PHASE",         value_type: split_range,          mechanism: "0-49 pulse width, 50+ adds cycles/harmonics", audible_tendency: "higher = brighter/formant", action: "Turn Grey for pulse width; above 50 adds harmonics.", range: [0, 99], confidence: medium, see: dr_wave_phase}
+        orange: {label: "CHORUS",        value_type: numeric_0_99,         mechanism: "0 off, 1-99 chorus modulation speed", audible_tendency: "higher = more chorus", action: "Turn Orange up for chorus width, 0 = dry.", range: [0, 99], confidence: medium}
+      shift_params: null
+      warnings: ["Ochre 50 = silence; Blue label on screen reads PHASE despite being Type&Length."]
+
+    dsynth:
+      name: "DSynth"
+      emoji: "🎛️"
+      user_verified: true
+      source: "OP-1 Field Notebook p.78-79"
+      musical_role: "Dual oscillator with envelope crossfader, 7 cross-mod modes, and a filter. The 'advanced' engine."
+      best_for: ["thick layered tones", "complex evolving sounds", "cross-mod textures"]
+      screen_summary: "Labels XFADE/OSC 1/ENV/MODE + central red MODE knob (1-7). Shift layer adds OSC 2 + FILTER."
+      params:
+        blue:   {label: "XFADE", value_type: graphic_only, mechanism: "crossfade between osc1/osc2 envelopes", audible_tendency: "sets which osc dominates", action: "Turn Blue; the blue dot in the XFADE knob graphic rotates.", range: [0, 99], confidence: medium}
+        ochre:  {label: "OSC 1", value_type: discrete_selector, mechanism: "osc1 waveform mix sine->square->saw", audible_tendency: "saw = bright, sine = pure", action: "Turn Ochre; the OSC 1 slider indicator moves between wave shapes.", range: [0, 99], confidence: medium}
+        grey:   {label: "ENV",   value_type: graphic_only, mechanism: "osc1 envelope amplification", audible_tendency: "shapes osc1 level", action: "Turn Grey; the dot in the ENV knob graphic moves.", range: [0, 99], confidence: medium}
+        orange: {label: "MODE",  value_type: numeric_small_discrete, mechanism: "cross-modulation mode 1-7", audible_tendency: "each mode = different cross-mod character", action: "Turn Orange; central red knob pointer moves among 1-7.", range: [1, 7], confidence: high}
+      shift_params:
+        blue:   {label: "OSC 2",     value_type: graphic_only, mechanism: "osc2 pitch division vs played note", action: "Hold [Shift], turn Blue to set osc2 pitch.", confidence: medium}
+        ochre:  {label: "OSC 2 wav", value_type: discrete_selector, mechanism: "osc2 waveform mix sine->square->saw", action: "Hold [Shift], turn Ochre to pick osc2 wave.", confidence: medium}
+        grey:   {label: "ENV osc2",  value_type: graphic_only, mechanism: "osc2 envelope amplification", action: "Hold [Shift], turn Grey to shape osc2 level.", confidence: medium}
+        orange: {label: "FILTER",    value_type: numeric_small_discrete, mechanism: "filter cutoff (number in a square)", action: "Hold [Shift], turn Orange; FILTER number changes.", confidence: medium}
+      warnings: ["DSynth has TWO full param layers. Recipes MUST include the SHIFT layer (OSC 2 / OSC 2 wav / ENV osc2 / FILTER) or the engine is half-dialed."]
+
+    fm:
+      name: "FM"
+      emoji: "📻"
+      user_verified: true
+      source: "OP-1 Field Notebook p.90-91"
+      musical_role: "4-operator FM. Glassy bells, EPiano, metallic percussion, aggressive leads."
+      best_for: ["bells", "EPiano/keys", "metallic percussion", "aggressive FM leads"]
+      screen_summary: "Four 3D operator cubes (showing freq ratios) + yellow FREQ number (FM amount)."
+      params:
+        blue:   {label: "FREQ (FM AMOUNT)", value_type: numeric_plus_graphic, mechanism: "FM modulation intensity; 0 = pure sine", audible_tendency: "higher = brighter/clangier/more bite", action: "Start Blue near 0 (sine), raise until it bites.", range: [0, 99], confidence: high}
+        ochre:  {label: "FREQUENCY RATIO", value_type: discrete_selector, mechanism: "operator freq ratios (8 discrete values per operator). Book p.91 ratio sets: row1 [1/16, 2, 5/8, 4, 1.75, 7/16, 3.5, 1], row2 [2, 1.5, 1, 1/2, 3/4, 1/4, 5/32, 1/32], row3 [1/64, 3/32, 1/8, 5/16, 1/2, 5/8, 1, 2]", audible_tendency: "harmonic vs discordant jumps; higher ratios = brighter/more metallic", action: "Turn Ochre carefully; cubes show ratios (1, 2, 1/2, etc). Adjacent steps jump harmonic<->discordant. Bell tones: integer ratios (2, 4). Harsh/metallic: fractional ratios (5/16, 3/32).", range: [0, 99], confidence: medium}
+        grey:   {label: "TOPOLOGY",   value_type: discrete_selector, mechanism: "FM algorithm (carrier/modulator routing)", audible_tendency: "changes harmonic structure", action: "Turn Grey; cubes reconnect into a different algorithm.", range: [0, 99], confidence: medium}
+        orange: {label: "DETUNE",     value_type: numeric_0_99,      mechanism: "operator detune for movement/inharmonicity", audible_tendency: "higher = more movement/clang", action: "Turn Orange for organic detune/movement.", range: [0, 99], confidence: high}
+      shift_params: null
+      warnings: ["Ochre/Grey are discrete jumps — describe as 'step until harmonic', never a precise number."]
+
+    phase:
+      name: "Phase"
+      emoji: "🌀"
+      user_verified: true
+      source: "OP-1 Field Notebook p.92-93"
+      musical_role: "Casio CZ-style phase distortion. Starts from sine, warps to buzzy/retro."
+      best_for: ["retro 80s leads", "warm digital pads", "springy arps"]
+      screen_summary: "Two waveform graphs (PHASE/DIST left, FILTER/TILT right). NO numbers."
+      params:
+        blue:   {label: "PHASE",  value_type: graphic_only, mechanism: "phase shift adds harmonics, sine->square", audible_tendency: "higher = brighter/buzzier", action: "Turn Blue; left blue/yellow sines shift apart adding harmonics.", range: [0, 99], confidence: medium}
+        ochre:  {label: "DIST",   value_type: graphic_only, mechanism: "wave distortion / clipping-folding", audible_tendency: "higher = grittier", action: "Turn Ochre; left waveforms distort/fold.", range: [0, 99], confidence: medium}
+        grey:   {label: "FILTER", value_type: graphic_only, mechanism: "amplitude shaping (NOT a freq filter)", audible_tendency: "emphasizes harmonics", action: "Turn Grey; right red/grey wave amplitude changes.", range: [0, 99], confidence: medium}
+        orange: {label: "TILT",   value_type: graphic_only, mechanism: "asymmetric wave folding -> noise/harmonics", audible_tendency: "higher = noisier/harsher", action: "Turn Orange; right waveforms fold asymmetrically.", range: [0, 99], confidence: medium}
+      shift_params: null
+      warnings: ["Fully graphic engine — no numbers. FILTER here is wave-shaping, not frequency cutoff."]
+
+    pulse:
+      name: "Pulse"
+      emoji: "⚡"
+      user_verified: true
+      source: "OP-1 Field Notebook p.94-95"
+      musical_role: "Dual pulse train + PWM. Hollow, funky, brassy, drones."
+      best_for: ["PWM pads", "funky/hollow bass", "brass", "futuristic sequences"]
+      screen_summary: "Pulse-train bars + red PWM squiggle. NO numbers. AMPL (y) / TIME (x) axes."
+      params:
+        blue:   {label: "FILTERO", value_type: graphic_only, mechanism: "filter cutoff w/ envelope follower", audible_tendency: "higher = brighter", action: "Turn Blue; pulse bar heights shift with cutoff.", range: [0, 99], confidence: medium, youtube_verified: true, source: "SON WU Pulse tutorial — screen shows FILTERO not FILTER"}
+        ochre:  {label: "AMPL",   value_type: graphic_only, mechanism: "pulse train amplitude/volume", audible_tendency: "higher = louder/fuller", action: "Turn Ochre; overall bar heights change.", range: [0, 99], confidence: medium}
+        grey:   {label: "TIME (2ND PULSE)", value_type: graphic_only, mechanism: "pulse width / 2nd-pulse relationship", audible_tendency: "off-center = hollow/PWM-ready", action: "Turn Grey; 2nd pulse bar width changes vs the first.", range: [0, 99], confidence: medium}
+        orange: {label: "MOD",    value_type: split_range, mechanism: "PWM amount+speed; 50 = off. Below 50 the modulation runs INVERTED: depth+speed increase as you go 49→0. Above 50 (51-100) PWM runs faster, more dependent on 2nd-pulse position (book p.95)", audible_tendency: "off-center = animated PWM", action: "Turn Orange off 50 for PWM motion (below 50 = inverted direction, above 50 = faster); leave at 50 for static.", range: [0, 99], confidence: high, see: pulse_mod}
+      shift_params: null
+      warnings: ["Orange 50 = no modulation (center detent). Great LFO target: Grey (TIME) for PWM."]
+
+    string:
+      name: "String"
+      emoji: "🎸"
+      user_verified: true
+      source: "OP-1 Field Notebook p.96-97"
+      musical_role: "Waveguide (Karplus-Strong) physical string model. Warm, plucky, organic."
+      best_for: ["plucks", "warm bass", "acoustic/organic tones", "ambient when reverbed"]
+      screen_summary: "3D string lines fanning out + IMP/TENSION vertical bar. NO numbers."
+      params:
+        blue:   {label: "TENSION",  value_type: graphic_only, mechanism: "string tightness", audible_tendency: "high = tight/plucky/short, low = loose/sustained/warm", action: "Turn Blue; the TENSION bar indicator + blue string curvature change. Low = warm.", range: [0, 99], confidence: medium}
+        ochre:  {label: "IMP (DECAY)", value_type: graphic_only, mechanism: "impulse decay length", audible_tendency: "low = short pluck, high = long bow/strum/sustain", action: "Turn Ochre; yellow string cluster shape changes. High = long sustain.", range: [0, 99], confidence: medium}
+        grey:   {label: "DETUNE",   value_type: graphic_only, mechanism: "phase detune between strings", audible_tendency: "higher = chorused/wider", action: "Turn Grey; string lines spread/detune for subtle width.", range: [0, 99], confidence: medium}
+        orange: {label: "IMP TYPE", value_type: graphic_only, mechanism: "excitation type", audible_tendency: "low = hard strike (plectrum), high = soft (finger/bow)", action: "Turn Orange; red string cluster + IMP TYPE indicator change excitation.", range: [0, 99], confidence: medium}
+      shift_params: null
+      warnings: ["Fully graphic engine — no numbers."]
+
+    voltage:
+      name: "Voltage"
+      emoji: "🔋"
+      user_verified: true
+      source: "OP-1 Field Notebook p.98-99"
+      musical_role: "Multi-oscillator electric/analog-modeled. Deep pads, gritty bass, metallic perc."
+      best_for: ["warm vintage pads", "gritty analog bass", "metallic percussion"]
+      screen_summary: "Oscilloscope wave + AMPERE/VOLT knobs + V gauge with needle. NO numbers."
+      params:
+        blue:   {label: "AMPERE",       value_type: graphic_only, mechanism: "amplitude modulation between oscillators", audible_tendency: "higher = warmer saturation", action: "Turn Blue; AMPERE knob graphic rotates. High = warm sat.", range: [0, 99], confidence: medium}
+        ochre:  {label: "GROUND NOISE", value_type: graphic_only, mechanism: "distorts sine, adds harmonics then noise", audible_tendency: "higher = grittier/noisier", action: "Turn Ochre; waveform distorts and noise appears.", range: [0, 99], confidence: medium}
+        grey:   {label: "VOLT (FILTER)", value_type: graphic_only, mechanism: "low-pass filter cutoff (voltmeter readout)", audible_tendency: "higher = brighter", action: "Turn Grey; red needle swings on the V gauge (cutoff).", range: [0, 99], confidence: medium}
+        orange: {label: "DETUNE",       value_type: graphic_only, mechanism: "sub-osc detune", audible_tendency: "higher = thicker/detuned", action: "Turn Orange; red knob + waveform offset for sub detune.", range: [0, 99], confidence: medium}
+      shift_params: null
+      warnings: ["Fully graphic engine — no numbers."]
+
+    vocoder:
+      name: "Vocoder"
+      emoji: "🤖"
+      user_verified: true
+      source: "OP-1 Field Notebook p.100-103"
+      musical_role: "Voice-controlled 7-osc polysynth carrier. Robotic/vocal. REQUIRES audio input."
+      best_for: ["robot voice", "vocoded vocals", "talking synth textures"]
+      screen_summary: "Two head profiles with numbers + band fan + mic icon. Labels ABOVE the screen."
+      params:
+        blue:   {label: "WAVEFORM", value_type: discrete_selector, mechanism: "carrier osc selection: S(saw) -> N(noise), adds oscillators", audible_tendency: "saw = tonal, noise = breathy", action: "Turn Blue; yellow head profile + carrier selection change (S..N).", range: [0, 99], confidence: medium}
+        ochre:  {label: "FORMANT",  value_type: bipolar_signed, mechanism: "formant shift +-4 (voice tone up/down)", audible_tendency: "+ = higher/chipmunk, - = deeper", action: "Turn Ochre to shift FORMANT (-4..+4); face icon moves up/down.", range: [-4, 4], confidence: medium}
+        grey:   {label: "BANDS",    value_type: numeric_small_discrete, mechanism: "band count 0-7", audible_tendency: "more bands = more human/intelligible, fewer = synthetic", action: "Turn Grey; purple fan opens (more bands = clearer).", range: [0, 7], confidence: medium}
+        orange: {label: "MIX",      value_type: graphic_only, mechanism: "dry/wet (vocoded vs original input)", audible_tendency: "higher = more original input", action: "Turn Orange; mic icon changes the dry/wet balance.", range: [0, 99], confidence: medium}
+      shift_params: null
+      warnings: ["REQUIRES an audio input (Mic / Headset / FM Radio / USB). Do NOT use Out-In (feedback loop). Recipe must tell the user to set an input source."]
+
+    sampler:
+      name: "Sampler"
+      emoji: "📼"
+      musical_role: "Chromatic stereo sampler. Load any audio; loop + zoom for in/out points."
+      best_for: ["custom samples", "tuned one-shots", "found-sound instruments"]
+      screen_summary: "Waveform with start/end markers; encoders trim points."
+      params: null
+      shift_params: null
+      warnings: ["Sample-based workflow — no fixed 4-knob engine recipe. Load via [Shift]+[1-8] browser, trim with encoders."]
+
+    amp:
+      name: "Amp"
+      emoji: "🎚️"
+      musical_role: "Guitar-amp emulation. REQUIRES an audio input signal as its source. Volume/Compression/Tone/Drive. The [T2] envelope page is replaced by a guitar-style tuner."
+      best_for: ["processing external instruments", "guitar/line-in amp tones", "lo-fi drive on input audio"]
+      screen_summary: "VOL / COMP / TONE / DRIVE labels; active input shown top-right. Plain numbers on screen (book p.104 mockup shows '57', no % sign)."
+      recipe_eligible: false
+      recipe_exclusion_reason: "Not a vibe-to-sound engine: it processes an EXTERNAL instrument plugged into line-in (a different workflow than dialing a sound on the go), and its [T2] page is a tuner with NO envelope — a standard recipe object (which requires an envelope) cannot represent it. Reference-only: research mode may describe it, but the compiler should never emit an Amp recipe. (Owner ruling 2026-07.)"
+      params:
+        blue:   {label: "VOLUME",      value_type: numeric_0_99, range: [0, 100], mechanism: "output level from the input amp; up to +6dB boost at the top of the range", audible_tendency: "higher = louder", action: "Turn Blue to set VOLUME. Tap Blue to reset to default.", confidence: high, user_verified: true, source: "OP-1 Field Notebook p.104"}
+        ochre:  {label: "COMPRESSION", value_type: numeric_0_99, range: [0, 100], mechanism: "compression amount; adds punch and impact", audible_tendency: "higher = more compressed/punchy", action: "Turn Ochre to set COMPRESSION.", confidence: high, user_verified: true, source: "OP-1 Field Notebook p.104"}
+        grey:   {label: "TONE",        value_type: numeric_0_99, range: [0, 100], mechanism: "EQ frequency balance: 0 = low, 100 = high, 50 = neutral", audible_tendency: "higher = brighter", action: "Turn Grey to set TONE (50 = neutral). Tap Grey to reset to default.", confidence: high, user_verified: true, source: "OP-1 Field Notebook p.104"}
+        orange: {label: "DRIVE",       value_type: numeric_0_99, range: [0, 100], mechanism: "drives the input to add distortion; 0 = neutral. Also doubles as input-on toggle context", audible_tendency: "higher = more distortion", action: "Turn Orange to set DRIVE (0 = neutral). Tap Orange to turn the input on if it is off.", confidence: high, user_verified: true, source: "OP-1 Field Notebook p.104"}
+      shift_params: null
+      confidence: high
+      user_verified: true
+      source: "OP-1 Field Notebook p.104-105"
+      warnings: ["REQUIRES an audio input (tap [Mic], turn Blue to select input, Orange sets input gain). The [T2] page is a TUNER, not an envelope — no editable envelope controls. If 'Input' is set off in system settings, tap Orange in the Amp page to enable it. Book describes ranges as 0-100% in PROSE but the screen shows bare numbers — never print '%' in output."]
+
+  # ----------------------------------------------------------
+  # EFFECTS (page: fx)
+  # ----------------------------------------------------------
+  effects:
+
+    none:
+      name: "None / Dry"
+      emoji: ""
+      musical_role: "No effect."
+      params: null
+
+    cwo:
+      name: "CWO"
+      emoji: "🐄"
+      user_verified: true
+      source: "OP-1 Field Notebook p.114"
+      musical_role: "Delay with a frequency shifter in the feedback loop. Arcade, formant, alien."
+      best_for: ["alien/destroyed textures", "chorus-like movement", "spacey input processing"]
+      params:
+        blue:   {label: "FREQ",     value_type: graphic_only, mechanism: "frequency shift amount", audible_tendency: "higher = weirder/detuned", action: "Turn Blue; FREQ gauge needle moves.", range: [0, 99], confidence: medium}
+        ochre:  {label: "DELAY",    value_type: numeric_0_99, mechanism: "delay time", audible_tendency: "higher = longer echo", action: "Turn Ochre until DELAY reads the echo time you want.", range: [0, 99], confidence: high}
+        grey:   {label: "FEEDBACK", value_type: numeric_0_99, mechanism: "feedback (loop includes freq shift)", audible_tendency: "higher = more repeats/runaway weirdness", action: "Turn Grey until FEEDBACK reads the repeat amount.", range: [0, 99], confidence: high}
+        orange: {label: "SIDEBAND", value_type: graphic_only, mechanism: "sideband audio level", audible_tendency: "higher = more extreme/metallic", action: "Turn Orange; the red SIDEBAND dash column rises.", range: [0, 99], confidence: medium}
+      warnings: []
+
+    delay:
+      name: "Delay"
+      emoji: "🔁"
+      user_verified: true
+      source: "OP-1 Field Notebook p.115"
+      musical_role: "Solid-state delay. Range x Speed set the time."
+      best_for: ["echo", "dub", "rhythmic space", "thickening"]
+      params:
+        blue:   {label: "RANGE",    value_type: numeric_ms, mechanism: "delay time (shown in ms on screen, NOT 0-99)", audible_tendency: "higher = longer", action: "Turn Blue until RANGE reads the delay length in ms (e.g. ~126 ms = short, ~400+ = dub).", range: [0, 800], unit: "ms", confidence: high, user_verified: true, source: "OP-1 Field Notebook p.115 + community_tips.md (screen shows ms)"}
+        ochre:  {label: "SPEED",    value_type: numeric_0_99, mechanism: "time multiplier (lower = longer)", audible_tendency: "lower = longer times", action: "Turn Ochre to set the speed multiplier.", range: [0, 99], confidence: high}
+        grey:   {label: "FEEDBACK", value_type: numeric_0_99, mechanism: "echo repeats", audible_tendency: "higher = more repeats", action: "Turn Grey until FEEDBACK reads the repeat count.", range: [0, 99], confidence: high}
+        orange: {label: "INPUT",    value_type: graphic_only, mechanism: "level into the delay line (dry/wet-ish)", audible_tendency: "higher = wetter", action: "Turn Orange; the red INPUT dash column sets send level.", range: [0, 99], confidence: medium}
+      warnings: []
+
+    grid:
+      name: "Grid"
+      emoji: "🕸️"
+      user_verified: true
+      source: "OP-1 Field Notebook p.116"
+      musical_role: "3D feedback plate / X-Y delay grid. Harsh comb tones, self-oscillates high."
+      best_for: ["rhythmic/glitch space", "comb filtering", "experimental delay grids"]
+      params:
+        blue:   {label: "X",        value_type: graphic_only, mechanism: "X-axis pre-delay + pitch-influenced time", audible_tendency: "spreads grid along X", action: "Turn Blue; the box stretches along X.", range: [0, 99], confidence: medium}
+        ochre:  {label: "Y",        value_type: graphic_only, mechanism: "Y-axis delay time (pitch-neutral)", audible_tendency: "spreads grid along Y", action: "Turn Ochre; the box stretches along Y.", range: [0, 99], confidence: medium}
+        grey:   {label: "FEEDBACK", value_type: numeric_0_99, mechanism: "Z-axis feedback intensity", audible_tendency: "higher = denser/self-oscillating", action: "Turn Grey until FEEDBACK reads the density (high = self-osc).", range: [0, 99], confidence: high}
+        orange: {label: "MIX",      value_type: graphic_only, mechanism: "dry/wet", audible_tendency: "higher = wetter", action: "Turn Orange; the red MIX bar column sets dry/wet.", range: [0, 99], confidence: medium}
+      warnings: ["High FEEDBACK self-oscillates — watch your levels."]
+
+    mother:
+      name: "Mother"
+      emoji: "🚪"
+      user_verified: true
+      source: "OP-1 Field Notebook p.117"
+      musical_role: "Gated reverb. Distance = size, Gate = tail cut, Color = tone. Field-exclusive."
+      best_for: ["dreamy/ambient space", "80s gated reverb", "gluing a mix"]
+      params:
+        blue:   {label: "DISTANCE", value_type: numeric_0_99, mechanism: "room size / reverb length", audible_tendency: "higher = bigger/farther", action: "Turn Blue until DISTANCE reads the room size (corridor stretches deeper).", range: [0, 99], confidence: high}
+        ochre:  {label: "GATE",     value_type: graphic_only, mechanism: "cuts reverb tail on note release", audible_tendency: "higher = harder gate/choke", action: "Turn Ochre; the door animates. Moderate gate keeps the tail; don't fully choke a pad.", range: [0, 99], confidence: medium}
+        grey:   {label: "COLOR",    value_type: graphic_only, mechanism: "reverb filter cutoff/tone", audible_tendency: "lower = darker", action: "Turn Grey; corridor hue shifts warm/cool (tone).", range: [0, 99], confidence: medium}
+        orange: {label: "MIX",      value_type: graphic_only, mechanism: "dry/wet", audible_tendency: "higher = wetter", action: "Turn Orange; the red MIX bar sets dry/wet. Keep medium so it isn't washed out.", range: [0, 99], confidence: medium}
+      warnings: []
+
+    nitro:
+      name: "Nitro"
+      emoji: "🏎️"
+      user_verified: true
+      source: "OP-1 Field Notebook p.118"
+      musical_role: "Dual resonant turbo filter (HP + LP) with envelope follower."
+      best_for: ["acid/squelch", "wah/filter sweeps", "aggressive filtering"]
+      params:
+        blue:   {label: "LOWS",        value_type: graphic_only, mechanism: "high-pass cutoff (cuts lows)", audible_tendency: "higher = thinner", action: "Turn Blue; left LOWS gauge needle moves (HP cutoff).", range: [0, 99], confidence: medium}
+        ochre:  {label: "FREQ FOLLOW", value_type: graphic_only, mechanism: "envelope follower amount", audible_tendency: "higher = more auto-wah motion", action: "Turn Ochre; the city skyline scales (follower amount).", range: [0, 99], confidence: medium}
+        grey:   {label: "Q",           value_type: graphic_only, mechanism: "shared resonance for both filters", audible_tendency: "higher = squelchier", action: "Turn Grey; the Q joystick moves (resonance).", range: [0, 99], confidence: medium}
+        orange: {label: "HIGHS",       value_type: graphic_only, mechanism: "low-pass cutoff (cuts highs)", audible_tendency: "lower = darker", action: "Turn Orange; right HIGHS gauge needle moves (LP cutoff).", range: [0, 99], confidence: medium}
+      warnings: ["No numbers on Nitro — all gauges/graphics."]
+
+    phone:
+      name: "Phone"
+      emoji: "☎️"
+      user_verified: true
+      source: "OP-1 Field Notebook p.119"
+      musical_role: "Hacked-telephone granular glitch. Bit/grain destruction, lo-fi."
+      best_for: ["lo-fi/crunch", "8-bit/digital destruction", "glitch/scratch"]
+      params:
+        blue:   {label: "TONE",      value_type: graphic_only, mechanism: "pitch variation of granular audio", audible_tendency: "varies pitch", action: "Turn Blue; the TONE fader needle moves.", range: [0, 99], confidence: medium}
+        ochre:  {label: "GSM",       value_type: numeric_0_99, mechanism: "grain size of glitched buffer", audible_tendency: "higher = chunkier glitch", action: "Turn Ochre until GSM reads the grain size.", range: [0, 99], confidence: high}
+        grey:   {label: "BAUD",      value_type: numeric_0_99, mechanism: "pattern/timing of glitched grains (bit-crush feel)", audible_tendency: "higher = more digital destruction", action: "Turn Grey until BAUD reads the crush amount.", range: [0, 99], confidence: high}
+        orange: {label: "TELEMETRY", value_type: numeric_0_99, mechanism: "dry/wet mix", audible_tendency: "higher = more glitched", action: "Turn Orange until TELEMETRY sets dry/wet.", range: [0, 99], confidence: high}
+      warnings: []
+
+    punch:
+      name: "Punch"
+      emoji: "🥊"
+      user_verified: true
+      source: "OP-1 Field Notebook p.120"
+      musical_role: "Hard-hitting low-pass filter with compression. Loud, punchy; also vinyl emulation."
+      best_for: ["punchy/loud glue", "lo-pass filtering", "vinyl emulation"]
+      params:
+        blue:   {label: "FREQ",   value_type: graphic_only, mechanism: "low-pass cutoff", audible_tendency: "lower = darker/duller", action: "Turn Blue; the FREQ arc needle moves (LP cutoff).", range: [0, 99], confidence: high, user_verified: true, source: "OP-1 Field Notebook p.120 Control Knobs table: 'Turn Blue: Frequency. Low pass filter cutoff frequency.' Mockup shows FREQ arc, no number."}
+        ochre:  {label: "PUNCH",  value_type: numeric_0_99, mechanism: "resonance + compression", audible_tendency: "higher = punchier/more resonant", action: "Turn Ochre until PUNCH reads the impact amount.", range: [0, 99], confidence: high, user_verified: true, source: "OP-1 Field Notebook p.120 Control Knobs table: 'Turn Ochre: Punch. Introduces resonance also maybe adds some compression characteristics.' Mockup shows PUNCH 45."}
+        grey:   {label: "ROUNDS", value_type: numeric_0_99, mechanism: "filter slope shape / aggressiveness", audible_tendency: "higher = steeper/more aggressive", action: "Turn Grey until ROUNDS reads the slope.", range: [0, 99], confidence: high}
+        orange: {label: "POWER",  value_type: numeric_0_99, mechanism: "dry/wet mix", audible_tendency: "higher = more effect", action: "Turn Orange until POWER sets dry/wet.", range: [0, 99], confidence: high}
+      warnings: ["RESOLVED 2026-07: OP-1 Field Notebook p.120 settles the Blue/Ochre conflict — Control Knobs table reads 'Turn Blue: Frequency / Turn Ochre: Punch' and the p.120 mockup shows FREQ as a graphic arc (no number) and PUNCH as numeric 45. This REVERSES the earlier resolution that followed screen_behavior.yaml (Blue=PUNCH). Book > old extraction. Vinyl preset: POWER 99 / PUNCH 0 / ROUNDS 5 + max Drive."]
+
+    spring:
+      name: "Spring"
+      emoji: "🪀"
+      user_verified: true
+      source: "OP-1 Field Notebook p.121"
+      musical_role: "Mathematical spring reverb. Dark, metallic, surf/dub character."
+      best_for: ["retro/surf reverb", "dub springs", "washy ambient space"]
+      params:
+        blue:   {label: "TONE",    value_type: graphic_only, mechanism: "bright/dark spring tone", audible_tendency: "higher = brighter", action: "Turn Blue; waveform brightness shifts (tone).", range: [0, 99], confidence: medium}
+        ochre:  {label: "TURNS",   value_type: graphic_only, mechanism: "room size / reverb amount + metallic character", audible_tendency: "higher = bigger/more metallic", action: "Turn Ochre; waveform complexity changes (more = more spring).", range: [0, 99], confidence: medium}
+        grey:   {label: "DAMPING", value_type: graphic_only, mechanism: "tail decay softening", audible_tendency: "higher = shorter/softer tail", action: "Turn Grey; waveform decay changes (damping).", range: [0, 99], confidence: medium}
+        orange: {label: "MIX",     value_type: graphic_only, mechanism: "dry/wet", audible_tendency: "higher = wetter", action: "Turn Orange; the red MIX dash column sets dry/wet.", range: [0, 99], confidence: medium}
+      warnings: ["Surf: low TURNS + bright TONE. Dub: high TURNS + low DAMPING."]
+
+    terminal:
+      name: "Terminal"
+      emoji: "💻"
+      user_verified: true
+      source: "OP-1 Field Notebook p.122"
+      musical_role: "Lo-fi sample-rate + bit reduction with an integrated HP/LP filter."
+      best_for: ["lo-fi crush", "bit/sample-rate reduction", "digital grit + filtering"]
+      params:
+        blue:   {label: "KHZ",   value_type: numeric_decimal, mechanism: "sample rate (lower = more lo-fi)", audible_tendency: "lower = crunchier", action: "Turn Blue until KHZ reads the sample rate (e.g. ~3.8 = lo-fi).", range: [0, 99], confidence: high}
+        ochre:  {label: "BITS",  value_type: numeric_decimal, mechanism: "bit depth (lower = more crushed)", audible_tendency: "lower = more crushed", action: "Turn Ochre until BITS reads the bit depth (e.g. ~4.0 = crunchy).", range: [0, 99], confidence: high}
+        grey:   {label: "MODEL", value_type: split_range, mechanism: "filter: <3 HP, ~3 none, >3 LP", audible_tendency: "depends on side", action: "Turn Grey below 3 for HP, above 3 for LP, ~3 for no filter.", range: [0, 99], confidence: medium, see: terminal_model}
+        orange: {label: "MIX",   value_type: graphic_only, mechanism: "dry/wet", audible_tendency: "higher = wetter", action: "Turn Orange; the red MIX bar sets dry/wet.", range: [0, 99], confidence: medium}
+      warnings: ["MODEL ~3 = no filter (center)."]
+
+    fazer:
+      name: "Fazer"
+      emoji: "👽"
+      musical_role: "Hidden easter-egg phaser. Psychedelic, robotic sweeps. (Unlock via the documented cheatcode.)"
+      best_for: ["psychedelic sweeps", "robotic phase motion"]
+      params:
+        blue:   {label: "FREQ",     value_type: graphic_only, mechanism: "filter frequency of phased audio", audible_tendency: "higher = brighter sweep center", action: "Turn Blue; FREQ graphic moves (a transient 'kP' number like 34 kP appears while turning — unit unconfirmed, do NOT print a 0-99 value).", range: [0, 99], confidence: low}
+        ochre:  {label: "FEEDBACK", value_type: graphic_only, mechanism: "feedback / resonance + intensity", audible_tendency: "higher = more resonant/chaotic", action: "Turn Ochre; the ray-gun graphic animates (feedback).", range: [0, 99], confidence: low}
+        grey:   {label: "SPEED",    value_type: graphic_only, mechanism: "modulation rate of the sweep", audible_tendency: "higher = faster sweep", action: "Turn Grey; the orange wavy line speeds up (sweep rate).", range: [0, 99], confidence: low}
+        orange: {label: "DEPTH",    value_type: graphic_only, mechanism: "phase shift depth/intensity", audible_tendency: "higher = deeper sweep", action: "Turn Orange; UFO/figure animates (depth).", range: [0, 99], confidence: low}
+      warnings: ["Easter-egg effect — low confidence, may not be unlocked on every unit. Blue FREQ shows a transient '34 kP'-style readout while turning (Notebook p.123 mockup) — the kP unit is unexplained by all sources; treat as graphic-only until device-verified."]
+
+  # ----------------------------------------------------------
+  # ENVELOPE (page: envelope) — NO NUMBERS, visual curve only
+  # ----------------------------------------------------------
+  envelope:
+    page: envelope
+    screen_summary: "Colored ADSR curve with dots; NO numbers on the steady-state screen."
+    params:
+      blue:   {label: "ATTACK",  value_type: visual_curve, action: "Turn Blue; watch the blue dot at the curve start (right = slower attack)."}
+      ochre:  {label: "DECAY",   value_type: visual_curve, action: "Turn Ochre; watch the ochre dot at the peak (right = longer decay)."}
+      grey:   {label: "SUSTAIN", value_type: visual_curve, action: "Turn Grey; watch the grey dot height on the plateau (up = higher sustain)."}
+      orange: {label: "RELEASE", value_type: visual_curve, action: "Turn Orange; watch the red dot at the curve end (right = longer release)."}
+    archetypes:
+      pluck:      {attack: "instant (dot far left)", decay: "short drop from peak", sustain: "low plateau", release: "short fade"}
+      pad:        {attack: "gradual rise (dot ~halfway)", decay: "slow gentle drop", sustain: "high plateau (dot near top)", release: "long right tail"}
+      lead:       {attack: "instant", decay: "moderate drop", sustain: "solid plateau", release: "medium fade"}
+      bass:       {attack: "instant", decay: "controlled drop", sustain: "high plateau", release: "short fade"}
+      keys:       {attack: "instant", decay: "moderate drop", sustain: "medium plateau", release: "medium fade"}
+      swell:      {attack: "slow rise (dot far right)", decay: "no drop", sustain: "max plateau", release: "medium fade"}
+      percussive: {attack: "instant", decay: "very fast drop", sustain: "no plateau (dot at bottom)", release: "minimal fade"}
+      drone:      {attack: "very slow rise", decay: "no drop", sustain: "max plateau", release: "very long fade"}
+      stab:       {attack: "instant", decay: "quick drop", sustain: "low plateau", release: "short fade"}
+      bell:       {attack: "instant", decay: "long natural drop", sustain: "low/none plateau", release: "medium-long fade"}
+
+  # ----------------------------------------------------------
+  # PLAY MODE (page: play_mode = Shift+T2 from envelope)
+  # ----------------------------------------------------------
+  play_modes:
+    page: play_mode
+    open: "From envelope page, hold [Shift]+[T2]."
+    params:
+      blue:   {label: "PLAY MODE",  value_type: discrete_selector, options: ["Poly", "Mono", "Legato", "Unison"], action: "Turn Blue to cycle Poly / Mono / Legato / Unison."}
+      ochre:  {label: "PORTAMENTO", value_type: numeric_0_99, action: "Turn Ochre to set glide (Off / 1-127 / Max)."}
+      grey:   {label: "BEND RANGE", value_type: numeric_small_discrete, action: "Turn Grey to set bend range (1-7 semitones or 1 octave)."}
+      orange: {label: "VOLUME",     value_type: numeric_0_99, action: "Turn Orange to set engine volume."}
+    modes:
+      poly:    {desc: "polyphonic — chords and pads"}
+      mono:    {desc: "monophonic — single-note bass/leads"}
+      legato:  {desc: "monophonic, no re-trigger on overlap — smooth glide leads"}
+      unison:  {desc: "stacked detuned voices on one note — fat leads/supersaw"}
+
+  # ----------------------------------------------------------
+  # LFOs (page: lfo). EACH TYPE HAS A DIFFERENT T1-T4 LAYOUT.
+  # Source-conflict note: display_format.md and screen_behavior.yaml disagree on Random
+  # encoder mapping. We follow screen_behavior.yaml / device observation: Blue=Speed, Ochre=Amount.
+  # ----------------------------------------------------------
+  lfos:
+
+    none:
+      name: "None / Static"
+      emoji: ""
+      musical_role: "No LFO — static patch."
+      params: null
+
+    value:
+      name: "Value"
+      emoji: "〰️"
+      musical_role: "Standard LFO with selectable shape. Pick destination + parameter, set speed/amount."
+      params:
+        blue:   {label: "SPEED",     value_type: relative_speed, action: "Turn Blue to set LFO SPEED (no number on screen — tempo-synced position). TAP Blue to cycle the 4 wave shapes: Square, Ramp, Saw, Sine (book p.129).", shapes: ["Square", "Ramp", "Saw", "Sine"]}
+        ochre:  {label: "AMOUNT",    value_type: bipolar_signed, range: [-100, 100], action: "Turn Ochre to set AMOUNT (modulation depth, -100 to +100; book p.128).", confidence: high, user_verified: true}
+        grey:   {label: "DEST",      value_type: discrete_selector, action: "Turn Grey to pick the destination (engine / envelope / FX icon)."}
+        orange: {label: "PARAMETER", value_type: discrete_selector, action: "Turn Orange to pick the exact target parameter."}
+      shape_note: "Shape (square/ramp/saw/sine) is selected on the SPEED control — tap/press Blue to cycle the waveform icon, turn to set rate (book p.128-129)."
+      required_recipe_fields: [speed, amount, destination, target_parameter]
+      confidence: high
+      user_verified: true
+      source: "OP-1 Field Notebook p.128-130"
+
+    element:
+      name: "Element"
+      emoji: "⚡"
+      musical_role: "External/internal source as mod source (mic, line, radio, USB, G-force, envelope, sum/main-out)."
+      params:
+        blue:   {label: "SOURCE",    value_type: discrete_selector, options: ["Mic", "Envelope", "G-Force", "Sum", "Line", "FM Radio", "USB", "Headset"], action: "Turn Blue to pick the SOURCE: Mic, Envelope, G-Force, or Sum (main out). Audio-input variants (Line, FM Radio, USB, Headset) appear when connected (book p.133)."}
+        ochre:  {label: "AMOUNT",    value_type: bipolar_signed, range: [-100, 100], action: "Turn Ochre to set AMOUNT (modulation depth, -100 to +100; book p.133).", confidence: high, user_verified: true}
+        grey:   {label: "DEST",      value_type: discrete_selector, action: "Turn Grey to pick the destination module."}
+        orange: {label: "PARAMETER", value_type: discrete_selector, action: "Turn Orange to pick the target parameter."}
+      required_recipe_fields: [source, amount, destination, target_parameter]
+      confidence: high
+      user_verified: true
+      source: "OP-1 Field Notebook p.132-134"
+
+    random:
+      name: "Random"
+      emoji: "🎲"
+      musical_role: "Continuous internal random modulation. Organic drift, instability."
+      params:
+        blue:   {label: "SPEED",       value_type: relative_speed, action: "Turn Blue to set the random update SPEED (no number on screen)."}
+        ochre:  {label: "AMOUNT",      value_type: numeric_0_99, range: [0, 100], action: "Turn Ochre to set AMOUNT (randomization depth, 0 to +100; book p.137).", confidence: high, user_verified: true}
+        grey:   {label: "DESTINATION", value_type: discrete_selector, action: "Turn Grey to pick the destination category."}
+        orange: {label: "PARAMETER",   value_type: discrete_selector, action: "TAP Orange to pick the target parameter (or ALL). TURN Orange to set the modulation AD envelope: 0-50 = attack fade-in, 50-100 = decay fade-out (book p.138).", split_function: "turn = AD envelope (0-50 attack / 50-100 decay); tap = parameter select"}
+      required_recipe_fields: [speed, amount, destination, target_parameter]
+      amount_non_negative: true
+      confidence: high
+      user_verified: true
+      source: "OP-1 Field Notebook p.136-138"
+      conflict_note: "RESOLVED by OP-1 Field Notebook p.137: Blue=Speed, Ochre=Amount (confirms screen_behavior.yaml; display_format.md was wrong). Random modulates ALL params in the destination category if no specific parameter selector is available."
+
+    tremolo:
+      name: "Tremolo"
+      emoji: "🌊"
+      user_verified: true
+      source: "OP-1 Field Notebook p.140-142"
+      musical_role: "Modulates pitch AND volume on two parallel paths. No destination select (hardwired)."
+      params:
+        blue:   {label: "SPEED",        value_type: graphic_only, action: "Turn Blue to set the shared SPEED (both paths)."}
+        ochre:  {label: "PITCH AMOUNT", value_type: bipolar_signed, action: "Turn Ochre to set PITCH modulation depth (negative inverts)."}
+        grey:   {label: "VOLUME AMOUNT", value_type: bipolar_signed, action: "Turn Grey to set VOLUME modulation depth (negative inverts)."}
+        orange: {label: "ENVELOPE",     value_type: graphic_only, action: "Turn Orange to shape the AD envelope (0-50 = attack fade-in, 50-100 = decay fade-out). Hold [Shift] + Turn Orange to pick 1 of 5 wave shapes: Sine, Saw, Exp, Square, Blip (book p.142).", shapes: ["Sine", "Saw", "Exp", "Square", "Blip"]}
+      shift_params:
+        orange: {label: "SHAPE", value_type: discrete_selector, options: ["sine", "saw", "exp", "square", "blip"], action: "Hold [Shift], turn Orange to pick the modulation waveform."}
+      required_recipe_fields: [speed, pitch_amount, volume_amount]
+      destination_hardwired: "Pitch (note icon) + Volume (speaker icon) — no destination selector."
+      confidence: medium
+
+    velocity:
+      name: "Velocity"
+      emoji: "🎹"
+      musical_role: "Keyboard velocity as mod source. Best with an external MIDI controller. Blue = volume amount, Ochre = destination amount."
+      params:
+        blue:   {label: "VOLUME AMOUNT", value_type: bipolar_signed, range: [0, 100], action: "Turn Blue to set the VOLUME amount (0 to +100) — how much velocity affects master volume.", confidence: high, user_verified: true, source: "OP-1 Field Notebook p.145"}
+        ochre:  {label: "DEST AMOUNT",   value_type: bipolar_signed, range: [-100, 100], action: "Turn Ochre to set the DESTINATION amount (-100 to +100) — how much velocity affects the chosen parameter.", confidence: high, user_verified: true, source: "OP-1 Field Notebook p.145"}
+        grey:   {label: "DEST",      value_type: discrete_selector, action: "Turn Grey to pick the destination category."}
+        orange: {label: "PARAMETER", value_type: discrete_selector, action: "Press/turn Orange to cycle the target parameter."}
+      required_recipe_fields: [volume_amount, dest_amount, destination, target_parameter]
+      confidence: high
+      user_verified: true
+      source: "OP-1 Field Notebook p.144-146"
+      note: "CORRECTED from book p.145: Blue = Volume amount (0 to +100), Ochre = Destination amount (-100 to +100). Ochre is NOT unused — the earlier reference data was wrong."
+
+    midi:
+      name: "MIDI"
+      emoji: "🎹"
+      user_verified: true
+      source: "OP-1 Field Notebook p.148-150"
+      musical_role: "Incoming MIDI CC controls four destinations. Each encoder = one CC channel."
+      params:
+        blue:   {label: "CC 1", value_type: discrete_selector, action: "Blue = CC channel 1: pick its destination + parameter."}
+        ochre:  {label: "CC 2", value_type: discrete_selector, action: "Ochre = CC channel 2: pick its destination + parameter."}
+        grey:   {label: "CC 3", value_type: discrete_selector, action: "Grey = CC channel 3: pick its destination + parameter."}
+        orange: {label: "CC 4", value_type: discrete_selector, action: "Orange = CC channel 4: pick its destination + parameter."}
+      required_recipe_fields: [cc_channels]
+      no_shared_speed_amount: true
+      confidence: medium
+      note: "MIDI LFO does NOT have shared Speed/Amount and is NOT a normal Value LFO — do not pretend CC1-CC4 are speed/amount/dest/param."
+
+# ------------------------------------------------------------
+# Provenance + global confidence notes
+# ------------------------------------------------------------
+provenance:
+  high_confidence_sources:
+    - "Numeric FX params (Delay, CWO, Phone, Punch numerics, Terminal, Mother Distance, Grid Feedback) — confirmed numeric on screen via native vision."
+    - "LFO Value encoder layout — display_format.md + screen_behavior.yaml agree."
+  known_conflicts:
+    - "Random LFO encoder map: display_format.md (Blue=Amount) vs screen_behavior.yaml (Blue=Speed). Following screen_behavior.yaml."
+    - "Punch Blue/Ochre (FREQ vs PUNCH): RESOLVED — screen_behavior.yaml native-vision wins (Blue=PUNCH [N], Ochre=FREQ [G]). engines_effects_v2.yaml had them reversed; fixed in v3.0.1."
+    - "Delay RANGE: was tagged numeric_0_99 with range [0,99], but the screen shows actual milliseconds (e.g. 126). Fixed to numeric_ms with range [0,800] in v3.0.1. Same class of bug as the Dimension FILTER FREQ Hz issue."
+  unverified_or_provisional:
+    - "Most graphic-only engine params (String, Pulse, Phase, Voltage, DNA, DSynth, Vocoder) have NO on-screen numbers — exact values are always provisional and must be rendered as visual targets, not numbers."
+    - "Fazer (easter egg) — low confidence throughout."
+  value_policy: "Treat all numeric recipe values as PROVISIONAL unless from a tested patch anchor. Prefer ~centers (~60) or ranges (55-70). For graphic-only controls, describe what to watch, never invent a number."
