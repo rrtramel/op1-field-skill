@@ -1,5 +1,9 @@
 # OP-1 Field — a weird, super-specific Hermes skill
 
+<p align="center">
+  <img src="assets/hero.jpg" alt="Hermes with a MIDI keyboard — OP-1 Field skill" width="720" />
+</p>
+
 > Hey — here's a weird super-specific skill for [Hermes Agent](https://hermes-agent.nousresearch.com). Do what you want with it.
 
 It helps you use a **Teenage Engineering OP-1 Field** from your phone:
