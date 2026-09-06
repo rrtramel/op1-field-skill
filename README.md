@@ -93,7 +93,7 @@ Load op1-field. Pirate adventure keys in G.
 
 ## Install
 
-This is a **multi-file skill** (needs `references/` + `scripts/`). Install the whole folder — a raw single-file `SKILL.md` URL will break it.
+This is a **multi-file skill** (needs `references/` + `scripts/`). Install the whole thing, not a single file.
 
 **Option A — clone (simplest)**
 ```bash
@@ -101,10 +101,9 @@ git clone https://github.com/rrtramel/op1-field-skill \
   ~/.hermes/skills/creative/op1-field
 ```
 
-**Option B — GitHub tap (auto-updates)**
+**Option B — Hermes CLI (multi-file aware)**
 ```bash
-hermes skills tap add rrtramel/op1-field-skill
-hermes skills install op1-field
+hermes skills install https://raw.githubusercontent.com/rrtramel/op1-field-skill/main/SKILL.md
 ```
 
 Then start a new session (or `/reset`) and try:
@@ -112,6 +111,8 @@ Then start a new session (or `/reset`) and try:
 Load op1-field. Give me a warm plucky bass.
 Load op1-field. Melancholy but hopeful.
 ```
+
+Note: on current Hermes (v0.20.6), `hermes skills tap add` + install-by-name does not resolve a skill that lives at the repo root — use clone or the direct URL above instead.
 
 ### Requirements
 - **PyYAML** for the compilers (JSON fallback exists but YAML is the real path)
